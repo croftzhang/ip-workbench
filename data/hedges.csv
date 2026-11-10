@@ -1,0 +1,6 @@
+swap_id,direction,notional_mm,fixed_rate,remaining_years,hedged_book
+SWP-001,PAY_FIXED,300,3.65,2.0,AFS
+SWP-002,PAY_FIXED,200,3.70,3.0,AFS
+SWP-003,PAY_FIXED,400,3.80,4.5,AFS
+SWP-004,PAY_FIXED,350,3.95,6.5,AFS
+SWP-005,PAY_FIXED,250,4.10,9.0,AFS

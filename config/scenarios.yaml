@@ -1,0 +1,61 @@
+# Standard scenario set. All shocks are instantaneous and applied to today's market.
+#
+# Fields (all optional except name):
+#   parallel_bp          parallel move of the Treasury par curve
+#   curve_points_bp      {tenor: bp} points, interpolated linearly, flat outside
+#   zv_spread_bp         move in MBS discount spreads (valuation only)
+#   mortgage_spread_bp   move in the primary mortgage rate on top of the curve (prepayments only)
+#   refi_multiplier      scales the refinancing S-curve (prepayment model stress)
+#   turnover_multiplier  scales housing turnover (prepayment model stress)
+#
+# Any parallel shock can also be run ad hoc without being listed here:
+#   ipw scenario --shock -75
+
+scenarios:
+  # --- parallel
+  - {name: dn_200, description: "Parallel -200bp", parallel_bp: -200}
+  - {name: dn_100, description: "Parallel -100bp", parallel_bp: -100}
+  - {name: dn_50,  description: "Parallel -50bp",  parallel_bp: -50}
+  - {name: up_50,  description: "Parallel +50bp",  parallel_bp: 50}
+  - {name: up_100, description: "Parallel +100bp", parallel_bp: 100}
+  - {name: up_200, description: "Parallel +200bp", parallel_bp: 200}
+
+  # --- curve shape
+  - name: bear_steepener
+    description: "Long end sells off: 2y flat, 10y +50bp, 30y +75bp"
+    curve_points_bp: {2: 0, 10: 50, 30: 75}
+  - name: bear_flattener
+    description: "Front end sells off: 2y +75bp, 10y +25bp, 30y flat"
+    curve_points_bp: {2: 75, 10: 25, 30: 0}
+  - name: bull_steepener
+    description: "Front end rallies: 2y -75bp, 10y -25bp, 30y flat"
+    curve_points_bp: {2: -75, 10: -25, 30: 0}
+  - name: bull_flattener
+    description: "Long end rallies: 2y flat, 10y -50bp, 30y -75bp"
+    curve_points_bp: {2: 0, 10: -50, 30: -75}
+
+  # --- spreads
+  - name: basis_widen_25
+    description: "MBS spreads +25bp, Treasury curve unchanged"
+    zv_spread_bp: 25
+
+  # --- prepayment model stress
+  - name: prepay_fast
+    description: "Refinancing and turnover 25% faster than modelled"
+    refi_multiplier: 1.25
+    turnover_multiplier: 1.25
+  - name: prepay_slow
+    description: "Refinancing and turnover 25% slower than modelled"
+    refi_multiplier: 0.75
+    turnover_multiplier: 0.75
+
+  # --- combined
+  - name: refi_wave
+    description: "Rally -100bp, mortgage spread -25bp, refinancing 25% more efficient"
+    parallel_bp: -100
+    mortgage_spread_bp: -25
+    refi_multiplier: 1.25
+  - name: sell_off_lock_in
+    description: "Sell-off +100bp with turnover 25% slower (deeper lock-in)"
+    parallel_bp: 100
+    turnover_multiplier: 0.75

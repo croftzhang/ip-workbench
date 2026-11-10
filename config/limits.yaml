@@ -1,0 +1,103 @@
+# Policy limits checked by `ipw limits` and by the daily brief.
+#
+# ILLUSTRATIVE. The numbers are not any institution's limits. They were set so
+# that the sample portfolio starts with one slight breach (AOCI_UP200) and one
+# warning (DUR_BAND), which gives the limit workflow something to work on.
+#
+# Fields:
+#   metric     one of: net_duration, net_convexity, duration_drift, aoci_after_tax,
+#              nii_change, value_change_pct, htm_share_pct (or any headline number)
+#   scenario   scenario the metric is measured under (a name from scenarios.yaml,
+#              or up_<bp> / dn_<bp>); omit for metrics measured today
+#   min / max  floor and/or cap, in the metric's unit
+#   warn_at    utilisation at which the status turns to WARN (default 0.90)
+#   policy_ref section of the investment policy that sets the limit
+
+limits:
+  - id: DUR_BAND
+    name: Net effective duration
+    metric: net_duration
+    unit: years
+    min: 3.0
+    max: 5.5
+    warn_at: 0.80
+    policy_ref: "IPS 4.1"
+    description: Effective duration of the securities net of hedges must stay inside the band.
+
+  - id: DUR_DRIFT_DN100
+    name: Duration contraction, -100bp
+    metric: duration_drift
+    scenario: dn_100
+    unit: years
+    min: -0.80
+    warn_at: 0.80
+    policy_ref: "IPS 4.2"
+    description: Net duration may not shorten by more than this in a 100bp rally.
+
+  - id: DUR_DRIFT_UP100
+    name: Duration extension, +100bp
+    metric: duration_drift
+    scenario: up_100
+    unit: years
+    max: 0.50
+    warn_at: 0.80
+    policy_ref: "IPS 4.2"
+    description: Net duration may not lengthen by more than this in a 100bp sell-off.
+
+  - id: CONVEXITY
+    name: Net effective convexity
+    metric: net_convexity
+    unit: ""
+    min: -0.50
+    warn_at: 0.80
+    policy_ref: "IPS 4.2"
+    description: Floor on portfolio convexity, net of hedges.
+
+  - id: AOCI_UP200
+    name: AOCI change, +200bp (after tax)
+    metric: aoci_after_tax
+    scenario: up_200
+    unit: $mm
+    min: -210
+    warn_at: 0.80
+    policy_ref: "IPS 4.3"
+    description: After-tax loss in AOCI on AFS securities, net of fair-value hedges, in a 200bp sell-off.
+
+  - id: EVE_UP200
+    name: Economic value change, +200bp
+    metric: value_change_pct
+    scenario: up_200
+    unit: "%"
+    min: -13.0
+    warn_at: 0.80
+    policy_ref: "IPS 4.4"
+    description: Change in market value of all securities and hedges, AFS and HTM, as a share of market value.
+
+  - id: NII_UP100
+    name: 12-month NII change, +100bp
+    metric: nii_change
+    scenario: up_100
+    unit: $mm
+    min: -30
+    warn_at: 0.80
+    policy_ref: "IPS 4.5"
+    description: Earnings at risk in a 100bp sell-off.
+
+  - id: NII_DN100
+    name: 12-month NII change, -100bp
+    metric: nii_change
+    scenario: dn_100
+    unit: $mm
+    min: -30
+    warn_at: 0.80
+    policy_ref: "IPS 4.5"
+    description: Earnings at risk in a 100bp rally.
+
+  - id: HTM_SHARE
+    name: HTM share of book value
+    metric: htm_share_pct
+    unit: "%"
+    max: 80
+    warn_at: 0.80
+    policy_ref: "IPS 3.2"
+    description: Cap on the share of the portfolio that cannot be sold or hedged through AOCI.

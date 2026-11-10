@@ -1,0 +1,39 @@
+# Model configuration. Every number the engine uses that is not market data or
+# position data lives here. See docs/MODEL.md for what each parameter does.
+
+horizon_months: 360          # projection horizon for all products
+default_zv_spread_bp: 60     # used for MBS whose coupon has no quoted price
+
+prepay:
+  # --- housing turnover
+  turnover_cpr_pct: 6.5             # long-run turnover speed for a seasoned loan
+  turnover_ramp_months: 30          # linear seasoning ramp
+  lock_in_max_reduction: 0.40       # turnover cut when the loan rate is far below market
+  lock_in_full_incentive_pct: 2.5   # rate gap (pct points) at which lock-in is complete
+  # --- refinancing S-curve; incentive = WAC - mortgage rate, in pct points
+  refi_max_cpr_pct: 45.0            # plateau for deep in-the-money loans
+  refi_midpoint_pct: 1.00           # incentive at which refinancing is half the plateau
+  refi_slope_pct: 0.35              # width of the S-curve
+  refi_ramp_months: 9               # new loans cannot refinance immediately
+  loan_size_ref_k: 300              # loan size at which the multiplier is 1.0
+  loan_size_elasticity: 0.40
+  loan_size_min_mult: 0.75
+  loan_size_max_mult: 1.25
+  # --- burnout: refinancing response scales with (surviving refinancers) ** exponent
+  burnout_exponent: 2.0
+  burnout_floor: 0.20
+  max_cpr_pct: 75.0
+  # --- turnover seasonality, January to December (averages 1.0)
+  seasonality: [0.75, 0.77, 0.95, 1.03, 1.11, 1.18, 1.16, 1.15, 1.04, 1.01, 0.95, 0.90]
+
+risk:
+  bump_bp: 25                        # size of the up/down bumps for duration and KRD
+  key_tenors: [1, 2, 5, 10, 20, 30]  # key-rate tenors (years) on the par curve
+
+balance_sheet:
+  tax_rate: 0.24                # AOCI is reported after tax
+  funding_rate_pct: 2.60        # blended cost of the funding behind the portfolio
+  funding_beta: 0.40            # share of a short-rate move passed through to funding
+  reinvest_tenor_years: 5       # principal is reinvested at this forward par yield ...
+  reinvest_spread_bp: 60        # ... plus this spread
+  nii_horizon_months: 12
