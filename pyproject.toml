@@ -19,10 +19,17 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.5"]
-# The agent version (LangGraph, MCP, Chroma, Ollama) will be installed with:  pip install -e ".[agent]"
+# Release 2, the assistant:  pip install -e ".[agent]"
+# Exact versions, because these libraries change their public interfaces between releases
+# (docs/AGENT_DESIGN.md, section 7). Each build step adds the packages it uses.
+agent = [
+    "pydantic==2.14.3",  # argument schemas of the tools
+    "mcp==2.3.0",        # the optional MCP server; version 2 of the SDK
+]
 
 [project.scripts]
 ipw = "ipw.classic.cli:main"
+ipw-mcp = "ipw.agent:mcp_main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
