@@ -72,7 +72,7 @@ interest.
 | $CF_t$ | Total cash paid to the holder in month $t$ |
 | $z$ | Static spread, continuously compounded |
 | $PV$ | Present value of all future cash, which is the dirty value |
-| $\operatorname{clip}(x,a,b)$ | $\min(\max(x,a),b)$ |
+| $\mathrm{clip}(x,a,b)$ | $\min(\max(x,a),b)$ |
 
 **Origin of a formula.** *Standard* means a textbook or market-convention
 result, with the reference. *Adapted* means the idea is standard and the
@@ -175,40 +175,54 @@ rates, and apply shocks.
 Quotes are interpolated linearly onto a semi-annual grid $\tau_i = i/2$ years,
 $i = 1,\dots,100$, flat before the first and after the last quote:
 
-$$c_i = y_j + (y_{j+1} - y_j)\,\frac{\tau_i - T_j}{T_{j+1} - T_j} \quad \text{for } T_j \le \tau_i \le T_{j+1} \tag{1.1}$$
+```math
+c_i = y_j + (y_{j+1} - y_j)\,\frac{\tau_i - T_j}{T_{j+1} - T_j} \quad \text{for } T_j \le \tau_i \le T_{j+1} \qquad \text{(1.1)}
+```
 
 Discount factors at the grid nodes, $P_n = P(6n)$, follow from the condition
 that a bond paying the par yield is worth par:
 
-$$P_n = \frac{1 - \tfrac{1}{2} c_n \sum_{i=1}^{n-1} P_i}{1 + \tfrac{1}{2} c_n} \tag{1.2}$$
+```math
+P_n = \frac{1 - \tfrac{1}{2} c_n \sum_{i=1}^{n-1} P_i}{1 + \tfrac{1}{2} c_n} \qquad \text{(1.2)}
+```
 
 Between nodes the logarithm of the discount factor is linear in time, so the
 forward rate is constant inside each half-year. For month $m = 6k + q$ with
 $0 \le q \le 5$ and $P_0 = 1$:
 
-$$P(6k + q) = P_k^{\,1 - q/6}\; P_{k+1}^{\,q/6} \tag{1.3}$$
+```math
+P(6k + q) = P_k^{\,1 - q/6}\; P_{k+1}^{\,q/6} \qquad \text{(1.3)}
+```
 
 The par yield of a $\tau$-year bond starting in $m$ months is
 
-$$c(m;\tau) = \frac{2\,\bigl(P(m) - P(m + 12\tau)\bigr)}{\sum_{i=1}^{2\tau} P(m + 6i)} \tag{1.4}$$
+```math
+c(m;\tau) = \frac{2\,\bigl(P(m) - P(m + 12\tau)\bigr)}{\sum_{i=1}^{2\tau} P(m + 6i)} \qquad \text{(1.4)}
+```
 
 and the one-month forward rate for month $t$ is
 
-$$r_t = 12\left(\frac{P(t-1)}{P(t)} - 1\right) \tag{1.5}$$
+```math
+r_t = 12\left(\frac{P(t-1)}{P(t)} - 1\right) \qquad \text{(1.5)}
+```
 
 A shock $\Delta_i$ in basis points is added to the par yields on the grid and
 the curve is rebuilt with (1.2) and (1.3):
 
-$$c_i' = c_i + \frac{\Delta_i}{10^4} \tag{1.6}$$
+```math
+c_i' = c_i + \frac{\Delta_i}{10^4} \qquad \text{(1.6)}
+```
 
 Three shock shapes exist. A parallel shock has $\Delta_i$ constant. A
 piecewise shock interpolates linearly between given (tenor, bp) points and is
 flat outside them. A key-rate shock for key tenor $K_k$ out of
-$K_1 \lt \dots \lt K_n$ is $\Delta_i = b\,h_k(\tau_i)$, where $h_k$ is the hat
+$K_1 \lt \dots \lt K_n$ is $\Delta_i = b \cdot h_k(\tau_i)$, where $h_k$ is the hat
 function that is linear between neighbouring key tenors, equals one at $K_k$
 and zero at the other key tenors, and is flat beyond $K_1$ and $K_n$. Therefore
 
-$$\sum_{k=1}^{n} h_k(\tau) = 1 \quad \text{for all } \tau \tag{1.7}$$
+```math
+\sum_{k=1}^{n} h_k(\tau) = 1 \quad \text{for all } \tau \qquad \text{(1.7)}
+```
 
 so the key-rate shocks add up to a parallel shock.
 
@@ -246,14 +260,20 @@ its cash flows in a given scenario.
 30-year mortgage rate keeps a constant spread to the 10-year par yield. The
 spread is measured once, on today's unshocked curve:
 
-$$s_{30} = M_{30}^{\,mkt} - c(0;10) \tag{2.1}$$
+```math
+s_{30} = M_{30}^{\,mkt} - c(0;10) \qquad \text{(2.1)}
+```
 
 On the scenario's curve, with an optional mortgage-spread shock $\Delta_m$ in
 basis points, for $j = 0,\dots,T-1$:
 
-$$M_{30}(j) = c^{\,scen}(j;10) + s_{30} + \frac{\Delta_m}{10^4} \tag{2.2}$$
+```math
+M_{30}(j) = c^{\,scen}(j;10) + s_{30} + \frac{\Delta_m}{10^4} \qquad \text{(2.2)}
+```
 
-$$M_{15}(j) = M_{30}(j) + \bigl(M_{15}^{\,mkt} - M_{30}^{\,mkt}\bigr) \tag{2.3}$$
+```math
+M_{15}(j) = M_{30}(j) + \bigl(M_{15}^{\,mkt} - M_{30}^{\,mkt}\bigr) \qquad \text{(2.3)}
+```
 
 The rate $M(j)$ drives the prepayments paid in month $j+1$. There is no further
 lag.
@@ -296,7 +316,9 @@ structure only.
 For month $t$, with loan age $a_t$ and rate incentive $x_t$ in percentage
 points:
 
-$$a_t = \text{WALA} + t - 1, \qquad x_t = \text{WAC} - 100\,M(t-1) \tag{3.1}$$
+```math
+a_t = \text{WALA} + t - 1, \qquad x_t = \text{WAC} - 100\,M(t-1) \qquad \text{(3.1)}
+```
 
 where WAC is in percent and $M$ is $M_{15}$ for pools with an original term of
 15 years or less and $M_{30}$ otherwise.
@@ -304,54 +326,78 @@ where WAC is in percent and $M$ is $M_{15}$ for pools with an original term of
 *Housing turnover.* With base speed $\theta$, seasoning ramp $R_T$, seasonal
 multiplier $S$ and scenario multiplier $k_T$:
 
-$$\text{turn}_t = \theta \cdot \min\!\left(1, \frac{a_t}{R_T}\right) \cdot S_{m(t)} \cdot L(x_t) \cdot k_T \tag{3.2}$$
+```math
+\text{turn}_t = \theta \cdot \min\!\left(1, \frac{a_t}{R_T}\right) \cdot S_{m(t)} \cdot L(x_t) \cdot k_T \qquad \text{(3.2)}
+```
 
-$$L(x) = 1 - \lambda \cdot \operatorname{clip}\!\left(\frac{-x}{x_L},\, 0,\, 1\right) \tag{3.3}$$
+```math
+L(x) = 1 - \lambda \cdot \mathrm{clip}\!\left(\frac{-x}{x_L},\, 0,\, 1\right) \qquad \text{(3.3)}
+```
 
 $L$ is the lock-in multiplier: turnover falls linearly as the loan rate drops
 below the market rate, by at most $\lambda$ once the gap reaches $x_L$. The
 calendar month of projection month $t$, with $m_0$ the valuation month
 (1 to 12), is
 
-$$m(t) = \bigl((m_0 + t - 1) \bmod 12\bigr) + 1 \tag{3.4}$$
+```math
+m(t) = \bigl((m_0 + t - 1) \bmod 12\bigr) + 1 \qquad \text{(3.4)}
+```
 
 *Refinancing.* A logistic S-curve in the incentive, with plateau
 $\rho_{max}$, midpoint $x_0$ and width $w$:
 
-$$\rho(x) = \frac{\rho_{max}}{1 + \exp\!\bigl(-(x - x_0)/w\bigr)} \tag{3.5}$$
+```math
+\rho(x) = \frac{\rho_{max}}{1 + \exp\!\bigl(-(x - x_0)/w\bigr)} \qquad \text{(3.5)}
+```
 
 A loan-size multiplier, with reference size $A_0$ and elasticity $e$:
 
-$$g = \operatorname{clip}\!\left(1 + e\left(\frac{A}{A_0} - 1\right),\, g_{min},\, g_{max}\right) \tag{3.6}$$
+```math
+g = \mathrm{clip}\!\left(1 + e\left(\frac{A}{A_0} - 1\right),\, g_{min},\, g_{max}\right) \qquad \text{(3.6)}
+```
 
 Refinancing speed with seasoning ramp $R_R$, burnout state $Q$, burnout
 exponent $\beta$ and scenario multiplier $k_R$, capped at $\text{CPR}_{max}$:
 
-$$\text{refi}_t = \min\!\left(\rho(x_t) \cdot \min\!\left(1, \frac{a_t}{R_R}\right) \cdot g \cdot k_R \cdot Q_{t-1}^{\,\beta},\; \text{CPR}_{max}\right) \tag{3.7}$$
+```math
+\text{refi}_t = \min\!\left(\rho(x_t) \cdot \min\!\left(1, \frac{a_t}{R_R}\right) \cdot g \cdot k_R \cdot Q_{t-1}^{\,\beta},\; \text{CPR}_{max}\right) \qquad \text{(3.7)}
+```
 
 *Burnout.* $Q$ is the share of rate-sensitive borrowers still in the pool. It
 falls as refinancing takes place:
 
-$$Q_t = Q_{t-1}\,\bigl(1 - \text{refi}_t\bigr)^{1/12} \tag{3.8}$$
+```math
+Q_t = Q_{t-1}\,\bigl(1 - \text{refi}_t\bigr)^{1/12} \qquad \text{(3.8)}
+```
 
 Its starting value compares the pool factor $F$ with what scheduled
 amortisation and base turnover alone would have left. With monthly loan rate
 $i = \text{WAC}/1200$:
 
-$$f^{\,sched} = \frac{1 - (1+i)^{-\text{WAM}}}{1 - (1+i)^{-(\text{WALA}+\text{WAM})}} \tag{3.9}$$
+```math
+f^{\,sched} = \frac{1 - (1+i)^{-\text{WAM}}}{1 - (1+i)^{-(\text{WALA}+\text{WAM})}} \qquad \text{(3.9)}
+```
 
-$$n^{\,eff} = \text{WALA} - \frac{R_T - 1}{2} \;\; \text{if } \text{WALA} \ge R_T, \qquad n^{\,eff} = \frac{\text{WALA}\,(\text{WALA}+1)}{2 R_T} \;\; \text{otherwise} \tag{3.10}$$
+```math
+n^{\,eff} = \text{WALA} - \frac{R_T - 1}{2} \;\; \text{if } \text{WALA} \ge R_T, \qquad n^{\,eff} = \frac{\text{WALA}\,(\text{WALA}+1)}{2 R_T} \;\; \text{otherwise} \qquad \text{(3.10)}
+```
 
-$$Q_0 = \operatorname{clip}\!\left(\frac{F}{f^{\,sched} \cdot \bigl(1 - \text{SMM}(\theta)\bigr)^{\,n^{eff}}},\; q_{min},\; 1\right) \tag{3.11}$$
+```math
+Q_0 = \mathrm{clip}\!\left(\frac{F}{f^{\,sched} \cdot \bigl(1 - \text{SMM}(\theta)\bigr)^{\,n^{eff}}},\; q_{min},\; 1\right) \qquad \text{(3.11)}
+```
 
-where $n^{\,eff}$ is the number of months of full-speed turnover the pool has
+where $n^{eff}$ is the number of months of full-speed turnover the pool has
 had, allowing for the ramp.
 
 *Total speed.* Annual speed and its monthly equivalent:
 
-$$\text{CPR}_t = \min\bigl(\text{turn}_t + \text{refi}_t,\; \text{CPR}_{max}\bigr) \tag{3.12}$$
+```math
+\text{CPR}_t = \min\bigl(\text{turn}_t + \text{refi}_t,\; \text{CPR}_{max}\bigr) \qquad \text{(3.12)}
+```
 
-$$\text{SMM}_t = 1 - \bigl(1 - \text{CPR}_t\bigr)^{1/12} \tag{3.13}$$
+```math
+\text{SMM}_t = 1 - \bigl(1 - \text{CPR}_t\bigr)^{1/12} \qquad \text{(3.13)}
+```
 
 #### Cash flows
 
@@ -359,17 +405,27 @@ With monthly loan rate $i = \text{WAC}/1200$, net coupon $c$ in percent and
 remaining term $n = \text{WAM}$, the balance factorises into scheduled
 amortisation $f$ and prepayment survival $G$:
 
-$$f_t = \frac{1 - (1+i)^{-(n-t)}}{1 - (1+i)^{-n}} \;\; \text{for } t \le n, \qquad f_t = 0 \;\; \text{for } t \gt n \tag{3.14}$$
+```math
+f_t = \frac{1 - (1+i)^{-(n-t)}}{1 - (1+i)^{-n}} \;\; \text{for } t \le n, \qquad f_t = 0 \;\; \text{for } t \gt n \qquad \text{(3.14)}
+```
 
-$$G_t = \prod_{s=1}^{t} \bigl(1 - \text{SMM}_s\bigr), \qquad B_t = B_0\, f_t\, G_t \tag{3.15}$$
+```math
+G_t = \prod_{s=1}^{t} \bigl(1 - \text{SMM}_s\bigr), \qquad B_t = B_0\, f_t\, G_t \qquad \text{(3.15)}
+```
 
 Each month:
 
-$$\text{Sched}_t = B_{t-1}\left(1 - \frac{f_t}{f_{t-1}}\right) \tag{3.16}$$
+```math
+\text{Sched}_t = B_{t-1}\left(1 - \frac{f_t}{f_{t-1}}\right) \qquad \text{(3.16)}
+```
 
-$$\text{Prepaid}_t = \bigl(B_{t-1} - \text{Sched}_t\bigr)\,\text{SMM}_t \tag{3.17}$$
+```math
+\text{Prepaid}_t = \bigl(B_{t-1} - \text{Sched}_t\bigr)\,\text{SMM}_t \qquad \text{(3.17)}
+```
 
-$$\text{Int}_t = B_{t-1}\,\frac{c}{1200} \tag{3.18}$$
+```math
+\text{Int}_t = B_{t-1}\,\frac{c}{1200} \qquad \text{(3.18)}
+```
 
 and $CF_t = \text{Int}_t + \text{Sched}_t + \text{Prepaid}_t$. The difference
 between WAC and coupon is servicing and guarantee fee and is not paid to the
@@ -421,11 +477,17 @@ pool data.
 coupons are paid every six months counting back from maturity. Let $m_1$ be
 the month of the next coupon, $1 \le m_1 \le 6$:
 
-$$\text{Int}_t = \frac{F c}{200} \;\; \text{for } t \in \{n,\, n-6,\, n-12,\, \dots\},\ t \ge 1 \tag{3.19}$$
+```math
+\text{Int}_t = \frac{F c}{200} \;\; \text{for } t \in \{n,\, n-6,\, n-12,\, \dots\},\ t \ge 1 \qquad \text{(3.19)}
+```
 
-$$\text{Sched}_n = F \tag{3.20}$$
+```math
+\text{Sched}_n = F \qquad \text{(3.20)}
+```
 
-$$\text{Accrued} = \frac{F c}{200} \cdot \frac{6 - m_1}{6} \tag{3.21}$$
+```math
+\text{Accrued} = \frac{F c}{200} \cdot \frac{6 - m_1}{6} \qquad \text{(3.21)}
+```
 
 The balance is $F$ until maturity. Projected speed does not apply.
 
@@ -444,14 +506,20 @@ months (a multiple of six), the floating leg is projected at one-month
 forwards and the fixed leg pays semi-annually. For a swap that pays fixed
 ($\sigma = +1$) or receives fixed ($\sigma = -1$):
 
-$$\text{Float}_t = N\left(\frac{P(t-1)}{P(t)} - 1\right), \qquad t = 1,\dots,n \tag{3.22}$$
+```math
+\text{Float}_t = N\left(\frac{P(t-1)}{P(t)} - 1\right), \qquad t = 1,\dots,n \qquad \text{(3.22)}
+```
 
-$$\text{Fixed}_t = \frac{N K}{200} \;\; \text{for } t \in \{6, 12, \dots, n\}, \qquad \text{Fixed}_t = 0 \;\; \text{otherwise} \tag{3.23}$$
+```math
+\text{Fixed}_t = \frac{N K}{200} \;\; \text{for } t \in \{6, 12, \dots, n\}, \qquad \text{Fixed}_t = 0 \;\; \text{otherwise} \qquad \text{(3.23)}
+```
 
-$CF_t = \sigma\,(\text{Float}_t - \text{Fixed}_t)$. Discounting (3.22) on the
+$CF_t = \sigma (\text{Float}_t - \text{Fixed}_t)$. Discounting (3.22) on the
 same curve gives the textbook value of the floating leg, so
 
-$$PV = \sigma\, N \left[\, 1 - P(n) - \frac{K}{200} \sum_{i=1}^{n/6} P(6i) \right] \tag{3.24}$$
+```math
+PV = \sigma\, N \left[\, 1 - P(n) - \frac{K}{200} \sum_{i=1}^{n/6} P(6i) \right] \qquad \text{(3.24)}
+```
 
 and a swap struck at today's par yield is worth zero.
 
@@ -475,23 +543,31 @@ report yields.
 
 **Rules.** Present value at static spread $z$:
 
-$$PV(z) = \sum_{t=1}^{T} CF_t \; P(t)\; e^{-z\,t/12} \tag{4.1}$$
+```math
+PV(z) = \sum_{t=1}^{T} CF_t \; P(t)\; e^{-z\,t/12} \qquad \text{(4.1)}
+```
 
 This is the dirty value. Reported market value and price are clean:
 
-$$\text{MV} = PV - \text{Accrued}, \qquad \text{Price} = 100\,\frac{\text{MV}}{B_0} \tag{4.2}$$
+```math
+\text{MV} = PV - \text{Accrued}, \qquad \text{Price} = 100\,\frac{\text{MV}}{B_0} \qquad \text{(4.2)}
+```
 
 *Calibration.* For each mortgage position the spread is solved so that the
 model reproduces its price $p$, taken from the first available source: the
 position's own mark, then the quote for its sector and coupon, then no price,
 in which case $z$ is the default spread.
 
-$$PV(z) = \frac{p\,B_0}{100} \tag{4.3}$$
+```math
+PV(z) = \frac{p\,B_0}{100} \qquad \text{(4.3)}
+```
 
 Treasuries and swaps use $z = 0$. Equation (4.3) is solved by Newton's method
 from $z = 0$ until the step is below $10^{-12}$:
 
-$$z \leftarrow z - \frac{PV(z) - \text{target}}{PV'(z)}, \qquad PV'(z) = -\sum_{t=1}^{T} \frac{t}{12}\, CF_t\, P(t)\, e^{-z\,t/12} \tag{4.4}$$
+```math
+z \leftarrow z - \frac{PV(z) - \text{target}}{PV'(z)}, \qquad PV'(z) = -\sum_{t=1}^{T} \frac{t}{12}\, CF_t\, P(t)\, e^{-z\,t/12} \qquad \text{(4.4)}
+```
 
 In a scenario the calibrated spread is kept, plus the scenario's spread shock
 for mortgage positions.
@@ -499,16 +575,22 @@ for mortgage positions.
 *Yields.* The yield is the continuous rate $y_c$ that discounts the cash flows
 to a given value $V$, quoted bond-equivalent:
 
-$$\sum_{t=1}^{T} CF_t\, e^{-y_c\, t/12} = V, \qquad y = 2\left(e^{\,y_c/2} - 1\right) \tag{4.5}$$
+```math
+\sum_{t=1}^{T} CF_t\, e^{-y_c\, t/12} = V, \qquad y = 2\left(e^{\,y_c/2} - 1\right) \qquad \text{(4.5)}
+```
 
 with $V = PV$ for the market yield and $V =$ book value plus accrued for the
 book yield.
 
 *Average life and one-year speed.*
 
-$$\text{WAL} = \frac{1}{12} \cdot \frac{\sum_t t\,(\text{Sched}_t + \text{Prepaid}_t)}{\sum_t (\text{Sched}_t + \text{Prepaid}_t)} \tag{4.6}$$
+```math
+\text{WAL} = \frac{1}{12} \cdot \frac{\sum_t t\,(\text{Sched}_t + \text{Prepaid}_t)}{\sum_t (\text{Sched}_t + \text{Prepaid}_t)} \qquad \text{(4.6)}
+```
 
-$$\text{CPR}_{1y} = 1 - \prod_{t=1}^{12} \bigl(1 - \text{SMM}_t\bigr) \tag{4.7}$$
+```math
+\text{CPR}_{1y} = 1 - \prod_{t=1}^{12} \bigl(1 - \text{SMM}_t\bigr) \qquad \text{(4.7)}
+```
 
 **Errors.** Calibration that does not converge in 100 iterations stops the run
 with a message to check prices and cash flows.
@@ -574,30 +656,44 @@ with prepayments re-projected and spreads held constant. Let $b = 25$ bp,
 $\delta = b/10^4$, and let $PV_+$ and $PV_-$ be the values after parallel
 shocks of $+b$ and $-b$.
 
-$$\text{DV01} = \frac{PV_- - PV_+}{2b} \tag{6.1}$$
+```math
+\text{DV01} = \frac{PV_- - PV_+}{2b} \qquad \text{(6.1)}
+```
 
-$$D = \frac{PV_- - PV_+}{2\,PV_0\,\delta} \tag{6.2}$$
+```math
+D = \frac{PV_- - PV_+}{2\,PV_0\,\delta} \qquad \text{(6.2)}
+```
 
-$$C = \frac{PV_- + PV_+ - 2\,PV_0}{PV_0\,\delta^{2}} \cdot \frac{1}{100} \tag{6.3}$$
+```math
+C = \frac{PV_- + PV_+ - 2\,PV_0}{PV_0\,\delta^{2}} \cdot \frac{1}{100} \qquad \text{(6.3)}
+```
 
 Convexity is divided by 100 by market convention, so that for a move of
 $\Delta y$ percentage points the approximate percentage price change is
-$-D\,\Delta y + \tfrac{1}{2}\,C\,\Delta y^{2}$.
+$-D \Delta y + \tfrac{1}{2} C \Delta y^{2}$.
 
 Key-rate DV01 for key tenor $k$, with $PV_{\pm}^{(k)}$ the values after the
 key-rate shocks of FR-1:
 
-$$\text{KR01}_k = \frac{PV_-^{(k)} - PV_+^{(k)}}{2b} \tag{6.4}$$
+```math
+\text{KR01}_k = \frac{PV_-^{(k)} - PV_+^{(k)}}{2b} \qquad \text{(6.4)}
+```
 
 For a group or the whole book, sums replace the single values. The net
 figures add the swaps to the numerators of (6.1) to (6.4) and keep the
 securities' value as the base:
 
-$$D^{\,net} = 10^{4} \cdot \frac{\sum_{sec} \text{DV01} + \sum_{swaps} \text{DV01}}{\sum_{sec} PV_0} \tag{6.5}$$
+```math
+D^{\,net} = 10^{4} \cdot \frac{\sum_{sec} \text{DV01} + \sum_{swaps} \text{DV01}}{\sum_{sec} PV_0} \qquad \text{(6.5)}
+```
 
-Key-rate durations are $10^{4}\,\text{KR01}_k / \sum_{sec} PV_0$. By (1.7),
+Key-rate durations are the key-rate DV01s of (6.4) on the same scale: each is
+multiplied by $10^{4}$ and divided by the market value of securities,
+$\sum_{sec} PV_0$. By (1.7),
 
-$$\sum_k \text{KR01}_k \approx \text{DV01} \tag{6.6}$$
+```math
+\sum_k \text{KR01}_k \approx \text{DV01} \qquad \text{(6.6)}
+```
 
 up to second-order terms.
 
@@ -646,7 +742,9 @@ The change is reported for securities in total, for AFS and HTM separately, and
 for swaps. AOCI follows FR-8 and income FR-9. Net duration after the shock is
 (6.5) measured with bumps of $\pm b$ around the scenario's curve:
 
-$$D^{\,net,(s)} = 10^{4} \cdot \frac{\sum \text{DV01}^{(s)}}{\sum_{sec} PV^{(s)}} \tag{7.1}$$
+```math
+D^{\,net,(s)} = 10^{4} \cdot \frac{\sum \text{DV01}^{(s)}}{\sum_{sec} PV^{(s)}} \qquad \text{(7.1)}
+```
 
 A breakdown of one scenario by any grouping gives each group's change, its
 share of the total, and its one-year speed before and after.
@@ -677,9 +775,13 @@ stress tests: [R16]. Composition of a scenario from six parts: project design.
 **Rules.** Only AFS securities and the swaps designated as fair-value hedges
 of AFS securities enter. With tax rate $\tau$:
 
-$$\Delta\text{AOCI}^{\,pre} = \sum_{i \in AFS} \Delta PV_i \; + \sum_{j \in \text{swaps hedging AFS}} \Delta V_j \tag{8.1}$$
+```math
+\Delta\text{AOCI}^{\,pre} = \sum_{i \in AFS} \Delta PV_i \; + \sum_{j \in \text{swaps hedging AFS}} \Delta V_j \qquad \text{(8.1)}
+```
 
-$$\Delta\text{AOCI}^{\,after} = (1 - \tau)\,\Delta\text{AOCI}^{\,pre} \tag{8.2}$$
+```math
+\Delta\text{AOCI}^{\,after} = (1 - \tau)\,\Delta\text{AOCI}^{\,pre} \qquad \text{(8.2)}
+```
 
 The change in HTM value is reported next to it and never included.
 
@@ -709,38 +811,54 @@ the funded amount does not change.
 *Interest income.* Each security earns its prospective effective yield on
 amortised cost. The yield $y_c$ solves (4.5) with $V = AC_0$, the book value
 plus accrued, using the scenario's cash flows. With monthly growth
-$\gamma = e^{\,y_c/12}$:
+$\gamma = e^{y_c/12}$:
 
-$$AC_t = AC_{t-1}\,\gamma - CF_t \tag{9.1}$$
+```math
+AC_t = AC_{t-1}\,\gamma - CF_t \qquad \text{(9.1)}
+```
 
-$$\text{Income} = \sum_{t=1}^{H} AC_{t-1}\,(\gamma - 1) \tag{9.2}$$
+```math
+\text{Income} = \sum_{t=1}^{H} AC_{t-1}\,(\gamma - 1) \qquad \text{(9.2)}
+```
 
 It is shown as coupon income plus net premium amortisation:
 
-$$\text{Coupon} = \sum_{t=1}^{H} B_{t-1}\,\frac{c}{1200}, \qquad \text{Amortisation} = \text{Income} - \text{Coupon} \tag{9.3}$$
+```math
+\text{Coupon} = \sum_{t=1}^{H} B_{t-1}\,\frac{c}{1200}, \qquad \text{Amortisation} = \text{Income} - \text{Coupon} \qquad \text{(9.3)}
+```
 
 *Reinvestment.* Principal received in month $t$, summed over securities,
 earns the new-money yield for the rest of the horizon. With reinvestment tenor
 $\tau_R$ and spread $s_R$:
 
-$$\text{Reinvest} = \sum_{t=1}^{H} \text{Prin}_t \cdot \bigl(c(t;\tau_R) + s_R\bigr) \cdot \frac{H - t}{12} \tag{9.4}$$
+```math
+\text{Reinvest} = \sum_{t=1}^{H} \text{Prin}_t \cdot \bigl(c(t;\tau_R) + s_R\bigr) \cdot \frac{H - t}{12} \qquad \text{(9.4)}
+```
 
 *Hedge carry.* For each swap, with $\sigma$ as in FR-3.3 and $N_t = N$ while
 the swap is outstanding and zero afterwards:
 
-$$\text{Carry} = \sum_{swaps} \sum_{t=1}^{H} \sigma\,N_t\,\frac{r_t - K/100}{12} \tag{9.5}$$
+```math
+\text{Carry} = \sum_{swaps} \sum_{t=1}^{H} \sigma\,N_t\,\frac{r_t - K/100}{12} \qquad \text{(9.5)}
+```
 
 *Funding cost.* Total book value $BV$ is funded at a blended rate that passes
-through a share $\beta_f$ of the move in the short rate. With $r_1^{\,base}$
+through a share $\beta_f$ of the move in the short rate. With $r_1^{base}$
 today's short rate in the unshocked market:
 
-$$\phi_t = \phi_0 + \beta_f\,\bigl(r_t - r_1^{\,base}\bigr) \tag{9.6}$$
+```math
+\phi_t = \phi_0 + \beta_f\,\bigl(r_t - r_1^{\,base}\bigr) \qquad \text{(9.6)}
+```
 
-$$\text{Funding} = -\,BV \sum_{t=1}^{H} \frac{\phi_t}{12} \tag{9.7}$$
+```math
+\text{Funding} = -\,BV \sum_{t=1}^{H} \frac{\phi_t}{12} \qquad \text{(9.7)}
+```
 
 *Total.*
 
-$$\text{NII} = \text{Income} + \text{Reinvest} + \text{Carry} + \text{Funding} \tag{9.8}$$
+```math
+\text{NII} = \text{Income} + \text{Reinvest} + \text{Carry} + \text{Funding} \qquad \text{(9.8)}
+```
 
 **Outputs.** The five components and the total, per scenario; the change
 against the base case.
@@ -780,19 +898,25 @@ optional scenario, a floor `min`, a cap `max` or both, a warning level
 |---|---|---|
 | `net_duration` | (6.5), or (7.1) if a scenario is given | Optional |
 | `net_convexity` | (6.3) on the book including swaps | No |
-| `duration_drift` | $D^{\,net,(s)} - D^{\,net}$ | Required |
+| `duration_drift` | $D^{net,(s)} - D^{net}$ | Required |
 | `aoci_after_tax` | (8.2) | Required |
 | `nii_change` | $\text{NII}^{(s)} - \text{NII}^{(0)}$ | Required |
-| `value_change_pct` | $100\,(\sum_{sec}\Delta PV + \sum_{swaps}\Delta V)/\sum_{sec} PV_0$ | Required |
+| `value_change_pct` | $100 (\sum_{sec}\Delta PV + \sum_{swaps}\Delta V)/\sum_{sec} PV_0$ | Required |
 | any headline number | For example `htm_share_pct`, the HTM share of book value | No |
 
 **Rules.** Utilisation $u$ of a value $v$:
 
-$$u = \frac{\lvert v - \tfrac{1}{2}(\text{min} + \text{max}) \rvert}{\tfrac{1}{2}(\text{max} - \text{min})} \quad \text{for a band} \tag{10.1}$$
+```math
+u = \frac{\lvert v - \tfrac{1}{2}(\text{min} + \text{max}) \rvert}{\tfrac{1}{2}(\text{max} - \text{min})} \quad \text{for a band} \qquad \text{(10.1)}
+```
 
-$$u = \max\!\left(\frac{v}{\text{bound}},\, 0\right) \quad \text{for a positive cap or a negative floor} \tag{10.2}$$
+```math
+u = \max\!\left(\frac{v}{\text{bound}},\, 0\right) \quad \text{for a positive cap or a negative floor} \qquad \text{(10.2)}
+```
 
-$$u = \frac{\text{bound}}{v} \quad \text{for a negative cap or a positive floor, when } v \text{ has the sign of the bound} \tag{10.3}$$
+```math
+u = \frac{\text{bound}}{v} \quad \text{for a negative cap or a positive floor, when } v \text{ has the sign of the bound} \qquad \text{(10.3)}
+```
 
 In (10.3), a value of the opposite sign to the bound is outside the limit and
 its utilisation is unbounded. Status is BREACH if $v$ is below the floor or
@@ -830,14 +954,20 @@ show what else it changes (BR-6; RULE-7).
 par swap. The metric is measured with no swap and with a probe of USD 100
 million pay-fixed at today's par yield for the chosen tenor:
 
-$$\kappa = \frac{\mu(100) - \mu(0)}{100} \tag{11.1}$$
+```math
+\kappa = \frac{\mu(100) - \mu(0)}{100} \qquad \text{(11.1)}
+```
 
-$$N^{*} = \frac{\text{target} - \mu(0)}{\kappa} \tag{11.2}$$
+```math
+N^{\ast} = \frac{\text{target} - \mu(0)}{\kappa} \qquad \text{(11.2)}
+```
 
-The trade pays fixed if $N^{*} \ge 0$ and receives fixed otherwise, with the
+The trade pays fixed if $N^{\ast} \ge 0$ and receives fixed otherwise, with the
 notional rounded up to the step $\Delta N$:
 
-$$N = \left\lceil \frac{\lvert N^{*} \rvert}{\Delta N} \right\rceil \Delta N \tag{11.3}$$
+```math
+N = \left\lceil \frac{\lvert N^{\ast} \rvert}{\Delta N} \right\rceil \Delta N \qquad \text{(11.3)}
+```
 
 The swap is then added to a copy of the book (FR-13) and the limit, every
 other limit, net duration and base-case income are measured again.
@@ -864,11 +994,13 @@ swaps ($\kappa = 0$); unknown limit.
 **Purpose.** Size par swaps that bring net duration to a target, in one tenor
 or along the curve (BR-7).
 
-**Inputs.** Target net duration $D^{*}$; mode; swap tenors.
+**Inputs.** Target net duration $D^{\ast}$; mode; swap tenors.
 
 **Rules.** DV01 to remove, with $\text{MV} = \sum_{sec} PV_0$:
 
-$$\Delta = \text{DV01}^{\,net} - \frac{D^{*}\,\text{MV}}{10^{4}} \tag{12.1}$$
+```math
+\Delta = \text{DV01}^{\,net} - \frac{D^{\ast}\,\text{MV}}{10^{4}} \qquad \text{(12.1)}
+```
 
 Swaps pay fixed if $\Delta \ge 0$ and receive fixed otherwise. Let $d_j$ be the
 DV01 and $U_{jk}$ the key-rate DV01 of USD 1 million of the par swap of tenor
@@ -876,17 +1008,25 @@ $j$ in that direction, measured as in FR-6.
 
 *Duration mode* (one tenor):
 
-$$n = \frac{\Delta}{-d_1} \tag{12.2}$$
+```math
+n = \frac{\Delta}{-d_1} \qquad \text{(12.2)}
+```
 
 *Key-rate mode* (several tenors). The net key-rate profile is scaled down in
 proportion, the notionals are found by non-negative least squares, and then
 rescaled so that the DV01 target is met exactly:
 
-$$w_k = \text{KR01}_k^{\,net} \cdot \frac{\Delta}{\text{DV01}^{\,net}} \tag{12.3}$$
+```math
+w_k = \text{KR01}_k^{\,net} \cdot \frac{\Delta}{\text{DV01}^{\,net}} \qquad \text{(12.3)}
+```
 
-$$\hat{n} = \arg\min_{n \ge 0} \; \sum_k \Bigl( \sum_j (-U_{jk})\, n_j - w_k \Bigr)^{2} \tag{12.4}$$
+```math
+\hat{n} = \arg\min_{n \ge 0} \; \sum_k \Bigl( \sum_j (-U_{jk})\, n_j - w_k \Bigr)^{2} \qquad \text{(12.4)}
+```
 
-$$n = \hat{n} \cdot \frac{\Delta}{\sum_j (-d_j)\,\hat{n}_j} \tag{12.5}$$
+```math
+n = \hat{n} \cdot \frac{\Delta}{\sum_j (-d_j)\,\hat{n}_j} \qquad \text{(12.5)}
+```
 
 Notionals are rounded to USD 0.1 million. The swaps are added to a copy of the
 book and net duration is measured again; that measured value is reported as
@@ -956,19 +1096,27 @@ the same positions on both dates.
 | $V_2$ | Today | Today | Prior |
 | $V_3$ | Today | Today | Calibrated to today's marks |
 
-$$\text{Curve} = V_1 - V_0, \qquad \text{Mortgage basis} = V_2 - V_1, \qquad \text{Spreads} = V_3 - V_2 \tag{14.1}$$
+```math
+\text{Curve} = V_1 - V_0, \qquad \text{Mortgage basis} = V_2 - V_1, \qquad \text{Spreads} = V_3 - V_2 \qquad \text{(14.1)}
+```
 
 The curve effect is split into the part predicted by the prior close's
 key-rate exposures and a remainder. With $\Delta c_k$ the change in the par
 yield at key tenor $k$, in basis points:
 
-$$\text{Curve}^{\,1st} = -\sum_k \text{KR01}_k^{\,prior}\,\Delta c_k \tag{14.2}$$
+```math
+\text{Curve}^{\,1st} = -\sum_k \text{KR01}_k^{\,prior}\,\Delta c_k \qquad \text{(14.2)}
+```
 
-$$\text{Curve}^{\,rest} = (V_1 - V_0) - \text{Curve}^{\,1st} \tag{14.3}$$
+```math
+\text{Curve}^{\,rest} = (V_1 - V_0) - \text{Curve}^{\,1st} \qquad \text{(14.3)}
+```
 
 By construction the four drivers add up to the total change:
 
-$$V_3 - V_0 = \text{Curve}^{\,1st} + \text{Curve}^{\,rest} + \text{Mortgage basis} + \text{Spreads} \tag{14.4}$$
+```math
+V_3 - V_0 = \text{Curve}^{\,1st} + \text{Curve}^{\,rest} + \text{Mortgage basis} + \text{Spreads} \qquad \text{(14.4)}
+```
 
 **Outputs.** Drivers by AFS, HTM, hedges and total; curve move and first-order
 effect by key rate; drivers and spread change by position.

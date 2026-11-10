@@ -289,7 +289,9 @@ Reciprocal rank fusion scores a passage $d$ from its rank $r(d)$ in each
 ranking $r$ of the set $R$ (here the vector ranking and the keyword ranking),
 with the constant $k = 60$ of the original paper [A1]:
 
-$$\text{RRF}(d) = \sum_{r \in R} \frac{1}{k + r(d)}$$
+```math
+\text{RRF}(d) = \sum_{r \in R} \frac{1}{k + r(d)}
+```
 
 Fusion and reranking are implemented directly on the LangChain core interfaces
 (about a hundred lines) rather than with LangChain's ready-made ensemble and
@@ -389,7 +391,9 @@ does not depend on the language model giving the same words twice.
 With $Q$ the question set, $G_q$ the reference sections of question $q$ and
 $\text{rank}_q$ the rank of the first reference section retrieved:
 
-$$\text{Hit@}4 = \frac{1}{|Q|} \sum_{q \in Q} \mathbf{1}\left[\, G_q \cap \text{top}_4(q) \neq \varnothing \,\right] \qquad \text{MRR} = \frac{1}{|Q|} \sum_{q \in Q} \frac{1}{\text{rank}_q}$$
+```math
+\text{Hit@}4 = \frac{1}{|Q|} \sum_{q \in Q} \mathbf{1}\left[\, G_q \cap \text{top}_4(q) \neq \varnothing \,\right] \qquad \text{MRR} = \frac{1}{|Q|} \sum_{q \in Q} \frac{1}{\text{rank}_q}
+```
 
 Three comparisons are produced by one command each:
 

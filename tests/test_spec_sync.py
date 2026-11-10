@@ -276,14 +276,72 @@ def test_requirements_are_carried_through_every_document(defined):
     assert not {what: sorted(ids) for what, ids in gaps.items() if ids}
 
 
+def display_formulas(text: str) -> list[str]:
+    """Bodies of the fenced math blocks of a document."""
+    return re.findall(r"^```math\n(.*?)\n```$", text, flags=re.S | re.M)
+
+
+def inline_formulas(text: str) -> list[str]:
+    """Inline formulas, delimiters included, outside fenced blocks."""
+    prose = re.sub(r"```.*?```", "", text, flags=re.S)
+    return [match.group(0) for match in re.finditer(r"(?<!\$)\$[^$\n]+?\$(?!\$)", prose)]
+
+
 def test_equation_numbers_are_unique_ordered_and_resolved():
     spec = read("FUNCTIONAL_SPEC.md")
-    tags = re.findall(r"\\tag\{(\d+\.\d+)\}", spec)
+    tags = re.findall(r"\\qquad \\text\{\((\d+\.\d+)\)\}", "\n".join(display_formulas(spec)))
+    assert tags, "no numbered equations found"
     assert len(tags) == len(set(tags)), "an equation number is used twice"
     assert tags == sorted(tags, key=lambda tag: tuple(int(part) for part in tag.split(".")))
     for name in ("FUNCTIONAL_SPEC.md", "MODEL.md"):
-        dangling = set(re.findall(r"\((\d{1,2}\.\d{1,2})\)", read(name))) - set(tags)
+        prose = re.sub(r"```.*?```", "", read(name), flags=re.S)
+        dangling = set(re.findall(r"\((\d{1,2}\.\d{1,2})\)", prose)) - set(tags)
         assert not dangling, f"{name} refers to equations that do not exist: {sorted(dangling)}"
+
+
+def test_formulas_are_written_the_way_github_renders_them():
+    """Display formulas in math fences; nothing GitHub's renderer is known to mishandle.
+
+    GitHub lays out an equation carrying a tag command as a one-character column, and
+    Markdown reads asterisks, and backslashes before punctuation, inside dollar
+    signs. Display formulas therefore sit in math fences, where Markdown does not
+    look, and carry their number as text.
+    """
+    problems = []
+    for document in DOCUMENTS:
+        text = document.read_text(encoding="utf-8")
+        if "$$" in text:
+            problems.append(f"{document.name}: display formula in dollar signs; use a math fence")
+        for formula in display_formulas(text) + inline_formulas(text):
+            for banned in ("\\tag{", "\\operatorname", "*", "<", ">"):
+                if banned in formula:
+                    problems.append(f"{document.name}: {banned} in {formula[:60]}")
+    assert not problems, "\n".join(problems)
+
+
+def test_inline_formulas_survive_a_plain_markdown_parser():
+    """No inline formula is changed by Markdown: no emphasis formed inside it, no escape consumed."""
+    markdown_it = pytest.importorskip("markdown_it")
+    parser = markdown_it.MarkdownIt("commonmark").enable("table")
+
+    def flat(children) -> str:
+        kept = {
+            "text": lambda c: c.content,
+            "softbreak": lambda c: " ",
+            "code_inline": lambda c: f"`{c.content}`",
+        }
+        return "".join(kept[c.type](c) if c.type in kept else "\x00" for c in children or [])
+
+    altered = []
+    for document in DOCUMENTS:
+        text = re.sub(r"```.*?```", "", document.read_text(encoding="utf-8"), flags=re.S)
+        for token in parser.parse(text):
+            if token.type == "inline" and "$" in token.content:
+                seen = flat(token.children)
+                for formula in inline_formulas(token.content):
+                    if formula not in seen:
+                        altered.append(f"{document.name}: {formula}")
+    assert not altered, "\n".join(altered)
 
 
 # ------------------------------------------------------------- acceptance figures

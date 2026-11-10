@@ -119,3 +119,14 @@ way no script detects, which is what the independent replication is for. What
 the check removes is the common failure: a document that describes last
 quarter's code. Writing a reference now means writing it in a form the check
 can read.
+
+### D16. Formulas written for GitHub's renderer
+**Decision.** Display formulas sit in fenced `math` blocks and carry their
+number as text at the end of the line; inline formulas avoid asterisks and
+backslashes before punctuation. A test enforces both.
+**Instead of** dollar-sign display blocks with LaTeX equation tags.
+**Cost and benefit.** GitHub lays out a tagged equation as a column one
+character wide, and Markdown can read characters inside dollar signs as
+formatting. The fenced form is not touched by Markdown and renders the same in
+every browser. A viewer that does not know math fences shows the LaTeX source
+in a code box instead of a typeset formula.
