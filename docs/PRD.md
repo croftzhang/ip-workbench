@@ -1,83 +1,55 @@
-# IP Workbench - Product Requirements
+# Product Roadmap and User Stories
 
-Document version 0.3. **Delivery status:** version 1 (core engine, classic
-command line, daily brief) is built and tested; stories US-1 to US-5 are met
-and the tests that prove it are listed in section 5.1. Version 2 (agent) is
-next.
+**Investment Portfolio Risk Analytics (IP Workbench)**
 
-## 1. Problem
-
-Portfolio managers and analysts on a bank investment portfolio desk ask the same
-questions every day about an agency MBS book held as AFS/HTM:
-
-- What happens to duration, convexity and market value if rates move?
-- How much AOCI and net interest income is at risk, and are we inside policy limits?
-- How much hedge do we need, and in which tenors?
-- Why did the number change since yesterday?
-
-Today these are answered by ad-hoc spreadsheets and by asking the one person who
-knows the prepayment model. Answers are slow, hard to reproduce, and the business
-knowledge stays in a few heads.
-
-## 2. Users
-
-| Persona | Needs |
+| | |
 |---|---|
-| Portfolio manager (PM) | Fast scenario answers, hedge sizing, limit status, a daily brief to sign |
-| Junior analyst | Run standard analytics correctly; learn why MBS behave as they do |
-| Model validator | One auditable source of numbers; documentation; reproducible tests |
-| Quant / product owner | Add a new analytic once and have it appear in every interface |
+| Document | Product requirements, version 1.0 |
+| Owner | Product Owner, Investment Portfolio analytics |
+| Last updated | 2026-11-10 |
+| Status | Release 1 delivered; release 2 planned |
 
-## 3. Goals and non-goals
+> The desk and all figures are illustrative.
 
-**Goals**
-1. One analytics engine as the single source of every number.
-2. Two versions on that engine: a classic (no-LLM) tool for routine work and an
-   agent for exception investigation and ad-hoc analysis. All interfaces and
-   documentation are in English.
-3. The agent app runs fully locally: no API keys, no data leaves the machine.
-4. Every AI answer is traceable: tool calls, retrieved documents, human approvals.
-5. Measured, not asserted: an evaluation suite scores retrieval, numeric
-   faithfulness and tool selection.
+## 1. Where this document sits
 
-**Non-goals (v0.1)**
-- Monte Carlo OAS, real pool-level data, real trade execution, multi-user auth.
-- Web UI (command line only in v0.1).
-- MSR, agency CMO, non-agency products (CMBS, CLO), loans, BOLI, reinsurance.
-  The engine's product interface is designed so these can be added later
-  (see the extension table in the README).
+| Document | Question it answers |
+|---|---|
+| [BRD.md](BRD.md) | What does the business need, and why? |
+| [SOLUTION_DESIGN.md](SOLUTION_DESIGN.md) | Which ways of meeting each need were considered, and which was chosen? |
+| [FUNCTIONAL_SPEC.md](FUNCTIONAL_SPEC.md) | What exactly does each function compute, from what, and how is it accepted? |
+| **This document** | What does each user get, in which release? |
+| [BACKLOG.md](BACKLOG.md) | In what order is it built, and what is the status? |
+| [UAT.md](UAT.md) | How does a business user confirm it? |
+| [MODEL.md](MODEL.md) | What are the model's assumptions, limitations and tests? |
+| [DECISIONS.md](DECISIONS.md) | Which engineering choices shaped the code? |
+| [AGENT_DESIGN.md](AGENT_DESIGN.md) | How will the release 2 assistant work, and how will it be measured? |
 
-## 4. Scope
+## 2. Product goals
 
-### 4.1 Core engine (`src/ipw/core/`, no LLM dependency)
-- Synthetic portfolio (`data/portfolio.csv`, seeded generator): 88 positions,
-  $10bn current face: 30-year agency MBS 70%, 15-year agency MBS 15%,
-  US Treasuries 15%; HTM 59.5% / AFS 40.5%. Barbell coupon stack: 2020-21
-  low coupons (2.0-3.0) bought at a premium and held HTM, 2023-25 production
-  coupons (5.5-6.5) held AFS. Supporting files: hedge swaps, position marks
-  for two closes, policy limits, market closes.
-- Market data anchored to public early-November-2026 levels (10-year about
-  4.88%, 30-year mortgage rate 7.18%), so the production coupons sit at or
-  just below the refinancing threshold and the low coupons are locked in.
-- Product interface: each product returns cash flows for a given rate path;
-  behaviour models (prepayment) and the pricer are separate components.
-- Prepayment model: refinance S-curve, turnover with lock-in, seasoning,
-  seasonality, loan size, burnout.
-- Cash flow engine; static-spread pricing calibrated to each position's mark.
-- Scenarios: parallel shocks, curve shape, MBS spread, mortgage spread,
-  prepayment-model stress.
-- Risk: effective duration, convexity, key-rate durations (KRD).
-- Hedging: par swaps sized to a duration target or to a key-rate profile.
-  Treasury futures and a separate swap curve are left for later.
-- Limit fix: the swap notional that brings a breached limit back to its bound.
-- What-if: the book with positions removed or swaps and securities added.
-- Day-over-day explain: curve, mortgage-rate basis, MBS spreads.
-- Balance sheet: AOCI change (AFS only), 12-month NII, policy limit checks.
+1. One analytics engine is the single source of every number.
+2. Two releases on that engine: a routine tool for the daily view, and an
+   assistant for exceptions and non-standard questions. Release 2 adds no
+   calculation of its own.
+3. Everything runs on the user's machine. Release 2 uses a local language
+   model: no keys, and no data leaves the machine.
+4. Every answer from the assistant is traceable: tools called, documents
+   retrieved, approvals given.
+5. Claims about the assistant are measured, including where it is worse than
+   the routine tool.
 
-### 4.2 Version 1 — Classic app (`src/ipw/classic/`)
-Command-line tool and Python API (English only; no web UI in v0.1). Fixed
-scenarios, fixed report format, fully deterministic. This remains the right tool
-for routine reporting.
+**Not goals.** Option-adjusted valuation, real pool-level data, trade
+execution, multi-user access, a graphical interface, and products outside the
+scope in the BRD. The product interface allows the listed products to be added
+later ([SOLUTION_DESIGN.md](SOLUTION_DESIGN.md), section 6).
+
+## 3. Releases
+
+### 3.1 Release 1: the routine daily tool (delivered)
+
+A deterministic command-line tool and Python interface on the core engine
+(`src/ipw/core/`, `src/ipw/classic/`). Fixed scenarios, fixed report format,
+no language model.
 
 | Command | Purpose |
 |---|---|
@@ -86,78 +58,91 @@ for routine reporting.
 | `ipw scenario`, `ipw nii`, `ipw prepay` | Scenarios, income, prepayment outlook |
 | `ipw limits`, `ipw fix` | Limit status and the swap that cures a breach |
 | `ipw hedge`, `ipw whatif` | Hedge sizing and before/after comparison |
-| `ipw explain` | Change since the prior close, by driver |
+| `ipw explain` | Change since the prior close, by cause |
 | `ipw brief` | Daily risk brief in Markdown |
 
-Every command prints a table, Markdown (`-f md`) or JSON (`-f json`).
+Sample data: 88 positions with USD 10 billion face (30-year agency MBS 70%,
+15-year 15%, Treasuries 15%; HTM 59.5%, AFS 40.5%), five pay-fixed swaps, marks
+for two closes, nine policy limits, fifteen scenarios. Market levels are
+anchored to public early-November-2026 levels.
 
-### 4.3 Version 2 — Agent app (`src/ipw/agent/`)
-Version 2 is not a chat front end for Version 1. Its job is the work Version 1
-cannot do without someone writing new code:
+### 3.2 Release 2: the assistant (planned)
 
-- **Exception investigation (primary use case).** When the daily run finds a
-  limit breach or an unusual day-over-day move, the agent drills down (which
-  pools, which curve tenors, what changed since yesterday), retrieves the policy
-  requirement for that breach, computes two or three remediation options, then
-  stops for human approval. The path differs per exception.
-- **Ad-hoc analysis.** Multi-step what-if questions composed from existing tools
-  (e.g. "top five extension contributors under +100bp; AOCI exposure if swapped
-  into 15-year").
-- **Numbers joined with written rules.** Checks proposals against hedging and
-  investment policy text, and surfaces relevant model limitations alongside any
-  result that falls in a weakly supported region of the prepayment model.
-- **Commentary drafting.** First draft of the "why it changed" text, with every
-  figure verified against tool output.
-- **Learn mode.** Explains a concept using the live portfolio's own numbers.
+Release 2 is not a chat front end for release 1. Its job is the work release 1
+cannot do without someone writing new code (`src/ipw/agent/`). The design, with
+the options considered for each choice, is in [AGENT_DESIGN.md](AGENT_DESIGN.md).
+
+* **Exception investigation (primary use).** When the daily run finds a limit
+  breach or an unusual move, the assistant drills down (which positions, which
+  curve points, what changed since yesterday), retrieves the policy requirement
+  for that breach, computes two or three remediation options, then stops for
+  approval. The path differs for each exception.
+* **Ad-hoc analysis.** Multi-step what-if questions composed from existing
+  tools, for example "the five largest contributors to the +200bp AOCI loss,
+  and the exposure if they were swapped into 15-year".
+* **Numbers joined with written rules.** Checks proposals against the hedging
+  and investment policy text, and shows the relevant model limitation next to
+  any result that rests on a weakly supported part of the prepayment model.
+* **Commentary drafting.** A first draft of the "why it changed" text, with
+  every figure verified against tool output.
+* **Learning mode.** Explains a concept with the book's own figures.
 
 Building blocks:
-- **MCP server** exposing the core engine as typed tools.
-- **LangGraph** workflow with checkpoints: plan → retrieve → call tools →
-  verify numbers → answer; long chains split into checked sub-steps.
-- **RAG**: Chroma vector store over the knowledge base (`kb/`), LangChain for
-  loading, splitting, embedding and retrieval; answers cite sources.
-- **Human-in-the-loop** in the terminal: graph pauses on any hedge recommendation
-  or breach remediation; approve / edit / reject; decision is logged.
-- Interface: `ipw investigate`, `ipw ask`, `ipw chat` (English only).
-- **Local LLM** via Ollama. Default chat model `qwen3:8b` (optional `qwen3:14b`),
-  embeddings `nomic-embed-text`; both set in `config.yaml`.
-- **Mock LLM** mode for tests and CI (deterministic, no model required).
 
-### 4.4 Knowledge base (`kb/`, synthetic, consistent with engine parameters)
-Prepayment model description, hedging policy, investment policy limits,
-AFS/HTM accounting note, scenario definitions, MBS primer, glossary, model
-limitations.
+* **MCP server** exposing the engine's functions as typed tools.
+* **LangGraph** workflow with checkpoints: plan, retrieve, call tools, verify
+  numbers, answer. Long chains are split into checked sub-steps.
+* **Retrieval** over a knowledge base (`kb/`): a Chroma vector index and a
+  keyword index, fused and then reranked by a cross-encoder, each stage a
+  switch whose value is measured; LangChain for documents, splitting and model
+  interfaces; answers cite their sources.
+* **Approval in the terminal.** The workflow pauses on any hedge recommendation
+  or breach remediation; approve, edit or reject; the decision is logged.
+* **Local models.** Chat and embeddings through Ollama: default chat model
+  `qwen3:8b`, with `qwen3:14b`, `qwen3.5:9b` and `gemma4:12b` compared in the
+  benchmark; embeddings `nomic-embed-text`. Reranker `BAAI/bge-reranker-v2-m3`
+  through Hugging Face and PyTorch. All are configuration values.
+* **Mock model** for tests and continuous integration.
 
-### 4.5 Classic-vs-agent benchmark (`evals/benchmark/`)
-Thirty realistic tasks in three classes: routine queries, ad-hoc composed
-analysis, and questions needing policy or model documentation. For each task:
-can Version 1 do it without new code; is Version 2 correct; elapsed time; was
-the answer blocked by the verifier. Results are published in the README as
-measured, including failures. Expected shape: Version 1 wins on routine tasks;
-Version 2 covers most of the other two classes at an accuracy below 100%.
+Knowledge base (constructed, consistent with the engine's parameters):
+investment policy with the limits referenced as IPS sections, hedging policy,
+AFS and HTM accounting note, scenario definitions, an MBS primer, a glossary,
+and the functional specification and model document of this repository.
 
-## 5. User stories and acceptance criteria
+Benchmark (`evals/benchmark/`): thirty realistic tasks in three classes
+(routine queries, composed ad-hoc analysis, questions needing policy or model
+documents). For each task: can release 1 do it without new code; is release 2
+correct; elapsed time; was the answer blocked by the verifier. Results are
+published as measured, including failures.
 
-| ID | Story | Acceptance criteria | Ver. |
-|---|---|---|---|
-| US-1 | As a PM, I run a rate shock and see market value, duration and convexity change | Results for ±25/50/100/200bp in < 5 s; matches regression test values | 1, 2 |
-| US-2 | As a PM, I see KRDs so I know where on the curve my risk sits | KRDs sum to effective duration within 5% | 1, 2 |
-| US-3 | As a PM, I size a hedge to a duration target | Post-hedge duration within 0.05y of target; notional by instrument shown | 1, 2 |
-| US-4 | As a PM, I see AOCI and NII impact per scenario against policy limits | Breaches flagged red; HTM pools excluded from AOCI | 1, 2 |
-| US-5 | As a PM, I export a daily risk brief | Markdown brief with all tables; identical numbers in both versions | 1, 2 |
-| US-6 | As a PM, I ask in plain language and get an answer with numbers | Every number in the answer appears in a tool result; else answer is blocked | 2 |
-| US-7 | As an analyst, I ask a policy/model question and get a cited answer | Answer lists source document and section; "not in knowledge base" when absent | 2 |
-| US-8 | As a PM, I approve, edit or reject a hedge recommendation before it is recorded | Graph pauses; resumes from checkpoint; decision in audit log | 2 |
-| US-9 | As an analyst, I ask "why" and get an explanation tied to this portfolio | Explanation quotes portfolio numbers from tools plus a cited concept | 2 |
-| US-10 | As a validator, I reproduce any answer | Audit log holds question, tool calls with args, retrieved chunks, model, approval | 2 |
-| US-11 | As a product owner, I see whether a change improved the assistant | `evals/` reports retrieval hit rate, numeric faithfulness, tool-selection accuracy | 2 |
-| US-12 | As a quant, I add a new analytic once | New core function + one tool registration appears in MCP and the agent | 2 |
-| US-13 | As a PM, when a limit is breached I get an investigation, not just a red flag | Report names the contributing pools and tenors, the day-over-day driver, the cited policy clause and 2–3 remediation options; pauses for approval | 2 |
-| US-14 | As a PM, I ask a multi-step what-if that no command covers | Agent composes ≥ 3 tool calls; final figures pass the verifier; plan and calls are logged | 2 |
-| US-15 | As a PM, I am warned when a result relies on a weak part of the model | Relevant model-limitation passage is cited whenever the triggering condition holds | 2 |
-| US-16 | As a product owner, I can show where the agent helps and where it does not | Benchmark table (4.5) generated by one command | 1, 2 |
+## 4. User stories and acceptance criteria
 
-### 5.1 Traceability for version 1
+| ID | Story | Serves | Acceptance criteria | Rel |
+|---|---|---|---|---|
+| US-1 | As a portfolio manager, I run a rate shock and see value, duration and convexity change | BR-2, BR-3 | Results for +/-25, 50, 100 and 200bp in under 5 seconds; results match the stored regression values | 1 |
+| US-2 | As a portfolio manager, I see key-rate durations so I know where on the curve my risk sits | BR-2 | Key-rate durations sum to effective duration within 5% | 1 |
+| US-3 | As a portfolio manager, I size a hedge to a duration target | BR-7 | Duration after the hedge within 0.05 years of target when the book is re-measured; notional by instrument shown | 1 |
+| US-4 | As a portfolio manager, I see AOCI and income impact per scenario against policy limits | BR-3, BR-5 | Breaches flagged; HTM positions excluded from AOCI | 1 |
+| US-5 | As a portfolio manager, I export a daily risk brief | BR-10 | Markdown brief with every section; its figures are the engine's figures; same inputs give the same file | 1 |
+| US-17 | As a portfolio manager, I see what we hold and what it is worth against book, split AFS and HTM | BR-1 | Totals reconcile to the positions; every mortgage position reprices to its mark | 1 |
+| US-18 | As a portfolio manager, when a limit is breached I get the swap that cures it, at several maturities, with its cost | BR-6 | The smallest USD 10 million notional that removes the breach; confirmed by revaluation; every other limit shown after the trade | 1 |
+| US-19 | As a portfolio manager, I compare the book before and after a sale or a hedge | BR-8 | The actual book is unchanged; the comparison covers value, risk, income and all limits | 1 |
+| US-20 | As an analyst, I explain the change since the prior close by cause | BR-9 | Causes add up exactly to the change; the part not predicted by the risk report is shown | 1 |
+| US-21 | As an analyst, I see expected prepayment speeds and what faster or slower behaviour does | BR-4 | Speeds by coupon today and after +/-100bp; faster and slower behaviour are standard scenarios | 1 |
+| US-22 | As a risk manager, I add a scenario or a limit by editing a file | NFR-3 | Picked up without development; invalid entries rejected with the file and key named | 1 |
+| US-6 | As a portfolio manager, I ask in plain language and get an answer with numbers | BR-11 | Every number in the answer appears in a tool result; otherwise the answer is blocked | 2 |
+| US-7 | As an analyst, I ask a policy or model question and get a cited answer | BR-13 | Answer lists the source document and section; says so when the knowledge base has no answer | 2 |
+| US-8 | As a portfolio manager, I approve, edit or reject a recommendation before it is recorded | BR-12 | Workflow pauses, resumes from its checkpoint, and logs the decision | 2 |
+| US-9 | As an analyst, I ask "why" and get an explanation tied to this book | BR-13 | Explanation quotes portfolio figures from tools and a cited concept | 2 |
+| US-10 | As a validator, I reproduce any answer | BR-11, BR-12 | Audit record holds the question, tool calls with arguments, retrieved passages, model and approval | 2 |
+| US-11 | As a product owner, I see whether a change improved the assistant | BR-11 | Evaluation reports retrieval hit rate, numeric faithfulness and tool-selection accuracy | 2 |
+| US-12 | As a quant, I add a new analytic once | BR-11 | A new engine function plus one tool registration appears in the tool server and the assistant | 2 |
+| US-13 | As a portfolio manager, when a limit is breached I get an investigation, not just a red flag | BR-12 | Report names the contributing positions and curve points, the day-over-day driver, the cited policy clause and two or three remediation options; pauses for approval | 2 |
+| US-14 | As a portfolio manager, I ask a multi-step what-if that no command covers | BR-11 | The assistant composes at least three tool calls; final figures pass the verifier; plan and calls are logged | 2 |
+| US-15 | As a portfolio manager, I am warned when a result relies on a weak part of the model | BR-13 | The relevant limitation is cited whenever its triggering condition holds | 2 |
+| US-16 | As a product owner, I can show where the assistant helps and where it does not | BR-11 | Benchmark table produced by one command | 1, 2 |
+
+### 4.1 Tests that prove the release 1 stories
 
 | Story | Test (in `tests/`) |
 |---|---|
@@ -165,52 +150,52 @@ Version 2 covers most of the other two classes at an accuracy below 100%.
 | US-2 | `test_us2_key_rate_durations_add_up_to_effective_duration` |
 | US-3 | `test_us3_hedge_reaches_the_duration_target` |
 | US-4 | `test_us4_htm_positions_never_reach_aoci`, `test_us4_breach_is_flagged` |
-| US-5 | `test_us5_brief_has_every_section_and_the_same_numbers_as_the_workbench` |
+| US-5 | `test_us5_brief_has_every_section_and_the_same_numbers_as_the_workbench`, `test_brief_is_deterministic_and_written_to_disk` |
+| US-17 | `test_market_value_reconciles_to_face_book_and_unrealized`, `test_calibration_reprices_every_mbs_to_its_mark` |
+| US-18 | `test_fix_limit_cures_the_breach_with_the_smallest_round_notional` |
+| US-19 | `test_what_if_does_not_change_the_original`, `test_compare_reports_both_books` |
+| US-20 | `test_drivers_add_up_to_the_change_between_the_two_closes` |
+| US-21 | `test_mortgage_option_shows_up_where_it_should`, `test_spread_and_prepayment_stresses_have_the_expected_sign` |
+| US-22 | `test_scenario_and_limit_files_are_validated`, `test_unknown_model_key_is_rejected` |
 
-The version 1 half of US-13 (name the contributors, size the remediation) is
-already served by `ipw scenario --by`, `ipw top` and `ipw fix`; version 2 adds
-the investigation that chooses among them and the policy citation.
+The full requirement-to-test matrix is in
+[FUNCTIONAL_SPEC.md](FUNCTIONAL_SPEC.md#traceability-matrix).
 
-## 6. Priorities (MoSCoW)
+## 5. Release 2 design principles
 
-- **Must**: US-1 to US-8, US-10, US-13, US-14, US-16, mock-LLM tests, CI.
-- **Should**: US-9, US-11, US-15, Docker.
-- **Could**: US-12 walkthrough, chunking/retrieval experiment report, web UI.
-- **Won't (v0.1)**: see non-goals.
-
-## 7. Key design decisions
-
-| Decision | Why |
+| Principle | Why |
 |---|---|
-| LLM never computes; it only selects tools and words the answer | Numbers stay auditable and validation scope is `core/` only |
-| Numeric verifier node before any answer is shown | Small local models misquote figures; this makes it a caught error |
-| Engine exposed through MCP, not imported directly by the agent | Same tools reusable by any MCP client the team adopts |
-| Local model only | Portfolio positions are confidential; also zero cost to reproduce |
-| Separate dependency sets (`pip install -e .` vs `.[agent]`) | Classic app stays light and LLM-free |
-| Synthetic data and documents | Publishable on GitHub; no proprietary content |
+| The language model never computes; it selects tools and words the answer | Numbers stay auditable and validation covers the engine only |
+| A verifier checks every figure before an answer is shown | Small local models misquote figures; this turns that into a caught error |
+| The engine is reached through a tool server, not imported by the assistant | The same tools serve any client the desk adopts |
+| Local model only | Positions are confidential; reproduction costs nothing |
+| Separate installation for the assistant's dependencies | The routine tool stays light and free of language-model code |
+| Constructed data and documents | Publishable; no proprietary content |
 
-## 8. Success measures
+## 6. Success measures for release 2
 
-- Classic and agent briefs agree to the cent on every figure.
-- Numeric faithfulness 100% on shown answers (unfaithful ones are blocked).
-- Retrieval hit rate ≥ 85% on the evaluation questions.
-- Fresh-machine setup (Windows, 12 GB GPU) in under 30 minutes from README.
+* The routine brief and the assistant agree on every figure.
+* Numeric faithfulness of shown answers is 100%: unfaithful answers are blocked.
+* Retrieval hit rate of at least 85% on the evaluation questions.
+* Set-up on a fresh Windows machine with a 12 GB graphics card in under 30
+  minutes from the README.
 
-## 9. Risks
+## 7. Risks
 
 | Risk | Mitigation |
 |---|---|
-| Small local model loses the thread on chains longer than ~4 tool calls | Sub-steps with checkpoints; benchmark re-run on `qwen3:14b` and the difference reported |
-| Local model picks wrong tool or malformed arguments | Schema validation, one retry with the error, fall back to clarifying question |
-| Prepayment model is stylised, not calibrated | Stated in model limitations document and in the UI |
-| Tool-calling quality varies by model | Model is a config value; eval suite re-scored on change |
+| A small local model loses the thread on chains longer than about four tool calls | Sub-steps with checkpoints; benchmark re-run on the larger model and the difference reported |
+| The model picks the wrong tool or malformed arguments | Schema validation, one retry with the error, then a clarifying question |
+| The prepayment model is stylised | Stated in the model document, on the brief, and surfaced by the assistant (US-15) |
+| Tool-calling quality varies by model | The model is a configuration value; evaluation is re-scored on change |
 
-## 10. Delivery plan
+## 8. Delivery plan
 
-1. PRD and stories (this document). Done.
-2. Core engine + regression tests. Done.
-3. Classic CLI and daily brief. Done.
-4. MCP server, knowledge base, RAG, LangGraph workflow, mock-LLM tests.
-5. Evals, classic-vs-agent benchmark, audit log, Docker, CI, README with
-   Windows + Ollama setup.
-6. Smoke test on the target machine with the real local model.
+| Step | Content | Status |
+|---|---|---|
+| 1 | Business requirements, solution design | Done |
+| 2 | Core engine, functional specification, regression baseline | Done |
+| 3 | Routine tool and daily brief; acceptance script | Done |
+| 4 | Tool server, knowledge base, retrieval, workflow, mock-model tests | Planned |
+| 5 | Evaluation, benchmark, audit record, container image | Planned |
+| 6 | Smoke test on the target machine with the real local model | Planned |

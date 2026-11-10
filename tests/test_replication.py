@@ -1,6 +1,6 @@
 """Independent replication of the valuation chain for single positions.
 
-The reference below is written from docs/MODEL.md in plain Python: no numpy,
+The reference below is written from docs/FUNCTIONAL_SPEC.md in plain Python: no numpy,
 no vectorisation, nothing imported from the engine. It rebuilds the curve,
 the mortgage-rate path, the prepayment speeds and the cash flows month by
 month, then discounts at the spread the engine calibrated. If the engine and
@@ -14,7 +14,7 @@ import pytest
 
 def reference_price(row, market, model, spread: float, parallel_bp: float = 0.0) -> tuple[float, float]:
     """(clean price, first-year CPR in percent) of one pass-through position."""
-    # --- curve (MODEL.md section 3)
+    # --- curve (FR-1, equations 1.1 to 1.4)
     tenors, yields = market.quote_tenors, market.quote_yields_pct
 
     def quoted_par(t: float) -> float:
@@ -42,11 +42,11 @@ def reference_price(row, market, model, spread: float, parallel_bp: float = 0.0)
     def forward_par_10y(month: int) -> float:
         return 2.0 * (df(month) - df(month + 120)) / sum(df(month + 6 * i) for i in range(1, 21))
 
-    # --- mortgage rate path (section 4): the spread is fixed on the unshocked curve
+    # --- mortgage rate path (FR-2): the spread is fixed on the unshocked curve
     spread_30y, spread_15y = market.mortgage_spreads
     is_15y = row["term_years"] <= 15
 
-    # --- prepayment model (section 5)
+    # --- prepayment model (FR-3.1, equations 3.1 to 3.13)
     p = model.prepay
     wac, wala, wam = row["wac"], int(row["wala_months"]), int(row["wam_months"])
     r = wac / 1200.0
@@ -62,7 +62,7 @@ def reference_price(row, market, model, spread: float, parallel_bp: float = 0.0)
     size_mult = 1.0 + p.loan_size_elasticity * (row["avg_loan_size_k"] / p.loan_size_ref_k - 1.0)
     size_mult = min(p.loan_size_max_mult, max(p.loan_size_min_mult, size_mult))
 
-    # --- cash flows (section 6) and pricing (section 7)
+    # --- cash flows (equations 3.14 to 3.18) and pricing (FR-4, equation 4.1)
     balance, pv, first_year_survival = row["current_face_mm"], 0.0, 1.0
     for t in range(1, wam + 1):
         mortgage = forward_par_10y(t - 1) + spread_30y + (spread_15y if is_15y else 0.0)

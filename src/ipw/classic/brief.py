@@ -214,7 +214,8 @@ METHOD = """\
 - The prepayment model is stylised and not calibrated to pool data.
 - Swaps are valued on the Treasury curve (swap spreads are ignored).
 - NII uses a blended funding rate with a funding beta; AOCI is shown after tax and net of fair-value hedges.
-- Full description, parameters and tests: docs/MODEL.md."""
+- Formulas, sources and parameters: docs/FUNCTIONAL_SPEC.md.
+- Assumptions, limitations and tests: docs/MODEL.md."""
 
 
 def build_brief(wb: Workbench) -> str:

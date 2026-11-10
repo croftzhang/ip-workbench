@@ -1,5 +1,6 @@
 # Model configuration. Every number the engine uses that is not market data or
-# position data lives here. See docs/MODEL.md for what each parameter does.
+# position data lives here. docs/FUNCTIONAL_SPEC.md (Model parameters) says which
+# formula each one enters; a test keeps that table and this file in step.
 
 horizon_months: 360          # projection horizon for all products
 default_zv_spread_bp: 60     # used for MBS whose coupon has no quoted price

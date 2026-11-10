@@ -8,7 +8,7 @@
 ``incentive`` is the pool's gross WAC minus the prevailing mortgage rate, in
 percentage points. The model is deliberately small: every term is one line and
 every parameter lives in ``config/model.yaml``. It is *not* calibrated to pool
-data; see docs/MODEL.md for the limitations.
+data. Formulas and sources: docs/FUNCTIONAL_SPEC.md, FR-3.1. Limitations: docs/MODEL.md.
 """
 
 from __future__ import annotations

@@ -24,7 +24,7 @@ discounted at a calibrated static spread.
 **Instead of** a short-rate model with simulated paths.
 **Cost and benefit.** The whole book revalues in about 5 milliseconds, every
 number is reproducible to the last digit, and the code is short enough to
-read. Option cost is not measured; `docs/MODEL.md` section 13 says where that
+read. Option cost is not measured; `docs/MODEL.md` section 3 says where that
 biases the results. The product interface is the same one a path-based pricer
 would call.
 
@@ -106,3 +106,16 @@ and compared on every test run.
 **Instead of** only property-style tests.
 **Cost and benefit.** A change in results is always visible in a diff. The
 file has to be regenerated, and the diff reviewed, after intended changes.
+
+### D15. Documents are checked by the build
+**Decision.** `tests/test_spec_sync.py` reads the requirement documents and
+fails if a function, test, command, file or parameter value they name does not
+exist, if a requirement number is not carried from the business requirements
+through to an acceptance case, or if a figure in the acceptance script is not
+what the command prints.
+**Instead of** reviewing the documents by hand at each release.
+**Cost and benefit.** A formula in the specification can still be wrong in a
+way no script detects, which is what the independent replication is for. What
+the check removes is the common failure: a document that describes last
+quarter's code. Writing a reference now means writing it in a form the check
+can read.

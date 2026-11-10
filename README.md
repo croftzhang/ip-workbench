@@ -107,21 +107,21 @@ A full sample report is in
 
 ## What the sample book shows
 
-* **Most of the loss is outside equity.** Market value is $8,909mm against
-  book value $10,149mm. Of the $1,240mm unrealized loss, $1,175mm sits in
-  held-to-maturity securities bought at a premium in 2020-21; only $65mm is in
+* **Most of the loss is outside equity.** Market value is USD 8,909mm against
+  book value USD 10,149mm. Of the USD 1,240mm unrealized loss, USD 1,175mm sits in
+  held-to-maturity securities bought at a premium in 2020-21; only USD 65mm is in
   available-for-sale securities and reaches AOCI.
 * **The book shortens in a rally.** Net duration is 5.30 years today and 4.74
   after a 100bp rally. The 2.0-3.0 coupons are locked in and do not react. The
   5.5-6.5 coupons sit just below the refinancing threshold: the rally takes
   their projected speed from about 7 to about 16 CPR, and to 21 for the 6.5s.
-* **One limit is breached.** A 200bp sell-off would take $226mm after tax out
-  of AOCI against a floor of $210mm. $260mm of 5-year pay-fixed swaps cures
-  it, costs about $1mm of income a year, and also brings duration back from
+* **One limit is breached.** A 200bp sell-off would take USD 226mm after tax out
+  of AOCI against a floor of USD 210mm. USD 260mm of 5-year pay-fixed swaps cures
+  it, costs about USD 1mm of income a year, and also brings duration back from
   its warning level.
-* **Income falls when rates rise.** Twelve-month NII is $104mm and drops by
-  $21mm in a 100bp sell-off. Funding cost rises by $40mm; hedge carry gives
-  $15mm back.
+* **Income falls when rates rise.** Twelve-month NII is USD 104mm and drops by
+  USD 21mm in a 100bp sell-off. Funding cost rises by USD 40mm; hedge carry gives
+  USD 15mm back.
 
 ## From Python
 
@@ -144,6 +144,39 @@ wb.compare(after)  # before and after, side by side
 
 Every method returns a pandas table or a small dataclass. The command line,
 the brief and the agent tools of version 2 all read the same objects.
+
+## Documentation
+
+The documents follow one chain, from the business need to the test that proves
+it. Every requirement has a number, and the same numbers appear at each step.
+
+| Step | Document | Answers |
+|---|---|---|
+| 1 | [Business requirements](docs/BRD.md) | What does the desk need, under which rules, and why? No solution in it. |
+| 2 | [Solution design](docs/SOLUTION_DESIGN.md) | Which analytical approach meets each need, what else was considered, and what was deferred? |
+| 3 | [Functional specification](docs/FUNCTIONAL_SPEC.md) | What exactly is computed? Every formula in full, with its source and its place in the code. |
+| 4 | [Roadmap and user stories](docs/PRD.md), [backlog](docs/BACKLOG.md) | What is built in which release, and in what order? |
+| 5 | [Acceptance script](docs/UAT.md) | How does a user confirm it does what was asked? |
+
+Alongside: [model summary](docs/MODEL.md) (method in brief, limitations,
+controls), [design decisions](docs/DECISIONS.md) (engineering choices) and the
+[release 2 design](docs/AGENT_DESIGN.md) (the assistant: not built yet).
+
+One requirement followed through:
+
+| Step | Reference | Content |
+|---|---|---|
+| Need | BR-6 | When a limit is breached, show the smallest actions that bring the book back inside it. |
+| Design | SD-9 | Size a pay-fixed swap by using the fact that the limit metric is linear in swap notional. |
+| Function | FR-11 | Equations 11.1 to 11.3: notional per tenor, rounded up, then checked by full revaluation. |
+| Code | `ipw.core.workbench.Workbench.fix_limit` | Command `ipw fix AOCI_UP200` |
+| Test | `test_fix_limit_cures_the_breach_with_the_smallest_round_notional` | Runs on every commit |
+| Acceptance | UAT-06 | The user runs the command and confirms the breach clears. |
+
+The same table for every requirement is the traceability matrix at the end of
+the functional specification. `tests/test_spec_sync.py` fails the build if a
+document names a function, test, command or parameter value that no longer
+exists, or if the requirement numbers stop matching between documents.
 
 ## How the numbers are built
 
@@ -170,10 +203,10 @@ the brief and the agent tools of version 2 all read the same objects.
    key rates
 ```
 
-Everything after the revaluation is a difference between revaluations. The
-method, the parameters and the limitations are in
-[docs/MODEL.md](docs/MODEL.md); the reasons for the design are in
-[docs/DECISIONS.md](docs/DECISIONS.md).
+Everything after the revaluation is a difference between revaluations. Every
+formula, with its source, is in
+[docs/FUNCTIONAL_SPEC.md](docs/FUNCTIONAL_SPEC.md); the limitations are in
+[docs/MODEL.md](docs/MODEL.md).
 
 ## What the data is
 
@@ -181,9 +214,9 @@ method, the parameters and the limitations are in
 |---|---|---|
 | `config/market.yaml` | Treasury par curve and mortgage rates for 2026-11-09 | 10-year yield and 30-year mortgage rate rounded from public levels; other points filled in by hand |
 | `config/market_prev.yaml` | Prior close | Constructed: yields 1 to 8bp lower, spreads 2bp tighter |
-| `data/portfolio.csv` | 88 positions, $10bn face | Constructed by `scripts/generate_portfolio.py` (fixed seed) |
+| `data/portfolio.csv` | 88 positions, USD 10bn face | Constructed by `scripts/generate_portfolio.py` (fixed seed) |
 | `data/marks.csv` | Position prices for both closes | Model prices at an assumed spread per coupon, rounded to 1/32 (`scripts/build_market.py`) |
-| `data/hedges.csv` | Five pay-fixed swaps, $1.5bn | Constructed |
+| `data/hedges.csv` | Five pay-fixed swaps, USD 1.5bn | Constructed |
 | `config/limits.yaml` | Nine policy limits | Constructed, set so the book starts with one breach and one warning |
 
 To run on real data, replace these files; nothing else depends on the scripts.
@@ -207,8 +240,10 @@ src/ipw/core/      the engine; no presentation, no LLM
   workbench.py       the facade everything else calls
 src/ipw/classic/   command line, table rendering, daily brief
 scripts/           generators for the sample data
-tests/             127 tests: unit, independent replication, stored regression baseline
-docs/              requirements, model documentation, design decisions, sample brief
+tests/             about 150 tests: unit, independent replication, stored regression
+                   baseline, documents checked against the code
+docs/              business requirements, solution design, functional specification,
+                   roadmap, backlog, acceptance script, model summary, sample brief
 ```
 
 To read the code, follow the order of the files under `src/ipw/core/` above.
@@ -242,11 +277,12 @@ need no change.
 ## Tests
 
 ```text
-pytest                    127 tests, about 15 seconds
+pytest                    about 150 tests, under 20 seconds
 ruff check .              lint
 ```
 
-The acceptance criteria in [docs/PRD.md](docs/PRD.md) map to tests by name:
+Every release 1 user story has tests named after it; the full list is in
+section 4.1 of [docs/PRD.md](docs/PRD.md). Five of them:
 
 | Story | Criterion | Test |
 |---|---|---|
@@ -257,11 +293,11 @@ The acceptance criteria in [docs/PRD.md](docs/PRD.md) map to tests by name:
 | US-5 | Brief complete, with the workbench's numbers | `test_us5_brief_has_every_section_and_the_same_numbers_as_the_workbench` |
 
 `tests/test_replication.py` re-implements the whole valuation chain for single
-positions in plain Python, written from the model documentation and importing
+positions in plain Python, written from the functional specification and importing
 nothing from the engine; its prices match the engine's to seven decimals, at
 today's market and under +/-100bp shocks. Swap values are also checked against
 the annuity formula and Treasury durations against modified duration. See
-section 14 of the model documentation.
+section 5 of the [model summary](docs/MODEL.md).
 
 ## Known limitations
 
@@ -274,7 +310,7 @@ section 14 of the model documentation.
 * Hedge accounting is simplified to fully effective fair-value hedges.
 
 The full table, with the direction of each bias, is in
-[docs/MODEL.md](docs/MODEL.md#13-assumptions-and-limitations).
+[docs/MODEL.md](docs/MODEL.md#3-assumptions-and-limitations).
 
 ## Roadmap
 
@@ -282,4 +318,7 @@ Version 2 adds, on the same engine: the workbench methods as MCP tools, a
 LangGraph workflow that investigates limit breaches and unusual moves and
 stops for approval, retrieval over policy and model documents, and a benchmark
 that records where the agent helps and where the classic tool is the better
-choice. Requirements are in [docs/PRD.md](docs/PRD.md).
+choice. The business requirements for it are BR-11 to BR-13 in
+[docs/BRD.md](docs/BRD.md); the design is in
+[docs/AGENT_DESIGN.md](docs/AGENT_DESIGN.md); the stories and their order are
+in [docs/PRD.md](docs/PRD.md) and [docs/BACKLOG.md](docs/BACKLOG.md).

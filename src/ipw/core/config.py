@@ -30,7 +30,7 @@ SWAP_COLUMNS = [
 # --------------------------------------------------------------------------- model
 @dataclass(frozen=True)
 class PrepayParams:
-    """Prepayment model parameters (docs/MODEL.md section 3). Speeds in % CPR."""
+    """Prepayment model parameters (docs/FUNCTIONAL_SPEC.md, FR-3.1). Speeds in % CPR."""
 
     turnover_cpr_pct: float = 6.5
     turnover_ramp_months: int = 30
