@@ -1,0 +1,135 @@
+# Retrieval question set (docs/AGENT_DESIGN.md, AD-8).
+#
+# in_scope      30 questions. `references` lists the sections that answer the
+#               question, written as a passage is cited: document code and
+#               section. A hit is any one of them among the passages returned.
+# out_of_scope  10 questions the knowledge base does not answer. The right
+#               result is "the knowledge base does not cover this".
+#
+# Document codes are those of config/agent.yaml. A test checks that every
+# reference is a section that exists.
+
+in_scope:
+  # --- investment policy
+  - id: R01
+    question: Which limit applies to the after-tax AOCI loss in a 200bp sell-off, and how large may the loss be?
+    references: [IPS 4.3, IPS 4]
+  - id: R02
+    question: Inside what range must the net effective duration of the portfolio stay?
+    references: [IPS 4.1, IPS 4]
+  - id: R03
+    question: How much of the portfolio may be classified as held to maturity?
+    references: [IPS 3.2]
+  - id: R04
+    question: What has to happen on the day a limit is breached?
+    references: [IPS 5.3]
+  - id: R05
+    question: At what utilisation does a limit go into warning?
+    references: [IPS 5.2]
+  - id: R06
+    question: Who must approve a remediation proposal before it is acted on?
+    references: [IPS 5.4, IPS 2, HEDGE 7]
+  - id: R07
+    question: How far may twelve-month net interest income fall when rates move by 100bp?
+    references: [IPS 4.5, IPS 4]
+  - id: R08
+    question: Which kinds of securities is the desk allowed to buy?
+    references: [IPS 3.1]
+  - id: R09
+    question: What does the policy say about DUR_DRIFT_UP100?
+    references: [IPS 4.2, IPS 4]
+
+  # --- hedging policy
+  - id: R10
+    question: Can held-to-maturity securities be hedged with swaps?
+    references: [HEDGE 3.2, ACCT 4]
+  - id: R11
+    question: Which instruments may the desk use to hedge interest-rate risk?
+    references: [HEDGE 2]
+  - id: R12
+    question: When a limit is breached, how is the restoring swap sized and in what notional steps?
+    references: [HEDGE 5.3, SPEC FR-11]
+  - id: R13
+    question: Why would a hedge be spread over several swap tenors instead of one?
+    references: [HEDGE 5.2, SPEC FR-12]
+  - id: R14
+    question: In what ways are the hedge sizes produced by the analytics only approximate?
+    references: [HEDGE 8, MODEL 3]
+
+  # --- accounting note
+  - id: R15
+    question: Why does a fall in the value of an HTM security not reduce reported equity?
+    references: [ACCT 2.2, ACCT 3.1]
+  - id: R16
+    question: What tax rate is applied when AOCI is reported?
+    references: [ACCT 3.2, SPEC Model parameters]
+  - id: R17
+    question: Why is AOCI sensitivity measured net of the swaps?
+    references: [ACCT 3.3, HEDGE 4, SPEC FR-8]
+  - id: R18
+    question: How is interest income recognised on a security bought at a premium?
+    references: [ACCT 5, SPEC FR-9]
+
+  # --- scenario definitions
+  - id: R19
+    question: What is the bear_steepener scenario?
+    references: [SCEN 3]
+  - id: R20
+    question: What happens to mortgage rates when the Treasury curve is shocked?
+    references: [SCEN 1, SPEC FR-2]
+  - id: R21
+    question: Which scenarios test the prepayment model itself, with rates unchanged?
+    references: [SCEN 5]
+  - id: R22
+    question: What does a widening of MBS spreads by 25bp change, and do the swaps hedge it?
+    references: [SCEN 4]
+
+  # --- MBS primer and glossary
+  - id: R23
+    question: What is burnout in a mortgage pool?
+    references: [MBS 2.4, GLOSS 3]
+  - id: R24
+    question: Why do mortgage securities get longer when rates rise?
+    references: [MBS 3]
+  - id: R25
+    question: How does refinancing respond to the borrower's rate incentive?
+    references: [MBS 2.3, SPEC FR-3.1]
+  - id: R26
+    question: What is the difference between DV01 and duration?
+    references: [GLOSS 2, MBS 5]
+
+  # --- model document and functional specification
+  - id: R27
+    question: What should the model not be used for?
+    references: [MODEL 1]
+  - id: R28
+    question: What are the main assumptions and limitations of the valuation model?
+    references: [MODEL 3]
+  - id: R29
+    question: How are effective duration and convexity calculated?
+    references: [SPEC FR-6]
+  - id: R30
+    question: How is the change in value since the prior close split into causes?
+    references: [SPEC FR-14]
+
+out_of_scope:
+  - id: N01
+    question: What is the bank's common equity tier 1 capital ratio?
+  - id: N02
+    question: Who is the chief executive of the bank?
+  - id: N03
+    question: How is value-at-risk calculated for the trading book?
+  - id: N04
+    question: What liquidity coverage ratio must the bank maintain?
+  - id: N05
+    question: What is the allowance for credit losses on commercial real estate loans?
+  - id: N06
+    question: Which dealers does the desk execute its swaps with?
+  - id: N07
+    question: What dividend will the bank pay next quarter?
+  - id: N08
+    question: What is the weather forecast for New York tomorrow?
+  - id: N09
+    question: How do I reset my Windows password?
+  - id: N10
+    question: What is the interest-rate risk of the bank's commercial loan book?

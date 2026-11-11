@@ -1,0 +1,38 @@
+# Configuration of the assistant (release 2). docs/AGENT_DESIGN.md, AD-9.
+#
+# Every model name and every retrieval setting is a value in this file, so a
+# change is one edit followed by the same evaluation. Unknown keys are rejected.
+
+embedding:
+  provider: ollama                       # ollama, or hashing: fixed word-hash vectors for tests, no model
+  model: nomic-embed-text
+  base_url: null                         # null: the Ollama client's own default, the local server
+  document_prefix: "search_document: "   # nomic-embed-text is trained with a task prefix on each side;
+  query_prefix: "search_query: "         # another embedding model needs its own prefixes, or none
+
+knowledge_base:
+  index_dir: .chroma                     # the local Chroma index; built from the sources, not versioned
+  collection: ipw-kb
+  max_chars: 1600                        # size cap of a passage; a longer section is cut between blocks
+  # What is embedded and retrieved. A passage is cited by code and section, for example "IPS 4.3".
+  sources:
+    - {code: IPS,   path: kb/investment_policy.md}
+    - {code: HEDGE, path: kb/hedging_policy.md}
+    - {code: ACCT,  path: kb/afs_htm_accounting.md}
+    - {code: SCEN,  path: kb/scenario_definitions.md}
+    - {code: MBS,   path: kb/mbs_primer.md}
+    - {code: GLOSS, path: kb/glossary.md}
+    - {code: SPEC,  path: docs/FUNCTIONAL_SPEC.md}
+    - {code: MODEL, path: docs/MODEL.md}
+
+retrieval:
+  top_k: 4                               # passages given to the language model
+  candidates: 20                         # taken from each index before fusion and reranking
+  # Refusal: when the best vector similarity is below this value the answer is "the knowledge base
+  # does not cover this". The value belongs to the embedding model and is set from the retrieval
+  # question set (evals/retrieval.yaml) on the reference machine. 0 never refuses.
+  refuse_below: 0.0
+  keyword: false                         # optional: BM25 over the same passages, fused by reciprocal rank
+  rrf_k: 60                              # constant of reciprocal rank fusion
+  rerank: false                          # optional: a cross-encoder reorders the candidates (rerank extra)
+  reranker_model: BAAI/bge-reranker-v2-m3
