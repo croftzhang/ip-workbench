@@ -76,7 +76,7 @@ in_scope:
     references: [SCEN 3]
   - id: R20
     question: What happens to mortgage rates when the Treasury curve is shocked?
-    references: [SCEN 1, SPEC FR-2]
+    references: [SCEN 1, SPEC FR-2, MODEL 2, MODEL 3]
   - id: R21
     question: Which scenarios test the prepayment model itself, with rates unchanged?
     references: [SCEN 5]
@@ -96,7 +96,7 @@ in_scope:
     references: [MBS 2.3, SPEC FR-3.1]
   - id: R26
     question: What is the difference between DV01 and duration?
-    references: [GLOSS 2, MBS 5]
+    references: [GLOSS 2, MBS 5, SPEC FR-6]
 
   # --- model document and functional specification
   - id: R27

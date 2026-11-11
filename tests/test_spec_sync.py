@@ -18,6 +18,7 @@ import typer
 import yaml
 from typer.testing import CliRunner
 
+from ipw.agent import cli as ai_cli
 from ipw.classic import cli
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -99,6 +100,7 @@ def test_spec_references_exist():
     """Every test, function, command, option and file a document names exists."""
     tests = test_functions()
     group = typer.main.get_command(cli.app)
+    ai_group = typer.main.get_command(ai_cli.app)
     every_option = {opt for param in group.params for opt in param.opts}
     every_option |= {opt for cmd in group.commands.values() for param in cmd.params for opt in param.opts}
 
@@ -114,6 +116,10 @@ def test_spec_references_exist():
                     problems.append(f"{where} does not resolve")
             elif span == "ipw" or span.startswith("ipw "):
                 problem = command_problem(span, group)
+                if problem:
+                    problems.append(f"{where}: {problem}")
+            elif span == "ipw-ai" or span.startswith("ipw-ai "):  # AI mode: the second command
+                problem = command_problem(span, ai_group)
                 if problem:
                     problems.append(f"{where}: {problem}")
             elif re.fullmatch(r"--?[A-Za-z][\w-]*( \S+)?", span):
@@ -132,6 +138,11 @@ def test_the_check_itself_catches_a_bad_reference():
     assert not resolves("ipw.core.curve.Curve.no_such_method")
     assert not resolves("ipw.core.no_such_module.Thing")
     assert command_problem("ipw hedge -t 4.5 --mode krd", group) is None
+    ai_group = typer.main.get_command(ai_cli.app)
+    assert command_problem("ipw-ai eval --mock", ai_group) is None
+    assert command_problem("ipw-ai kb build", ai_group) is None
+    assert command_problem("ipw-ai eval --fast", ai_group) == "unknown option --fast"
+    assert command_problem("ipw-ai replay", ai_group) == "no known command"
     assert command_problem("ipw -f json limits", group) is None
     assert command_problem("ipw hedge --no-such-option", group) == "unknown option --no-such-option"
     assert command_problem("ipw nosuchcommand", group) == "no known command"

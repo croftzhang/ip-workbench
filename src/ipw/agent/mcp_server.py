@@ -1,7 +1,7 @@
 """Optional MCP server: the tools of ``ipw.agent.tools`` for any MCP client.
 
-``ipw-mcp`` speaks the Model Context Protocol on standard input and output. It
-adds nothing of its own: the names, descriptions, argument schemas and results
+``ipw-ai mcp`` speaks the Model Context Protocol on standard input and output.
+It adds nothing of its own: the names, descriptions, argument schemas and results
 all come from the same ``Toolbox`` the assistant uses in its own process, and a
 test keeps the two ways in identical.
 
@@ -15,7 +15,6 @@ handlers given to its constructor).
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
 
 import anyio
@@ -74,20 +73,6 @@ async def serve(root: Path | None = None) -> None:
         await server.run(read_stream, write_stream, server.create_initialization_options())
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        prog="ipw-mcp",
-        description="Serve the IP Workbench tools to an MCP client on standard input and output.",
-    )
-    parser.add_argument(
-        "--root", type=Path, default=None, help="Folder holding config/ and data/ (default: auto-detect)."
-    )
-    options = parser.parse_args()
-    try:
-        anyio.run(serve, options.root)
-    except (KeyError, ValueError, FileNotFoundError) as err:  # the book could not be loaded
-        raise SystemExit(f"Error: {err.args[0] if err.args else err}") from None
-
-
-if __name__ == "__main__":
-    main()
+def run(root: Path | None = None) -> None:
+    """What ``ipw-ai mcp`` does: serve until the client closes the connection."""
+    anyio.run(serve, root)

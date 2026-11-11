@@ -58,7 +58,10 @@ def test_the_default_is_vector_search_alone_and_four_passages(root):
         20,
         60,
     )
-    assert loaded == DEFAULT
+    assert dataclasses.replace(loaded, refuse_below=0.0) == DEFAULT
+    # set from the question set with the configured embedding model: below every answerable question,
+    # above the questions that have nothing to do with the documents
+    assert loaded.refuse_below == 0.60
 
     base = Scripted(TEXTS, NEAREST)
     found = Retriever(base, DEFAULT).retrieve("anything")

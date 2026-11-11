@@ -188,6 +188,7 @@ BAD_ARGUMENTS = [
     ("limit_remedy", {"limit": "AOCI_UP300"}, "limit: Input should be 'DUR_BAND'"),
     ("limit_remedy", {"limit": "AOCI_UP200", "tenors": [40]}, "tenors.0:"),
     ("limit_remedy", {"limit": "AOCI_UP200", "tenors": [5, 5]}, "give each tenor once"),
+    ("limit_remedy", {"limit": "AOCI_UP200", "tenors": [1, 2, 3, 5, 7, 10, 30]}, "at most 6 items"),
     ("size_hedge", {}, "target_duration:"),
     ("size_hedge", {"target_duration": "shorter"}, "target_duration:"),
     ("size_hedge", {"target_duration": 4.5, "mode": "dv01"}, "mode: Input should be 'duration' or 'krd'"),
@@ -305,6 +306,10 @@ def test_units_follow_the_column_and_where_they_differ_the_row(wb):
     }
     limits = toolbox.call("limit_status").table()
     assert limits.unit("DUR_BAND", "value") == "years" and limits.unit("AOCI_UP200", "min") == "USD millions"
+    assert (
+        limits.unit("AOCI_UP200", "headroom") == "USD millions"
+        and limits.unit("DUR_BAND", "headroom") == "years"
+    )
     assert limits.unit("EVE_UP200", "value") == "%" and limits.unit("CONVEXITY", "value") == "number"
     assert set(toolbox.call("key_rate_report", {"unit": "k"}).table().units.values()) == {
         "USD thousands per bp"
@@ -455,3 +460,33 @@ def test_aggregate_refuses_what_it_cannot_do_honestly(wb):
 
     in_named_table = cell_ref(position, "dv01_k", "value", table="measures")
     assert toolbox.call("aggregate", {"operation": "difference", "cells": [net_dv01, in_named_table]}).ok
+
+
+def test_limit_status_gives_the_headroom_of_each_limit_so_that_no_one_has_to_subtract(wb):
+    """The distance from the value to its nearest bound comes from the engine; negative means breached."""
+    toolbox = tools.Toolbox(wb)
+    limits = toolbox.call("limit_status")
+    table = limits.table()
+    assert table.columns.index("headroom") == table.columns.index("max") + 1
+    for result in wb.limit_report():
+        assert table.rows[result.limit.id]["headroom"] == pytest.approx(result.headroom)
+    breached = table.rows["AOCI_UP200"]
+    assert (
+        breached["headroom"] == pytest.approx(breached["value"] - breached["min"])
+        and breached["headroom"] < 0
+    )
+    inside = table.rows["DUR_BAND"]
+    assert inside["headroom"] == pytest.approx(
+        min(inside["value"] - inside["min"], inside["max"] - inside["value"])
+    )
+    assert (
+        "AOCI_UP200 | AOCI change, +200bp (after tax) | -225.99 | -210.00 | - | -15.99 | $mm"
+        in limits.to_text()
+    )
+    assert "headroom" in toolbox.spec("limit_status").description
+
+
+def test_a_limit_can_be_sized_for_six_tenors_in_one_call(wb):
+    tenors = [2, 3, 5, 7, 10, 20]
+    options = tools.Toolbox(wb).call("limit_remedy", {"limit": "AOCI_UP200", "tenors": tenors})
+    assert options.ok and list(options.table().rows) == [f"PAY_FIXED {tenor}Y" for tenor in tenors]

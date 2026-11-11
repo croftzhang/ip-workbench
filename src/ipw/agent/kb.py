@@ -35,6 +35,14 @@ _NUMBERED = re.compile(r"^((?:[A-Z]{2,}-)?\d+(?:\.\d+)*)[.:]?\s+\S")  # "4.3 Tit
 _NOT_CONTENT = {"Contents"}  # a table of contents repeats every heading and answers nothing
 
 
+class IndexMissing(FileNotFoundError):
+    """The index has not been built in the configured folder."""
+
+
+class IndexOutOfDate(ValueError):
+    """A source or an embedding setting changed after the index was built."""
+
+
 @dataclass(frozen=True)
 class Passage:
     id: str  # reference and part, for example "IPS 4.3#1"
@@ -194,10 +202,10 @@ def open_index(config: AgentConfig, embedder: Embeddings | None = None) -> Knowl
     try:
         built = client.get_collection(name).metadata or {}
     except NotFoundError:
-        raise FileNotFoundError("the knowledge base index has not been built") from None
+        raise IndexMissing("the knowledge base index has not been built") from None
     if built.get("fingerprint") != fingerprint(config, passages):
-        raise ValueError(
-            "the knowledge base index is out of date: a source or an embedding setting changed; rebuild it"
+        raise IndexOutOfDate(
+            "the knowledge base index is out of date: a source or an embedding setting has changed"
         )
     store = Chroma(
         client=client,

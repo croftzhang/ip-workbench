@@ -403,7 +403,12 @@ def test_a_wrong_entry_in_the_configuration_is_reported_with_its_key(root, tmp_p
     )
     cases = [
         ({"retrieval": {"top_n": 4}}, ValueError, r"agent.yaml: retrieval has unknown keys \['top_n'\]"),
-        ({"chat": {}}, ValueError, r"agent.yaml: unknown sections \['chat'\]"),
+        ({"models": {}}, ValueError, r"agent.yaml: unknown sections \['models'\]"),
+        ({"chat": {"num_ctx": 512}}, ValueError, "chat.num_ctx must be at least 2048"),
+        ({"chat": {"num_predict": 64}}, ValueError, "chat.num_predict must be between 256 and chat.num_ctx"),
+        ({"chat": {"num_predict": 20000}}, ValueError, "chat.num_predict must be between 256 and"),
+        ({"chat": {"think": True}}, ValueError, r"agent.yaml: chat has unknown keys \['think'\]"),
+        ({"assistant": {"tool_calls": 0}}, ValueError, "assistant.tool_calls must be at least 1"),
         (
             {"embedding": {"provider": "openai"}},
             ValueError,

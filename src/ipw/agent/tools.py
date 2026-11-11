@@ -22,6 +22,7 @@ The language model never computes: arithmetic across results is the job of the
 # No postponed evaluation of annotations in this module: pydantic reads the
 # argument types, and several of them are built at run time from the configuration.
 
+import hashlib
 import json
 import math
 import re
@@ -75,7 +76,7 @@ _SUMMARY_COLUMNS = ["positions", "current_face_mm", "book_value_mm", "market_val
 _SCENARIO_COLUMNS = ["description", "d_value_mm", "d_value_pct", "d_afs_mm", "d_htm_mm", "d_hedges_mm",
                      "d_aoci_mm", "nii_mm", "d_nii_mm", "net_duration"]  # fmt: skip
 _LIMIT_COLUMNS = ["name", "value", "min", "max", "unit", "utilisation_pct", "status", "policy_ref"]
-_LIMIT_UNITS = {"value": PER_ROW, "min": PER_ROW, "max": PER_ROW}
+_LIMIT_UNITS = {"value": PER_ROW, "min": PER_ROW, "max": PER_ROW, "headroom": PER_ROW}
 _TRADE_COLUMNS = ["direction", "notional_mm", "fixed_rate", "remaining_years"]
 
 
@@ -136,13 +137,15 @@ class Table:
         else:
             shown = [c if u in (TEXT, PER_ROW) else f"{c} [{u}]" for c, u in self.units.items()]
         lines.append(" | ".join([self.index, *shown]))
-        for label, row in self.rows.items():
-            # where the unit differs by row, a row named after an engine column is formatted as that column
-            keys = [label if u == PER_ROW and label in SPEC else c for c, u in self.units.items()]
-            lines.append(
-                " | ".join([label, *(cell(k, row[c], self.default_format) for k, c in zip(keys, self.units))])
-            )
+        for label in self.rows:
+            lines.append(" | ".join([label, *(self.shown(label, column) for column in self.units)]))
         return "\n".join(lines)
+
+    def shown(self, row: str, column: str) -> str:
+        """One cell as the language model reads it."""
+        # where the unit differs by row, a row named after an engine column is formatted as that column
+        key = row if self.units[column] == PER_ROW and row in SPEC else column
+        return cell(key, self.rows[row][column], self.default_format)
 
 
 @dataclass(frozen=True)
@@ -180,6 +183,16 @@ class ToolResult:
             "error": self.error,
         }
 
+    def digest(self) -> str:
+        """A short hash of what the call returned, for the run log. Figures are rounded so machines agree."""
+        tables = [
+            (table.name, [(label, [(c, round(v, 8) if isinstance(v, float) else v) for c, v in row.items()])
+                          for label, row in table.rows.items()])
+            for table in self.tables
+        ]  # fmt: skip
+        content = json.dumps([self.tool, self.arguments, tables, self.error], sort_keys=True)
+        return hashlib.sha256(content.encode("utf-8")).hexdigest()[:16]
+
     def to_text(self) -> str:
         head = f"result {self.id}: {self.tool} {json.dumps(self.arguments)}, market date {self.as_of}"
         if self.error is not None:
@@ -206,6 +219,11 @@ class ToolSpec:
     def parameters(self) -> dict[str, Any]:
         """JSON schema of the arguments, as given to the model and to MCP clients."""
         return _json_schema(self.args)
+
+    def as_function(self) -> dict[str, Any]:
+        """The definition as a chat model takes a tool: a function with a name, a description, parameters."""
+        function = {"name": self.name, "description": self.description, "parameters": self.parameters}
+        return {"type": "function", "function": function}
 
 
 class Toolbox:
@@ -523,12 +541,15 @@ def build_specs(wb: Workbench) -> tuple[ToolSpec, ...]:
 
     def limits(tb: Toolbox, a: NoArguments) -> list[Table]:
         title = "Policy limits (config/limits.yaml)"
-        return [_table("limits", title, tb.wb.limit_table(), columns=_LIMIT_COLUMNS, units=_LIMIT_UNITS)]
+        frame = tb.wb.limit_table()[_LIMIT_COLUMNS]
+        # the engine's distance from each value to its nearest bound; the release 1 table does not show it
+        frame.insert(4, "headroom", [result.headroom for result in tb.wb.limit_report()])
+        return [_table("limits", title, frame, units=_LIMIT_UNITS)]
 
     # ------------------------------------------------------------------ proposals (indicative)
     class Remedy(_Args):
         limit: LimitId = Field(description="The limit to bring back inside.")
-        tenors: list[Tenor] = Field([2.0, 5.0, 10.0], min_length=1, max_length=4, description=tenors_help)
+        tenors: list[Tenor] = Field([2.0, 5.0, 10.0], min_length=1, max_length=6, description=tenors_help)
         target: float | None = Field(
             None, description="Value of the limit metric to aim for. Leave out to aim for the breached bound."
         )
@@ -763,8 +784,8 @@ def build_specs(wb: Workbench) -> tuple[ToolSpec, ...]:
         ),
         ToolSpec(
             "limit_status",
-            "Every policy limit: value, bounds, utilisation, status (OK, WARN or BREACH) and the policy "
-            "section that sets it.",
+            "Every policy limit: value, bounds, headroom (distance to the nearest bound, negative when "
+            "breached), utilisation, status (OK, WARN or BREACH) and the policy section that sets it.",
             NoArguments,
             limits,
         ),

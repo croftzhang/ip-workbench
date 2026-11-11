@@ -31,3 +31,5 @@ jobs:
         run: |
           ipw limits
           ipw brief --out reports
+      - name: Run the evaluation on the mock model
+        run: ipw-ai eval --mock --out reports/evaluation

@@ -9,7 +9,7 @@ import sys
 
 import pytest
 
-import ipw.agent
+import ipw
 
 tools = pytest.importorskip("ipw.agent.tools", reason='needs the agent extra: pip install -e ".[agent]"')
 server = pytest.importorskip(
@@ -78,9 +78,9 @@ def test_a_call_through_the_server_equals_the_call_in_process(wb):
 
 
 def test_the_server_runs_as_a_separate_process_on_standard_streams(root):
-    """The way another MCP client starts it; ``ipw-mcp`` runs this module's ``main``."""
+    """The way another MCP client starts it: the command ``ipw-ai mcp``."""
     command = mcp.StdioServerParameters(
-        command=sys.executable, args=["-m", "ipw.agent.mcp_server", "--root", str(root)]
+        command=sys.executable, args=["-m", "ipw.agent.cli", "--root", str(root), "mcp"]
     )
     excess = {
         "operation": "difference",
@@ -98,12 +98,16 @@ def test_the_server_runs_as_a_separate_process_on_standard_streams(root):
     assert figure["rows"]["beyond the limit"]["value"] == pytest.approx(-15.99, abs=0.005)
 
 
-def test_ipw_mcp_without_the_extra_says_what_to_install(monkeypatch):
-    monkeypatch.delitem(sys.modules, "ipw.agent.mcp_server")
+def test_ipw_ai_mcp_without_the_extra_says_what_to_install(monkeypatch, capsys):
+    import ipw.agent
+    from ipw.agent import cli
+
+    monkeypatch.delitem(sys.modules, "ipw.agent.mcp_server")  # so that the command imports it afresh
+    monkeypatch.delattr(ipw.agent, "mcp_server")
     monkeypatch.setitem(sys.modules, "mcp", None)  # makes "import mcp" fail as if it were not installed
+    monkeypatch.setattr(sys, "argv", ["ipw-ai", "mcp"])
     with pytest.raises(SystemExit) as stop:
-        ipw.agent.mcp_main()
-    assert (
-        str(stop.value)
-        == 'Error: this command needs the agent extra: pip install -e ".[agent]" (missing module: mcp)'
-    )
+        cli.main()
+    assert stop.value.code == 1
+    message = " ".join(capsys.readouterr().err.split())
+    assert message == 'Error: AI mode is an optional install: pip install -e ".[agent]" (missing module: mcp)'

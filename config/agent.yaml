@@ -1,7 +1,20 @@
 # Configuration of the assistant (release 2). docs/AGENT_DESIGN.md, AD-9.
 #
-# Every model name and every retrieval setting is a value in this file, so a
-# change is one edit followed by the same evaluation. Unknown keys are rejected.
+# Every model name, every retrieval setting and the budgets of the loop are values in this file, so
+# a change is one edit followed by the same evaluation. Unknown keys are rejected.
+
+chat:
+  model: qwen3:8b                        # any Ollama chat model with tool calling; pull it first
+  base_url: null                         # null: the Ollama client's own default, the local server
+  temperature: 0                         # with the fixed seed: the same question, the same reply
+  seed: 42
+  num_ctx: 16384                         # context length in tokens: passages, tool definitions, tool results
+  num_predict: 2048                      # longest single reply in tokens: stops a model that repeats itself
+  reasoning: false                       # thinking mode off
+
+assistant:
+  tool_calls: 8                          # tool calls allowed in one run; then the model must answer
+  run_log: logs/agent_runs.jsonl         # one JSON line per run; not versioned
 
 embedding:
   provider: ollama                       # ollama, or hashing: fixed word-hash vectors for tests, no model
@@ -28,10 +41,13 @@ knowledge_base:
 retrieval:
   top_k: 4                               # passages given to the language model
   candidates: 20                         # taken from each index before fusion and reranking
-  # Refusal: when the best vector similarity is below this value the answer is "the knowledge base
-  # does not cover this". The value belongs to the embedding model and is set from the retrieval
-  # question set (evals/retrieval.yaml) on the reference machine. 0 never refuses.
-  refuse_below: 0.0
+  # Refusal: when the best vector similarity is below this value no passage is given and the answer
+  # is "the knowledge base does not cover this". The value belongs to the embedding model. Measured
+  # with nomic-embed-text on evals/retrieval.yaml: every answerable question scores 0.63 or more, and
+  # the questions that have nothing to do with the subject (the weather, a password) score below 0.60.
+  # Questions near the subject overlap with answerable ones; those are left to the language model,
+  # which is told to refuse when the passages hold no answer. 0 never refuses.
+  refuse_below: 0.60
   keyword: false                         # optional: BM25 over the same passages, fused by reciprocal rank
   rrf_k: 60                              # constant of reciprocal rank fusion
   rerank: false                          # optional: a cross-encoder reorders the candidates (rerank extra)

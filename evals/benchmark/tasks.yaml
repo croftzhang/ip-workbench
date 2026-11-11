@@ -1,0 +1,510 @@
+# Benchmark tasks (docs/AGENT_DESIGN.md, AD-8; docs/PRD.md, section 3).
+#
+# Forty tasks in three classes:
+#
+#   routine    20  one tool answers the question, as one release 1 command does
+#   composed   10  several tools, or a figure that has to be worked out from others
+#   documents  10  the answer needs the policy, the accounting note, the scenario
+#                  definitions or the model documents
+#
+# The benchmark of thirty is ten tasks of each class: the routine tasks marked
+# `benchmark: true` and every composed and documents task. Tool-selection
+# accuracy is measured on all twenty routine tasks.
+#
+# Fields of a task
+#
+#   classic   The release 1 commands that show the figures of the answer; empty
+#             when release 1 cannot answer. `by_hand` says what is left to the
+#             user after running them.
+#   calls     The accepted tool calls. Each line is one accepted way to answer:
+#             a list of calls written {tool: {arguments}}. A call of the
+#             assistant matches when the tool is the same and every argument
+#             named here has the same value; an argument not named is free.
+#             The first line is the reference path: the reference figures are
+#             read from its results, r1 for the first call, r2 for the second.
+#   answer    The reference pairs of label and value. An answer is correct when
+#             it contains every pair: the value, and one of the labels in the
+#             same sentence or line.
+#               cell    a figure of the reference path: result, row (or
+#                       position, the n-th row) and column; a list of cells
+#                       means any one of them
+#               number  a figure that stands in a document
+#               text    wording, any one of the phrases
+#               rows    the labels of the first rows of a result
+#   cites     Sections of the knowledge base; the answer has to cite one of them.
+#
+# No figure of the engine is written here: the values are read from the engine
+# when the evaluation runs. A test checks that every task is well formed, that
+# its reference path runs and that its release 1 commands exist.
+
+tasks:
+  # ------------------------------------------------------------------ routine
+  - id: T01
+    class: routine
+    benchmark: true
+    question: What is the net effective duration of the book?
+    classic: [ipw risk]
+    calls:
+      - [{risk_report: {}}]
+      - [{limit_status: {}}]
+    answer:
+      - {label: [duration], cell: {result: r1, row: Net, column: eff_duration}}
+
+  - id: T02
+    class: routine
+    benchmark: true
+    question: What are the total market value and the total unrealized gain or loss of the securities?
+    classic: [ipw summary]
+    calls:
+      - [{portfolio_summary: {}}]
+    answer:
+      - {label: [market value], cell: {result: r1, row: Total, column: market_value_mm}}
+      - {label: [unrealized, unrealised], cell: {result: r1, row: Total, column: unrealized_mm}}
+
+  - id: T03
+    class: routine
+    benchmark: true
+    question: What is the market value of the AFS securities and of the HTM securities?
+    classic: [ipw summary --by designation]
+    calls:
+      - [{portfolio_summary: {by: designation}}]
+      - [{risk_report: {by: designation}}]
+    answer:
+      - {label: [AFS, available], cell: {result: r1, row: AFS, column: market_value_mm}}
+      - {label: [HTM, held], cell: {result: r1, row: HTM, column: market_value_mm}}
+
+  - id: T04
+    class: routine
+    benchmark: true
+    question: At which key rate is the net key-rate duration largest, and how large is it there?
+    classic: [ipw krd]
+    calls:
+      - [{key_rate_report: {unit: years}}]
+    answer:
+      - {label: [20Y, 20-year, 20 year], cell: {result: r1, row: Net, column: 20Y}}
+
+  - id: T05
+    class: routine
+    benchmark: true
+    question: Which five positions have the largest DV01?
+    classic: [ipw top -n 5]
+    calls:
+      - [{top_positions: {metric: dv01_k, count: 5, direction: largest}}]
+    answer:
+      - {rows: {result: r1, first: 5}}
+
+  - id: T06
+    class: routine
+    benchmark: true
+    question: For position FN30-2.5-001, what are the market value, the effective duration and the projected one-year CPR?
+    classic: [ipw position FN30-2.5-001]
+    calls:
+      - [{position_detail: {position_id: FN30-2.5-001}}]
+    answer:
+      - {label: [market value], cell: {result: r1, table: measures, row: market_value_mm, column: value}}
+      - {label: [duration], cell: {result: r1, table: measures, row: eff_duration, column: value}}
+      - {label: [CPR, prepay], cell: {result: r1, table: measures, row: cpr_1y_pct, column: value}}
+
+  - id: T07
+    class: routine
+    benchmark: true
+    question: By how many USD millions does the value of the securities change if rates rise by 200bp?
+    classic: [ipw scenario -s 200]
+    calls:
+      - [{run_scenarios: {scenarios: [up_200]}}]
+      - [{run_scenarios: {shocks_bp: [200]}}]
+      - [{run_scenarios: {scenarios: [], shocks_bp: []}}]
+      - [{scenario_breakdown: {scenario: up_200}}]
+      - [{scenario_breakdown: {shock_bp: 200}}]
+    answer:
+      - {cell: {result: r1, row: up_200, column: d_value_mm}}
+
+  - id: T08
+    class: routine
+    benchmark: true
+    question: Under the +200bp scenario, what share of the loss in value does each asset type carry?
+    classic: [ipw scenario -n up_200 --by asset_type]
+    calls:
+      - [{scenario_breakdown: {scenario: up_200, by: asset_type}}]
+      - [{scenario_breakdown: {shock_bp: 200, by: asset_type}}]
+    answer:
+      - {label: ["30"], cell: {result: r1, row: MBS_30Y, column: share_pct}}
+      - {label: ["15"], cell: {result: r1, row: MBS_15Y, column: share_pct}}
+      - {label: [UST, Treasur], cell: {result: r1, row: UST, column: share_pct}}
+
+  - id: T09
+    class: routine
+    benchmark: true
+    question: What is net interest income over the next 12 months in the base case and under +100bp?
+    classic: [ipw nii]
+    calls:
+      - [{income_report: {scenarios: [], shocks_bp: []}}]
+      - [{income_report: {scenarios: [base, up_100]}}]
+      - [{income_report: {scenarios: [base], shocks_bp: [100]}}]
+      - [{run_scenarios: {scenarios: [base, up_100]}}]
+    answer:
+      - {label: [base], cell: {result: r1, row: Net interest income, column: base}}
+      - {label: ["100"], cell: {result: r1, row: Net interest income, column: up_100}}
+
+  - id: T10
+    class: routine
+    benchmark: true
+    question: Which policy limits are breached or in warning today?
+    classic: [ipw limits]
+    calls:
+      - [{limit_status: {}}]
+    answer:
+      - {text: [AOCI_UP200, AOCI change]}
+      - {text: [DUR_BAND, Net effective duration]}
+
+  - id: T11
+    class: routine
+    question: What is the projected one-year CPR of the 30-year high-coupon bucket today, and if rates fall by 100bp?
+    classic: [ipw prepay]
+    calls:
+      - [{prepayment_outlook: {shocks_bp: [-100, 0, 100], by: bucket}}]
+      - [{prepayment_outlook: {shocks_bp: [-100, 0], by: bucket}}]
+      - [{prepayment_outlook: {shocks_bp: [-100], by: bucket}}]
+    answer:
+      - {cell: {result: r1, row: "30Y high (>=5.0)", column: cpr_base}}
+      - {cell: {result: r1, row: "30Y high (>=5.0)", column: cpr_-100bp}}
+
+  - id: T12
+    class: routine
+    question: Why did market value change since the prior close? Give the total change and the parts due to the first-order curve effect and to MBS spreads.
+    classic: [ipw explain]
+    calls:
+      - [{explain_change: {}}]
+    answer:
+      - {cell: {result: r1, table: drivers, row: Total, column: Total}}
+      - label: [curve, key-rate, key rate]
+        cell: {result: r1, table: drivers, row: "Curve: key-rate exposure (first order)", column: Total}
+      - {label: [spread], cell: {result: r1, table: drivers, row: MBS spreads, column: Total}}
+
+  - id: T13
+    class: routine
+    question: Which swap notionals would bring the AOCI_UP200 limit back to its bound with a 2-year, a 5-year or a 10-year swap?
+    classic: [ipw fix AOCI_UP200]
+    calls:
+      - [{limit_remedy: {limit: AOCI_UP200, tenors: [2, 5, 10]}}]
+    answer:
+      - {label: ["2"], cell: {result: r1, row: PAY_FIXED 2Y, column: notional_mm}}
+      - {label: ["5"], cell: {result: r1, row: PAY_FIXED 5Y, column: notional_mm}}
+      - {label: ["10"], cell: {result: r1, row: PAY_FIXED 10Y, column: notional_mm}}
+
+  - id: T14
+    class: routine
+    question: Size a 5-year pay-fixed swap that brings net duration to 4.5 years.
+    classic: [ipw hedge -t 4.5]
+    calls:
+      - [{size_hedge: {target_duration: 4.5, mode: duration, tenors: [5]}}]
+    answer:
+      - {cell: {result: r1, table: trades, row: NEW-5Y, column: notional_mm}}
+
+  - id: T15
+    class: routine
+    question: What would net duration be after selling position FN30-2.5-001?
+    classic: [ipw whatif --drop FN30-2.5-001]
+    calls:
+      - [{what_if: {drop: [FN30-2.5-001], swaps: []}}]
+    answer:
+      - {cell: {result: r1, table: comparison, row: Net duration (years), column: after}}
+
+  - id: T16
+    class: routine
+    question: What is the effective duration of the 30-year MBS and of the 15-year MBS?
+    classic: [ipw risk --by asset_type]
+    calls:
+      - [{risk_report: {by: asset_type}}]
+    answer:
+      - {label: ["30"], cell: {result: r1, row: MBS_30Y, column: eff_duration}}
+      - {label: ["15"], cell: {result: r1, row: MBS_15Y, column: eff_duration}}
+
+  - id: T17
+    class: routine
+    question: What is the net key-rate DV01 at the 10-year point, in USD thousands per basis point?
+    classic: [ipw krd --unit k]
+    calls:
+      - [{key_rate_report: {unit: k}}]
+    answer:
+      - {cell: {result: r1, row: Net, column: 10Y}}
+
+  - id: T18
+    class: routine
+    question: Which three positions have the largest unrealized losses, and how large is the largest one?
+    classic: [ipw top --metric unrealized_mm -n 3 --asc]
+    calls:
+      - [{top_positions: {metric: unrealized_mm, count: 3, direction: smallest}}]
+    answer:
+      - {rows: {result: r1, first: 3}}
+      - {cell: {result: r1, position: 1, column: unrealized_mm}}
+
+  - id: T19
+    class: routine
+    question: What is the change in AOCI under the bear_steepener scenario?
+    classic: [ipw scenario -n bear_steepener]
+    calls:
+      - [{run_scenarios: {scenarios: [bear_steepener]}}]
+      - [{run_scenarios: {scenarios: [], shocks_bp: []}}]
+    answer:
+      - {cell: {result: r1, row: bear_steepener, column: d_aoci_mm}}
+
+  - id: T20
+    class: routine
+    question: How is the market value of the securities split by agency?
+    classic: [ipw summary --by agency]
+    calls:
+      - [{portfolio_summary: {by: agency}}]
+      - [{risk_report: {by: agency}}]
+    answer:
+      - {label: [FNMA, Fannie], cell: {result: r1, row: FNMA, column: market_value_mm}}
+      - {label: [FHLMC, Freddie], cell: {result: r1, row: FHLMC, column: market_value_mm}}
+      - {label: [GNMA, Ginnie], cell: {result: r1, row: GNMA, column: market_value_mm}}
+
+  # ------------------------------------------------------------------ composed
+  - id: C01
+    class: composed
+    question: Under the +200bp scenario, how much more value do the HTM securities lose than the AFS securities?
+    classic: [ipw scenario -n up_200 --by designation]
+    by_hand: one subtraction
+    calls:
+      - - {scenario_breakdown: {scenario: up_200, by: designation}}
+        - aggregate:
+            operation: difference
+            label: HTM less AFS
+            cells:
+              - {result: r1, row: HTM, column: d_value_mm}
+              - {result: r1, row: AFS, column: d_value_mm}
+    answer:
+      - {cell: {result: r2, row: HTM less AFS, column: value}}
+
+  - id: C02
+    class: composed
+    question: What share of the market value of the securities is in 30-year MBS?
+    classic: [ipw summary --by asset_type]
+    by_hand: one division
+    calls:
+      - - {portfolio_summary: {by: asset_type}}
+        - aggregate:
+            operation: ratio
+            as_percent: true
+            label: share of MBS_30Y
+            cells:
+              - {result: r1, row: MBS_30Y, column: market_value_mm}
+              - {result: r1, row: Total, column: market_value_mm}
+    answer:
+      - {cell: {result: r2, row: share of MBS_30Y, column: value}}
+
+  - id: C03
+    class: composed
+    question: How large is the +100bp change in 12-month net interest income as a percentage of base-case net interest income?
+    classic: [ipw nii]
+    by_hand: one subtraction and one division
+    calls:
+      - - {run_scenarios: {scenarios: [base, up_100]}}
+        - aggregate:
+            operation: ratio
+            as_percent: true
+            label: change in NII over base NII
+            cells:
+              - {result: r1, row: up_100, column: d_nii_mm}
+              - {result: r1, row: base, column: nii_mm}
+    answer:
+      - {cell: {result: r2, row: change in NII over base NII, column: value}}
+
+  - id: C04
+    class: composed
+    question: By how much is the AOCI_UP200 limit outside its bound, and what notional of a 5-year pay-fixed swap would bring it back?
+    classic: [ipw limits, ipw fix AOCI_UP200 --tenors 5]
+    by_hand: one subtraction
+    calls:
+      - - {limit_status: {}}
+        - {limit_remedy: {limit: AOCI_UP200, tenors: [5]}}
+    answer:
+      - {cell: {result: r1, row: AOCI_UP200, column: headroom}}
+      - {cell: {result: r2, row: PAY_FIXED 5Y, column: notional_mm}}
+
+  - id: C05
+    class: composed
+    question: What is the combined DV01 of the three positions with the largest DV01?
+    classic: [ipw top -n 3]
+    by_hand: one addition
+    calls:
+      - - {top_positions: {metric: dv01_k, count: 3, direction: largest}}
+        - aggregate:
+            operation: sum
+            label: combined DV01
+            cells:
+              - {result: r1, row: UST10-4.375-007, column: dv01_k}
+              - {result: r1, row: UST10-4.250-008, column: dv01_k}
+              - {result: r1, row: FR30-2.5-006, column: dv01_k}
+    answer:
+      - {cell: {result: r2, row: combined DV01, column: value}}
+
+  - id: C06
+    class: composed
+    question: If the three positions with the largest unrealized losses were sold, what would net duration be, and what would the AOCI_UP200 measure be?
+    classic:
+      - ipw top --metric unrealized_mm -n 3 --asc
+      - ipw whatif --drop G230-2.0-003,G230-2.0-004,G230-2.0-006
+    by_hand: copying three position ids from the first command into the second
+    calls:
+      - - {top_positions: {metric: unrealized_mm, count: 3, direction: smallest}}
+        - {what_if: {drop: [G230-2.0-003, G230-2.0-004, G230-2.0-006]}}
+    answer:
+      - {label: [duration], cell: {result: r2, table: comparison, row: Net duration (years), column: after}}
+      - {label: [AOCI], cell: {result: r2, table: comparison, row: Limit AOCI_UP200 ($mm), column: after}}
+
+  - id: C07
+    class: composed
+    question: Size a 10-year pay-fixed swap that brings net duration to 5.0 years, then show what adding that swap does to 12-month NII and to the AOCI_UP200 measure.
+    classic: [ipw hedge -t 5.0 --tenors 10, "ipw whatif --pay-fixed 10:339.2"]
+    by_hand: copying the notional from the first command into the second
+    calls:
+      - - {size_hedge: {target_duration: 5.0, tenors: [10]}}
+        - {what_if: {swaps: [{direction: PAY_FIXED, tenor_years: 10, notional_mm: 339.2}]}}
+    answer:
+      - {label: [notional, swap], cell: {result: r1, table: trades, row: NEW-10Y, column: notional_mm}}
+      - label: [NII, income]
+        cell:
+          - {result: r2, table: comparison, row: "NII, 12 months ($mm)", column: change}
+          - {result: r2, table: comparison, row: "NII, 12 months ($mm)", column: after}
+      - label: [AOCI]
+        cell:
+          - {result: r2, table: comparison, row: Limit AOCI_UP200 ($mm), column: after}
+          - {result: r2, table: comparison, row: Limit AOCI_UP200 ($mm), column: change}
+
+  - id: C08
+    class: composed
+    question: How much longer is the effective duration of the HTM securities than that of the AFS securities?
+    classic: [ipw risk --by designation]
+    by_hand: one subtraction
+    calls:
+      - - {risk_report: {by: designation}}
+        - aggregate:
+            operation: difference
+            label: HTM less AFS
+            cells:
+              - {result: r1, row: HTM, column: eff_duration}
+              - {result: r1, row: AFS, column: eff_duration}
+    answer:
+      - {cell: {result: r2, row: HTM less AFS, column: value}}
+
+  - id: C09
+    class: composed
+    question: Since the prior close, how much of the first-order curve P&L came from the 10-year and the 20-year key rates together?
+    classic: [ipw explain]
+    by_hand: one addition
+    calls:
+      - - {explain_change: {}}
+        - aggregate:
+            operation: sum
+            label: 10Y and 20Y
+            cells:
+              - {result: r1, table: key_rates, row: 10Y, column: pnl_mm}
+              - {result: r1, table: key_rates, row: 20Y, column: pnl_mm}
+    answer:
+      - {cell: {result: r2, row: 10Y and 20Y, column: value}}
+
+  - id: C10
+    class: composed
+    question: Which bucket loses the most value under the bear_steepener scenario, and what are that bucket's effective duration and DV01?
+    classic: [ipw scenario -n bear_steepener --by bucket, ipw risk]
+    by_hand: reading one bucket across two tables
+    calls:
+      - - {scenario_breakdown: {scenario: bear_steepener, by: bucket}}
+        - {risk_report: {by: bucket}}
+    answer:
+      - {text: [30Y low]}
+      - {label: [duration], cell: {result: r2, row: "30Y low (<=3.0)", column: eff_duration}}
+      - {label: [DV01], cell: {result: r2, row: "30Y low (<=3.0)", column: dv01_k}}
+
+  # ------------------------------------------------------------------ documents
+  - id: D01
+    class: documents
+    question: What is the policy limit on the after-tax AOCI loss when rates rise by 200bp, and which securities does the measure cover?
+    answer:
+      - {label: [AOCI], number: 210}
+      - {text: [AFS, available-for-sale, available for sale]}
+    cites: [IPS 4.3, IPS 4]
+
+  - id: D02
+    class: documents
+    question: What has to happen on the day a limit is breached?
+    answer:
+      - {text: [remediation]}
+      - {text: [Head of Investment Portfolio, market risk oversight]}
+    cites: [IPS 5.3]
+
+  - id: D03
+    class: documents
+    question: At what utilisation does a limit go into warning, and which limits are in warning today?
+    calls:
+      - [{limit_status: {}}]
+    answer:
+      - {label: [warning, utilis, utiliz], number: 80}
+      - {text: [DUR_BAND, Net effective duration]}
+    cites: [IPS 5.2]
+
+  - id: D04
+    class: documents
+    question: Can held-to-maturity securities be hedged with swaps, and why?
+    answer:
+      - text: [not hedged, cannot, can not, can't, may not, must not, not be hedged, not eligible, not permitted, not allowed]
+      - {text: [hedge accounting, hedged item, AFS, available-for-sale]}
+    cites: [HEDGE 3.2, HEDGE 3.1, ACCT 4]
+
+  - id: D05
+    class: documents
+    question: What tax rate do the analytics apply to AOCI, and what is the after-tax change in AOCI under the +200bp scenario?
+    calls:
+      - [{run_scenarios: {scenarios: [up_200]}}]
+    answer:
+      - {label: [tax], number: 24}
+      - {label: [AOCI], cell: {result: r1, row: up_200, column: d_aoci_mm}}
+    cites: [ACCT 3.2, SPEC FR-8, SPEC Model parameters]
+
+  - id: D06
+    class: documents
+    question: When a limit is breached, how is the restoring swap sized, and in what notional steps?
+    answer:
+      - {label: [step, increment, multiple], number: 10}
+      - {text: [smallest, minimum, least]}
+    cites: [HEDGE 5.3, SPEC FR-11]
+
+  - id: D07
+    class: documents
+    question: Do the swaps hedge a widening of MBS spreads, and what does the basis_widen_25 scenario do to the value of the securities?
+    calls:
+      - [{run_scenarios: {scenarios: [basis_widen_25]}}]
+    answer:
+      - text: [not hedge, n't hedge, not hedged, not offset, n't offset, no hedge, not protect, no protection, unchanged]
+      - {cell: {result: r1, row: basis_widen_25, column: d_value_mm}}
+    cites: [SCEN 4]
+
+  - id: D08
+    class: documents
+    question: What is the model not intended to be used for?
+    answer:
+      - {text: [trading, relative-value, relative value]}
+      - {text: [regulatory capital, option-adjusted, without a mark]}
+    cites: [MODEL 1]
+
+  - id: D09
+    class: documents
+    question: Why do mortgage securities get longer when rates rise?
+    answer:
+      - {text: [refinanc, prepay, lock-in, turnover]}
+      - {text: [extension, extend, lengthen, later, slow]}
+    cites: [MBS 3]
+
+  - id: D10
+    class: documents
+    question: The AOCI_UP200 limit is breached. What does the policy allow as a remedy, and what notional of a 5-year swap would restore the limit?
+    calls:
+      - [{limit_remedy: {limit: AOCI_UP200, tenors: [5]}}]
+    answer:
+      - {text: [sell, reposition]}
+      - {text: [AFS, available-for-sale]}
+      - {cell: {result: r1, row: PAY_FIXED 5Y, column: notional_mm}}
+    cites: [IPS 5.4, IPS 5.3, HEDGE 5.3]

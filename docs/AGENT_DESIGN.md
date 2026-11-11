@@ -4,11 +4,11 @@
 
 | | |
 |---|---|
-| Document | Solution design for release 2, version 0.9 |
-| Status | Design agreed in principle. Nothing in this document is built yet |
+| Document | Solution design for release 2, version 1.3 |
+| Status | Design agreed. Scope simplified by the owner on 2026-11-10 to four things: a local language model, retrieval, tool calling and the engine's analytics. On the same day the owner named the two commands: `ipw` is classic mode and `ipw-ai` is AI mode. Built step by step in the order of section 10 |
 | Owner | Product Owner, Investment Portfolio analytics |
 | Last updated | 2026-11-10 |
-| Traces to | [BRD.md](BRD.md): BR-11 to BR-13, RULE-7, NFR-1, NFR-5 to NFR-7. [PRD.md](PRD.md): US-6 to US-16 |
+| Traces to | [BRD.md](BRD.md): BR-11 to BR-13, RULE-7, NFR-1, NFR-5 to NFR-7. [PRD.md](PRD.md): US-6 to US-16, of which US-8 and US-15 are deferred |
 | Previous in the chain | [SOLUTION_DESIGN.md](SOLUTION_DESIGN.md), which covers release 1 |
 
 > The desk, its roles, its policy documents and every figure in this document
@@ -16,47 +16,56 @@
 
 ## Contents
 
-1. Purpose
+1. Purpose and scope
 2. Requirements addressed
 3. Principles
 4. The solution on one page
-5. Design decisions AD-1 to AD-10
-6. Planned repository layout
-7. Control position
-8. Risks
-9. Build plan
-10. Open points
-11. References
+5. Design decisions AD-1 to AD-9
+6. Deferred and not adopted
+7. Planned repository layout
+8. Control position
+9. Risks
+10. Build plan
+11. Open points
+12. References
 
-## 1. Purpose
+## 1. Purpose and scope
 
 Release 1 answers the standard questions with fixed commands. Release 2 is for
 the work those commands cannot do without someone writing new code:
 
-* investigating an exception, where the path depends on what is found;
 * an ad-hoc analysis composed from several existing calculations;
-* joining a number with the written rule or model limitation that applies to it.
+* a first investigation of a limit breach or an unusual move;
+* joining a number with the written rule or model document that applies to it.
 
-This document says how that will be built: which parts are done by a language
-model, which by ordinary code and which by a person; which tools and models are
-used and why; and how the result will be measured. Section 9 gives the order of
-build and the evidence expected at each step.
+Release 2 consists of four things and a way of measuring them:
 
-Out of scope for release 2: a graphical interface, execution or booking of any
-trade, fine-tuning of any model, and any service outside the user's machine.
+| Part | In one line |
+|---|---|
+| Local language model | Runs on the user's machine; chooses tools and words answers |
+| Retrieval | Finds the passages of the desk's own documents that bear on a question, and cites them |
+| Tool calling | The model calls typed tools that wrap the release 1 engine |
+| Quantitative analytics | Every figure comes from that engine and is checked before it is shown |
+| Evaluation | Fixed question sets, deterministic measures, results published as measured |
+
+Not in release 2 (section 6): a recorded approval step, persistent workflow
+state, separate routing and planning steps, automatic attachment of model
+limitations, a replay command, any arrangement of several agents, a graphical
+interface, fine-tuning of any model, and any service outside the user's
+machine.
 
 ## 2. Requirements addressed
 
 | Requirement | What the design has to deliver | Decisions |
 |---|---|---|
 | BR-11 Answers outside the standard pack | A correct, sourced answer in the same conversation, composed from existing calculations | AD-1, AD-3, AD-4, AD-6 |
-| BR-12 Investigation of a breach or unusual move | Contributors, the policy clause, sized options; traceable step by step; stops for approval | AD-4, AD-7, AD-8 |
+| BR-12 Investigation of a breach or unusual move | Contributors, the policy clause and sized options, with every step logged. Release 2 presents the options as indicative; the stop for a recorded approval is deferred | AD-4, AD-7 |
 | BR-13 Explanations in terms of the bank's own book and documents | Explanations that cite the document and section and use current figures | AD-5, AD-6 |
-| RULE-7 The analytics propose; people decide | No proposal is recorded without a person's decision; nothing is executed | AD-7 |
-| NFR-1 Reproducible and auditable | Every figure comes from the deterministic engine; every run can be replayed | AD-1, AD-8 |
+| RULE-7 The analytics propose; people decide | Nothing is executed or booked; every proposal is labelled indicative. Recording the person's decision in the system is deferred | AD-3, AD-4 |
+| NFR-1 Reproducible and auditable | Every figure comes from the deterministic engine; every run is logged with its tool calls | AD-1, AD-7 |
 | NFR-5 Confidential | No position, question or document leaves the machine | AD-2 |
-| NFR-6 Honest about limitations | The relevant model limitation is shown next to a result that depends on it; measured failures are published | AD-5, AD-9 |
-| NFR-7 Controlled change | A change of model, prompt or retrieval setting is judged by the same evaluation before it becomes the default | AD-9 |
+| NFR-6 Honest about limitations | The model summary is in the knowledge base and is cited when asked; measured failures are published | AD-5, AD-8 |
+| NFR-7 Controlled change | A change of model, prompt or retrieval setting is judged by the same evaluation before it becomes the default | AD-8 |
 
 ## 3. Principles
 
@@ -64,9 +73,8 @@ trade, fine-tuning of any model, and any service outside the user's machine.
 |---|---|
 | The language model never computes | It chooses tools, fills their arguments and words the answer. Every figure is produced by the release 1 engine |
 | Nothing is shown unchecked | Code compares every figure in a draft answer with the tool results before the answer is displayed |
-| The engine is reached through a tool server | The assistant does not import the engine. The same tools serve any other client the desk adopts |
 | Everything runs on the user's machine | Local models only; no hosted model, no tracing service |
-| Every stage can be switched off, and is measured | A stage that does not improve a measured result is not part of the default |
+| Simple first | The default path has no optional part. Each optional part is a switch, and becomes a default only if it improves a measured result |
 | The assistant is a separate installation | The routine tool stays small and free of language-model code |
 
 ## 4. The solution on one page
@@ -75,39 +83,28 @@ trade, fine-tuning of any model, and any service outside the user's machine.
 question
    |
    v
- route + plan ........ language model: class of request, ordered steps
+ retrieve ............ code: passages from the knowledge base, with document and section
    |
    v
- retrieve ............ code: vector index + keyword index -> fuse -> rerank
-   |                         (knowledge base: policies, specification, model summary)
+ model  <---->  tools  language model chooses a tool and its arguments;
+   |                   the tool runs on the release 1 engine; at most 8 calls
    v
- call tools .......... language model selects tools and arguments;
-   |                   tool server (MCP) runs them on the release 1 engine
+ check ............... code: every figure and citation in the draft is verified;
+   |                   one redraft, otherwise the answer is blocked
    v
- draft ............... language model: wording only
-   |
-   v
- verify .............. code: every figure and every citation checked; else blocked
-   |
-   v
- approve ............. person: approve, edit or reject (only when the answer proposes something)
-   |
-   v
- record .............. code: audit record of the whole run
+ answer + run log
 ```
 
 Who does what:
 
 | Step | Done by | Can it change a figure? |
 |---|---|---|
-| Route and plan | Language model | No |
 | Retrieve | Code | No |
 | Choose tools and arguments | Language model | Only by asking the engine a different question |
-| Run tools | Engine, through the tool server | It is the only source of figures |
-| Draft | Language model | No: the next step rejects any figure that is not a tool result |
-| Verify | Code | No |
-| Approve | Person | Only by editing parameters, which re-runs the tools |
-| Record | Code | No |
+| Run tools | Engine | It is the only source of figures |
+| Draft the answer | Language model | No: the check rejects any figure that is not a tool result |
+| Check | Code | No |
+| Log | Code | No |
 
 Role of each document in release 2. A document is either put into the knowledge
 base, where it is split, embedded and retrieved, or it is a reference the
@@ -143,40 +140,36 @@ two scenarios) is done by a deterministic helper tool, not by the model.
 | **B. Local models served by Ollama** | Nothing leaves the machine; one install on Windows; free to reproduce | Smaller models; quality has to be measured, not assumed |
 | C. Local models run directly with Hugging Face transformers | Full control | A second runtime for the job Ollama already does; harder set-up on Windows |
 
-**Decision: B** for the chat and embedding models. The reranker (AD-5) is the
-one model run through Hugging Face and PyTorch, because that is the established
-route for cross-encoders and Ollama has no standard reranking interface.
+**Decision: B** for the chat and embedding models. The optional reranker (AD-5)
+is the one model run through Hugging Face and PyTorch, because that is the
+established route for cross-encoders and Ollama has no standard reranking
+interface.
 
 | Role | Model | Why this one |
 |---|---|---|
 | Chat, default | `qwen3:8b` | Tool calling built in; 5.2 GB, so it fits a 12 GB card with room for context [T1] |
-| Chat, candidates | `qwen3:14b`, `qwen3.5:9b`, `gemma4:12b` | Same hardware class; compared with the default in the benchmark rather than assumed better or worse [T1] |
+| Chat, alternatives | `qwen3:14b`, `qwen3.5:9b`, `gemma4:12b` | Same hardware class; any of them is tried by changing one setting and re-running the evaluation [T1] |
 | Embeddings | `nomic-embed-text` | 274 MB, 768 dimensions, inputs up to 8,192 tokens; runs on CPU [T2] |
-| Reranker | `BAAI/bge-reranker-v2-m3` | Open licence (Apache 2.0), 568 million parameters, the usual self-hosted baseline [T3] |
-| Tests | A scripted mock model | Lets the whole workflow run in continuous integration without a GPU |
+| Reranker, optional | `BAAI/bge-reranker-v2-m3` | Open licence (Apache 2.0), 568 million parameters, the usual self-hosted baseline [T3] |
+| Tests | A scripted mock model | Lets the whole path run in continuous integration without a GPU |
 
-Rules:
+Rules: every model name is a configuration value. Chat settings are
+temperature 0, a fixed seed, thinking mode off, a capped context length so
+the model stays on the GPU, and a capped length of one reply so that a model
+that repeats itself is stopped. The reference machine is an RTX 3060 with
+12 GB.
 
-* Every model name is a configuration value.
-* The default chat model is the candidate with the best tool-selection accuracy
-  on the benchmark (AD-9) among those that fit in graphics memory on the
-  reference machine (RTX 3060, 12 GB); ties go to the smaller model.
-* Chat settings: temperature 0, a fixed seed, thinking mode off for tool
-  selection, a capped context length so the model stays on the GPU.
-* Memory budget on 12 GB, to be measured during the build: chat model about
-  5 to 7 GB with context, reranker 1 to 2.5 GB depending on precision,
-  embeddings under 0.5 GB.
-
-### AD-3. How the assistant reaches the engine (BR-11, US-12)
+### AD-3. Tools (BR-11, US-12)
 
 | Option | For | Against |
 |---|---|---|
-| A. Import the engine and wrap its methods as Python functions | Least code | The assistant and the engine become one program; tools serve this assistant only |
-| B. A web service in front of the engine | Familiar | A server to run and secure; more than a single-user tool needs |
-| **C. A Model Context Protocol (MCP) server over standard input and output** | One typed definition per tool, usable by any MCP client; a process boundary between engine and language-model code; no network port | A child process and asynchronous plumbing |
+| A. Tools as Python functions the assistant calls in its own process | Simplest; synchronous; easy to test | Usable by this assistant only |
+| B. Tools only behind a Model Context Protocol (MCP) server, with the assistant as its client | One definition for any client | A child process and asynchronous plumbing on the main path of every question |
+| **C. Tools defined once as typed functions; the assistant calls them in-process; an optional thin MCP server exposes the same functions** | The main path stays simple; other MCP clients can still use the tools | Two ways in, which a test must keep identical |
 
-**Decision: C.** The server is a thin layer over the release 1 facade. A new
-analytic is added once: a method on the workbench and one tool registration.
+**Decision: C.** A tool is a typed function over the release 1 facade. A new
+analytic is added once: a method on the workbench and one tool definition,
+which then appears both in the assistant and in the MCP server.
 
 | Tool | Wraps | Main arguments |
 |---|---|---|
@@ -190,8 +183,8 @@ analytic is added once: a method on the workbench and one tool registration.
 | `income_report` | `ipw.core.workbench.Workbench.nii_table` | scenarios |
 | `prepayment_outlook` | `ipw.core.workbench.Workbench.prepay_table` | shocks, grouping |
 | `explain_change` | `ipw.core.workbench.Workbench.explain` | none |
-| `limit_status` | `ipw.core.workbench.Workbench.limit_table` | none |
-| `limit_remedy` | `ipw.core.workbench.Workbench.fix_limit` | limit id, swap tenor, target |
+| `limit_status` | `ipw.core.workbench.Workbench.limit_table`, with the headroom of each limit from `ipw.core.workbench.Workbench.limit_report` | none |
+| `limit_remedy` | `ipw.core.workbench.Workbench.fix_limit` | limit id, up to six swap tenors, target |
 | `size_hedge` | `ipw.core.workbench.Workbench.hedge` | target duration, mode, tenors |
 | `what_if` | `ipw.core.workbench.Workbench.what_if`, `ipw.core.workbench.Workbench.compare` | positions to drop, swaps to add |
 | `aggregate` | New helper | sum, difference or ratio over cells of earlier results |
@@ -205,85 +198,78 @@ Conventions for every tool:
   rejected before the engine runs.
 * **Self-describing results.** Each result carries an id, the market date, the
   tool and arguments, the unit of every column, and the rows. The id is what
-  the verifier and the audit record refer to.
+  the check and the run log refer to.
 * **Errors are data.** The engine's one-line error is returned to the model,
   which may correct its arguments once.
 
-### AD-4. The workflow (BR-12, US-13, US-14)
+### AD-4. Orchestration (BR-12, US-13, US-14)
 
 | Option | For | Against |
 |---|---|---|
-| A. One loop in which the model decides every next step | Least design | A small model loses the thread on long chains; no fixed point for checks or approval |
-| B. A fixed pipeline | Predictable | Cannot follow an investigation whose path depends on what is found |
-| **C. A graph with fixed control points and model-chosen steps between them** | Checks and approval always happen; the model has freedom only where it is useful | More design work |
+| A. A hand-written loop | No framework | The loop, its budget and its retry rule become code to maintain and explain |
+| **B. One small LangGraph graph: retrieve, then model and tools in a loop, then check** | The tool loop, the step budget and the single retry are edges of a graph that can be drawn and tested node by node | A dependency for a small job |
+| C. A larger graph with routing, planning, approval and saved state | More control points | More to build and test than the first release needs |
+| D. Several cooperating agents | Roles are separated | On one 12 GB card they are the same model taking turns: more calls, slower, more places to fail, harder to evaluate |
 
-**Decision: C**, built as a LangGraph state graph with a checkpoint after every
-step.
+**Decision: B.** LangGraph is used for lightweight orchestration only: one
+graph, four nodes, no checkpoints, no interrupts, no subgraphs, one model.
 
 | Node | Done by | Produces | If it fails |
 |---|---|---|---|
-| Route | Language model, structured output | Class of request and the question restated | Unclear request: ask one clarifying question |
-| Plan | Language model | At most six ordered steps | Empty plan: treated as a knowledge question |
-| Retrieve | Code (AD-5) | Passages with document and section | Nothing above threshold: recorded as "not in the knowledge base" |
-| Act | Language model chooses; tool server executes | Tool results | Tool error returned once for correction; then a clarifying question. At most eight tool calls per run |
-| Draft | Language model | Answer text with citations | See Verify |
-| Verify | Code (AD-6) | Pass, or the list of mismatches | One redraft; then the answer is blocked and the tool tables are shown instead |
-| Approve | Person (AD-7) | Approve, edit or reject | Edit re-runs the affected tools and Verify |
-| Record | Code (AD-8) | Audit record | Failure to write stops the run |
+| Retrieve | Code (AD-5) | Passages with document and section, or none above the threshold | Recorded as "not in the knowledge base" |
+| Model | Language model with the tools bound | A tool call, or a draft answer with citations | After eight tool calls it must answer with what it has |
+| Tools | Code: runs the requested tool | A tool result | The error is returned to the model once for correction |
+| Check | Code (AD-6) | Pass, or the list of mismatches | One redraft; then the answer is blocked and the tool tables are shown instead |
 
-Four classes of request and the path each takes:
+The same loop serves every kind of request; what differs is how many tools the
+model calls and whether passages are used.
 
-| Class | Example | Path |
+| Request | Example | What the loop does |
 |---|---|---|
-| Routine | "What is net duration?" | Route, Act (one tool), Draft, Verify, Record |
-| Composed analysis | "The five largest contributors to the +200bp AOCI loss, and their share of the total" | Route, Plan, Act (several tools and `aggregate`), Draft, Verify, Record |
-| Knowledge | "Which limit applies to AOCI and where is it defined?" | Route, Retrieve, Draft, Verify, Record |
-| Investigation | "Investigate the AOCI_UP200 breach" | Fixed skeleton below, then Approve and Record |
+| Routine | "What is net duration?" | One tool call, answer |
+| Composed analysis | "At +200bp, how much more value do the HTM securities lose than the AFS securities?" | Several tool calls, or a tool call and `aggregate`, answer |
+| Knowledge | "Which limit applies to AOCI and where is it defined?" | Answer from the retrieved passages, with citations |
+| Investigation | "Investigate the AOCI_UP200 breach" | The steps of the playbook below, answer |
 
-The two other uses named in the roadmap map onto these classes: drafting the
-commentary on the day's change is a composed analysis that starts from
-`explain_change`, and explaining a concept with the book's own figures is a
-knowledge question with one or two tool calls added.
+**Investigation playbook.** A breach investigation is the same loop started
+with an instruction that lists the evidence to gather, in order. It is a
+prompt, not a separate workflow; the run log shows which steps were done.
 
-The investigation follows a fixed skeleton so that every investigation contains
-the same evidence. The model decides which further drill-downs to add and how
-to word the findings.
-
-1. `limit_status`: the breach, its size and its policy reference.
+1. `limit_status`: the breach, its headroom (how far the value is outside its bound) and its policy reference.
 2. `scenario_breakdown` for the limit's scenario: which buckets carry the loss.
 3. `top_positions`: the positions that contribute most.
 4. `key_rate_report`: where on the curve the exposure sits.
 5. `explain_change`: what moved since the prior close.
-6. Retrieve the policy clause the limit refers to.
+6. The policy clause the limit refers to, from the retrieved passages.
 7. `limit_remedy` for two or three swap tenors: sized options and their cost to income.
-8. Draft, Verify, Approve, Record.
 
-State is checkpointed to a local SQLite file under a thread id, so a run that is
-waiting for approval survives closing the terminal and is resumed by id.
+An answer that contains a proposal says so in its first line: indicative, not
+approved, no action taken. Code, not the model, decides what counts as a
+proposal: a run that called `limit_remedy`, `size_hedge` or `what_if`.
 
-### AD-5. Retrieval (BR-13, US-7, US-15)
+### AD-5. Retrieval (BR-13, US-7)
 
 | Option | For | Against |
 |---|---|---|
-| A. Vector search only | Finds paraphrases | Weak on exact identifiers such as `AOCI_UP200`, "IPS 4.3" or "FR-11" |
-| B. Keyword search only | Exact terms | Misses a question worded differently from the document |
-| C. Both, fused | Covers both kinds of question | Two indexes |
-| **D. Both, fused, then reranked by a cross-encoder** | Best ordering of the few passages the model reads | A third model; slower |
+| **A. Vector search** | One index, one small model, light install | Weak on exact identifiers such as `AOCI_UP200`, "IPS 4.3" or "FR-11" |
+| B. Vector and keyword search, fused | Covers both kinds of question | A second index |
+| C. As B, then reranked by a cross-encoder | Best ordering of the few passages the model reads | A third model and the PyTorch stack; slower |
 
-**Decision: D as the design, with each stage switchable and the default set by
-measurement** (AD-9). The knowledge base is about ten documents, so the gain
-from fusion and reranking may be small; if it is, the default is the simpler
-configuration and the evaluation report says so.
+**Decision: A is the default. B and C are optional switches, off by default.**
+The keyword index is a small pure-Python addition; the reranker needs
+sentence-transformers and PyTorch and is installed as a separate extra. The
+knowledge base is about ten documents, so the gain from B and C may be small:
+the evaluation (AD-8) reports all three, and the default changes only if the
+numbers say so.
 
-| Stage | Design |
-|---|---|
-| Split | By Markdown heading, with a size cap; a formula stays with its section. Each passage carries document, section number and heading |
-| Vector index | Chroma, stored locally; embeddings from `nomic-embed-text`, with the prefixes that model requires for queries and for documents [T2] |
-| Keyword index | BM25 over the same passages [A2] |
-| Fuse | Top 20 from each index, combined by reciprocal rank fusion [A1] |
-| Rerank | The fused candidates scored against the question by the cross-encoder; the best four are kept |
-| Refuse | If the best score is below a threshold set on the evaluation questions, the answer is "the knowledge base does not cover this" |
-| Cite | Every statement taken from a passage carries its document and section |
+| Stage | Default | Design |
+|---|---|---|
+| Split | On | By Markdown heading, with a size cap; a formula stays with its section. Each passage carries document, section number and heading |
+| Vector index | On | Chroma, stored locally; embeddings from `nomic-embed-text`, with the prefixes that model requires for queries and for documents [T2] |
+| Keyword index and fusion | Off | BM25 over the same passages [A2]; top 20 from each index combined by reciprocal rank fusion [A1] |
+| Rerank | Off | The candidates scored against the question by the cross-encoder; the best four are kept |
+| Refuse | On | Two guards. First, a threshold on the best score: below it no passage is given and the answer is "the knowledge base does not cover this". The score is the vector similarity, taken before the optional stages, so the threshold means the same whichever switches are on. The threshold belongs to the embedding model and is set low, from the evaluation questions: it removes questions that have nothing to do with the documents and keeps every question that has an answer. Second, the model is told to give the same answer when the passages it receives do not hold one; this guard covers questions near the subject, whose scores overlap with those of answerable questions |
+| Cite | On | Every statement taken from a passage carries its document and section |
 
 Reciprocal rank fusion scores a passage $d$ from its rank $r(d)$ in each
 ranking $r$ of the set $R$ (here the vector ranking and the keyword ranking),
@@ -296,13 +282,6 @@ with the constant $k = 60$ of the original paper [A1]:
 Fusion and reranking are implemented directly on the LangChain core interfaces
 (about a hundred lines) rather than with LangChain's ready-made ensemble and
 compression retrievers, which have moved to a legacy package [T6].
-
-**Limitations shown with results (US-15).** Each row of the limitations table
-in the model summary becomes a passage with a trigger written as a rule over
-tool results, for example "the result includes 30-year coupons within one point
-of the current mortgage rate" for the missing option cost. When a tool result
-meets a trigger, code attaches the limitation to the answer. This is a rule,
-not a judgement left to the model.
 
 ### AD-6. Checking an answer before it is shown (US-6, US-7)
 
@@ -317,57 +296,41 @@ not a judgement left to the model.
 1. Every number in the draft must equal a cell of a tool result from the same
    run, after rounding to the number of decimals the draft shows. Sign, unit
    words (bp, %, years, USD millions) and thousands separators are normalised.
-2. Exempt: dates, identifiers (position, limit and section numbers), numbers
-   the user typed in the question, and numbers inside a quoted passage, which
-   must match the passage exactly.
+   A number that is part of a label or of a tool argument (the 200 of
+   `up_200`), and a count that code takes from a result (its rows, or how many
+   limits have the status BREACH), count as cells.
+2. Exempt: dates, identifiers (position, limit and section numbers) and numbers
+   the user typed in the question. A number taken from a document is accepted
+   when it stands in a retrieved passage that the draft cites; a quotation is
+   accepted when it matches a passage word for word.
 3. A figure that is not a cell of a result (a total, a difference, a share) is
    allowed only if the `aggregate` tool produced it.
-4. Every citation must refer to a passage that was retrieved in this run.
-5. On failure the model gets the list of mismatches and one more attempt. If
-   that fails, the answer is blocked: the user sees the tool tables and a
-   notice, never the unverified text.
+4. Every citation must refer to a passage that was retrieved in this run, or
+   to a section that a tool result names, such as a limit's policy reference.
+5. On failure the model gets the list of mismatches and one more attempt. For
+   a figure that is not in a result it is told the two ways out: leave the
+   figure out, or obtain it with `aggregate`. If the second attempt fails, the
+   answer is blocked: the user sees the tool tables and a notice, never the
+   unverified text.
 
 What the check does not catch: a correct figure attached to the wrong label.
 That is measured separately, as answer correctness against reference answers
-(AD-9), and every shown answer ends with the tool tables it relied on, rendered
+(AD-8), and every shown answer ends with the tool tables it relied on, rendered
 by code, so the labelled source figures are always on the page.
 
-### AD-7. Approval by a person (RULE-7, BR-12, US-8)
+### AD-7. The run log (NFR-1, US-10)
 
-| Option | For | Against |
-|---|---|---|
-| A. No pause; proposals are labelled "indicative" | Simplest | Does not meet RULE-7 |
-| B. The model asks "shall I proceed?" and interprets the reply | Conversational | The decision would rest on a model reading free text |
-| **C. The workflow stops at a defined step and resumes with a typed decision** | The stop cannot be skipped; the decision is data | Needs persistent state |
+One record per run, appended to a local file as a line of JSON: run id and
+time; the question; each tool call with arguments, result id and a hash of the
+result; the passages retrieved, with scores; model names and settings; each
+draft and the outcome of the check; whether the run contains a proposal.
 
-**Decision: C**, using the graph's interrupt and the SQLite checkpoint.
+Because every figure comes from a logged tool call on the deterministic
+engine, the figures of an answer can be reproduced by making the same calls
+with the release 1 commands; this does not depend on the language model giving
+the same words twice.
 
-* **When.** Code, not the model, decides: a run that called `limit_remedy`,
-  `size_hedge` or `what_if` contains a proposal and must stop.
-* **What the person sees.** The verified answer, the proposal with its effect on
-  the limit, on every other limit, on duration and on income, and the cited
-  policy clause.
-* **Decisions.** Approve; edit (change tenor, notional or target, which re-runs
-  the tools and the check before stopping again); reject with a reason.
-* **What approval does.** It records the decision. The system executes nothing
-  and books nothing.
-* **Resuming.** On resume the approval step runs again from its start, so it
-  contains no action with a side effect; writing the record is a separate step
-  after it [T4].
-
-### AD-8. The audit record (NFR-1, US-10)
-
-One record per run, appended to a local file as a line of JSON: thread id and
-time; the question; class and plan; each tool call with arguments, result id
-and a hash of the result; the passages retrieved, with scores at each stage;
-model names and settings; each draft and the verifier's outcome; the decision
-and who made it.
-
-A replay command re-executes the recorded tool calls against the same input
-files and compares the hashes. Reproducing the figures of an answer therefore
-does not depend on the language model giving the same words twice.
-
-### AD-9. Evaluation and benchmark (US-11, US-16, NFR-6, NFR-7)
+### AD-8. Evaluation (US-11, US-16, NFR-6, NFR-7)
 
 | Option | For | Against |
 |---|---|---|
@@ -375,33 +338,67 @@ does not depend on the language model giving the same words twice.
 | B. Scores from a judging model | Covers free text | Not reproducible with a small local judge |
 | **C. Deterministic measures on fixed question sets, published as measured** | Comparable between runs; failures visible | Question sets have to be written and maintained |
 
-**Decision: C.**
+**Decision: C**, run by one command.
 
 | Measure | Definition | Set |
 |---|---|---|
 | Retrieval hit rate at 4 | Share of questions for which a reference section is among the four passages passed to the model | 30 questions with reference sections |
-| Mean reciprocal rank | Mean of one over the rank of the first reference section, zero if absent | Same |
-| Refusal correctness | Share of out-of-scope questions answered "not covered" | 10 questions with no answer in the knowledge base |
+| Refusal correctness | Share of out-of-scope questions answered "not covered". Reported twice: for the assistant, which is asked each question, and for the threshold of AD-5 alone | 10 questions with no answer in the knowledge base |
 | Tool-selection accuracy | Share of tasks for which the tools called and their arguments equal the reference | 20 routine tasks |
 | First-draft pass rate | Share of first drafts that pass the check of AD-6 | All benchmark tasks |
 | Block rate | Share of runs whose answer was blocked after the second draft | All benchmark tasks |
 | Answer correctness | Share of tasks whose answer contains every reference pair of label and value | All benchmark tasks |
-| Time to answer | Seconds, median and 90th percentile, on the reference machine | All benchmark tasks |
+| Time to answer | Seconds from the question to the checked answer, median and 90th percentile, on the reference machine with the models loaded | All benchmark tasks |
 
-With $Q$ the question set, $G_q$ the reference sections of question $q$ and
-$\text{rank}_q$ the rank of the first reference section retrieved:
+How the measures on tasks are taken:
+
+* **Reference values.** No figure of the engine is stored with a task. A task
+  names its reference path, the tool calls that answer it, and the reference
+  values are read from the results of that path when the evaluation runs.
+* **A pair of label and value.** An answer contains a pair when the value
+  stands in it, rounded to the decimals the answer shows, with one of the
+  pair's labels in the same sentence or line. A task that needs a document
+  also names the sections of which the answer has to cite one.
+* **Tool calls equal to the reference.** A task may list more than one accepted
+  way to answer. A call matches when the tool is the same and every argument
+  the reference names has the same value; an argument the reference does not
+  name is free. Calls that returned an error are not counted.
+* **A run that fails.** A run that ends in an error counts as not correct. A
+  task that was not run is left out and reported as such.
+
+With $Q$ the question set and $G_q$ the reference sections of question $q$:
 
 ```math
-\text{Hit@}4 = \frac{1}{|Q|} \sum_{q \in Q} \mathbf{1}\left[\, G_q \cap \text{top}_4(q) \neq \varnothing \,\right] \qquad \text{MRR} = \frac{1}{|Q|} \sum_{q \in Q} \frac{1}{\text{rank}_q}
+\text{Hit@}4 = \frac{1}{|Q|} \sum_{q \in Q} \mathbf{1}\left[\, G_q \cap \text{top}_4(q) \neq \varnothing \,\right]
 ```
 
-Three comparisons are produced by one command each:
+The report has two tables:
 
-| Comparison | Rows | Answers |
+| Table | Rows | Answers |
 |---|---|---|
-| Retrieval ablation | Vector only; keyword only; fused; fused and reranked | Does each retrieval stage earn its place? |
-| Model comparison | The default and the three candidate chat models | Which model is the default on this hardware? |
-| Release 1 against release 2 | Thirty tasks in three classes: routine, composed analysis, questions needing documents | Where does the assistant help, and where is the plain command the better tool? |
+| Retrieval | Vector search; with keyword fusion; with fusion and reranking (the last only if installed) | Is the default retrieval good enough, and does an optional stage earn its place? |
+| Release 1 against release 2 | Thirty tasks in three classes, ten each: routine, composed analysis, questions needing documents | Where does the assistant help, and where is the plain command the better tool? |
+
+The task set holds forty tasks: twenty routine, ten composed and ten needing
+documents. The benchmark of thirty is ten of each class; tool-selection
+accuracy uses all twenty routine tasks. For each task the set records whether
+release 1 answers it: with one command, with several commands and work by
+hand, or not at all. The commands it names are run and timed next to the
+assistant, and a test confirms that one command shows the figures of a routine
+task and that a composed task needs more than that.
+
+The report also lists every task with its outcome and, for each task that was
+not answered correctly, what was missing, the tool calls made and the text of
+the answer. The same content is written as a data file, so that an answer can
+be scored again without running the model again.
+
+The investigation is the fourth kind of request and is not one of the three
+classes. The evaluation runs the playbook of AD-4 for every limit in breach
+and reports which of its steps were done, whether the answer passed the check,
+and the answer itself.
+
+Trying another chat model is not a separate feature: change the model name and
+run the same command.
 
 Targets, from the roadmap: retrieval hit rate of at least 85%; no unverified
 figure shown. A shown answer passes the check by construction, so first-draft
@@ -412,60 +409,82 @@ Where the measurements run:
 
 | Run | Model | Purpose |
 |---|---|---|
-| Continuous integration, every commit | Scripted mock model; fixed fake embeddings | The workflow, the tool server, the check, approval, the audit record and the evaluation code work. Says nothing about model quality |
+| Continuous integration, every commit | A mock model that follows the reference path of each task; fixed fake embeddings | The loop, the tools, the check, the run log and the evaluation code work, and the task set is consistent with the engine. Says nothing about model quality |
 | Reference machine, by the owner | The real models | The figures that are published in `docs/EVALUATION.md`, with hardware, model tags and date. Results below target are published as measured |
 
-### AD-10. Packaging and interfaces (NFR-5, US-12)
+### AD-9. Packaging and interfaces (NFR-5, US-12)
 
-* **Installation.** An optional extra, installed with `pip install -e ".[agent]"`,
-  on top of release 1. Release 1 keeps working without it.
+* **Installation.** An optional extra on top of release 1, installed with
+  `pip install -e ".[agent]"`; release 1 keeps working without it. The reranker
+  is a second extra, `pip install -e ".[agent,rerank]"`, which brings
+  sentence-transformers and PyTorch.
 * **Configuration.** One file, `config/agent.yaml`: model names, context
-  length, retrieval switches and thresholds, budgets, file locations.
-* **Commands.**
+  length, retrieval switches and threshold, the tool-call budget, file
+  locations.
+* **Two commands, two modes.**
+
+| Command | Mode |
+|---|---|
+| `ipw` | Classic mode: the fixed commands of release 1 on the deterministic engine |
+| `ipw-ai` | AI mode: a local language model, tool calling and retrieval over the same engine |
+
+* **Commands of AI mode.**
 
 | Command | Purpose |
 |---|---|
-| `ipw-mcp` | Start the tool server (also usable from any other MCP client) |
-| `ipw-agent ask "..."` | One question, one verified answer |
-| `ipw-agent investigate AOCI_UP200` | Run the investigation for a limit |
-| `ipw-agent resume <thread>` | Continue a run that is waiting for approval |
-| `ipw-agent kb build` | Split, embed and index the knowledge base |
-| `ipw-agent replay <thread>` | Re-execute a recorded run's tool calls and compare |
-| `ipw-agent eval` | Retrieval ablation and model comparison |
-| `ipw-agent benchmark` | Release 1 against release 2 |
+| `ipw-ai ask "..."` | One question, one checked answer |
+| `ipw-ai investigate AOCI_UP200` | The investigation playbook for a limit |
+| `ipw-ai kb build` | Split, embed and index the knowledge base. A question builds the index first when it is missing or older than its sources |
+| `ipw-ai eval` | The evaluation report, written to `reports/`. `ipw-ai eval --mock` runs it without models, on the mock model |
+| `ipw-ai mcp` | Optional: serve the same tools to any other MCP client |
 
 * **Interface language.** English, command line only, as in release 1.
 
-## 6. Planned repository layout
+## 6. Deferred and not adopted
+
+| Item | Status | What adding it later takes |
+|---|---|---|
+| Recorded approval of a proposal (US-8; second part of RULE-7) | Deferred | A saved workflow state, a stop after the check triggered by the proposal rule of AD-4, three typed decisions (approve, edit, reject) and a resume command. LangGraph's interrupt is the intended mechanism [T4] |
+| Separate routing and planning steps | Deferred | Two more nodes before the loop. Worth adding only if the evaluation shows the single loop losing its way on composed tasks |
+| Automatic attachment of model limitations to results (US-15) | Deferred | A trigger rule per limitation, evaluated on tool results. Until then the model summary is retrieved and cited when the question asks for it |
+| Replay command | Deferred | Re-execute the logged tool calls and compare result hashes. The log already holds what it needs |
+| Several cooperating agents | Not adopted | Nothing in the requirements needs it |
+
+Until the approval step exists, RULE-7 is met as it is for the release 1
+commands: the system creates no trade, designation or exception and labels
+every proposal indicative; the portfolio manager's approval happens outside the
+system and is not recorded by it.
+
+## 7. Planned repository layout
 
 ```text
-src/ipw/mcp/            tool server: one registration per tool, no language-model code
 src/ipw/agent/
   config.py             agent configuration
-  models.py             chat, embedding and reranker factories; the mock model
+  models.py             chat, embedding and optional reranker factories; the mock model
+  tools.py              the typed tools over the workbench, defined once
   kb.py                 split, embed, index
-  retrieval.py          vector + keyword search, fusion, rerank, refusal
-  graph.py              the workflow: nodes, routing, budgets
+  retrieval.py          vector search; optional keyword fusion and rerank; refusal
+  graph.py              the four-node graph and its budgets
   verify.py             the check on figures and citations
-  approval.py           the stop, the three decisions, resume
-  audit.py              the record and replay
-  evals.py              measures, ablation, model comparison, benchmark
-  cli.py                the ipw-agent commands
-kb/                     knowledge base sources and limitation triggers
+  runlog.py             the run log
+  evals.py              measures and the two report tables
+  mcp_server.py         optional MCP server exposing tools.py
+  cli.py                the ipw-ai commands
+kb/                     knowledge base sources
 evals/                  question sets, reference answers, benchmark tasks
 config/agent.yaml       agent configuration
 tests/agent/            tests that run on the mock model
 docs/EVALUATION.md      measured results from the reference machine
 ```
 
-Main dependencies of the extra: LangGraph; the LangChain core package and its
-Chroma, Ollama and text-splitter integrations; the LangChain adapter for MCP
-tools; the MCP Python SDK; the Chroma database; a BM25 implementation;
-sentence-transformers with PyTorch. Exact versions are pinned when the extra is
-created. Two of these packages have recently changed their public interfaces
-[T5][T6], so the pins are part of the design, not a detail.
+Main dependencies of the `agent` extra: LangGraph; the LangChain core package
+and its Chroma, Ollama and text-splitter integrations; the Chroma database; a
+BM25 implementation; the MCP Python SDK for the optional server. The `rerank`
+extra adds sentence-transformers with PyTorch. Exact versions are pinned when
+the extras are created. Two of these packages have recently changed their
+public interfaces [T5][T6], so the pins are part of the design, not a detail.
 
-## 7. Control position
+## 8. Control position
 
 The valuation engine applies financial theory to produce quantitative estimates
 and is a model in the sense of the supervisory guidance on model risk
@@ -473,9 +492,9 @@ management; its documentation, limitations and tests are in the functional
 specification and the model summary. Release 2 leaves that boundary where it
 is: no figure originates outside the engine.
 
-The assistant itself is a generative, agentic use of a language model, which
-that guidance places outside its scope [A3]. The design therefore does not
-claim conformance for the assistant. It states its own controls:
+The assistant itself is a generative use of a language model, which that
+guidance places outside its scope [A3]. The design therefore does not claim
+conformance for the assistant. It states its own controls:
 
 | Risk | Control | Evidence |
 |---|---|---|
@@ -483,45 +502,47 @@ claim conformance for the assistant. It states its own controls:
 | A correct figure is attached to the wrong label | Reference answers; tool tables appended to every answer | Answer correctness |
 | The wrong tool or arguments | Typed schemas; allowed values from configuration; one corrected retry | Tool-selection accuracy |
 | An answer cites a document that does not say it | Citations restricted to retrieved passages; refusal threshold | Hit rate, refusal correctness |
-| A proposal is acted on without a decision | Fixed stop decided by code; typed decision; nothing executed (AD-7) | Workflow tests; audit record |
-| A result cannot be reproduced | Audit record and replay of tool calls (AD-8) | Replay test |
+| A proposal is taken as a decision | No tool can write; nothing is executed or booked; every proposal is labelled indicative and marked in the run log. A recorded approval step is deferred (section 6) | Tool tests; run log |
+| A result cannot be reproduced | Every figure is a logged call on the deterministic engine (AD-7) | Run log |
 | Data leaves the machine | Local models only; no telemetry or tracing service (AD-2) | Dependency and configuration review |
-| A change makes the assistant worse | The same evaluation before a new default (AD-9) | Evaluation report per change |
+| A change makes the assistant worse | The same evaluation before a new default (AD-8) | Evaluation report per change |
 
-## 8. Risks
+## 9. Risks
 
 | Risk | Effect | Response |
 |---|---|---|
-| An 8B local model chooses tools poorly on multi-step tasks | Composed analyses fail or are blocked | Fixed skeleton for investigations; step budget; candidates compared; failures published |
-| The knowledge base is too small for fusion and reranking to matter | Added complexity without benefit | Each stage is a switch; the default follows the ablation |
-| Graphics memory is short with chat model, reranker and context together | Slow answers | Reranker can run on CPU; context length is capped; sizes measured at build |
+| An 8B local model chooses tools poorly on multi-step tasks | Composed analyses fail or are blocked | Step budget; the playbook for investigations; another model is one setting away; failures published |
+| A single loop is not enough structure for long tasks | Steps of the playbook skipped | The run log shows which steps were done; routing and planning nodes are the designed next step (section 6) |
+| Vector search misses questions that quote an identifier | Wrong or no passage | The keyword switch; measured in the retrieval table |
 | Library interfaces move again | Build breaks on a fresh install | Pinned versions; mock-model tests in continuous integration on Windows and Linux |
 | The published figures depend on one machine | Not comparable elsewhere | Hardware, model tags and date recorded with every result |
-| The check is read as a guarantee of correctness | Over-reliance | Section AD-6 states what it does not catch; answer correctness is reported beside it |
+| The check is read as a guarantee of correctness | Over-reliance | AD-6 states what it does not catch; answer correctness is reported beside it |
+| Release 2 has no recorded approval | A proposal could be read as agreed | The label on every proposal and the mark in the run log |
 
-## 9. Build plan
+## 10. Build plan
 
 | Step | Delivers | Evidence |
 |---|---|---|
-| 1. Tool server | `ipw-mcp` with all tools of AD-3 | Each tool returns the same figures as the matching release 1 command; schema rejects bad arguments |
-| 2. Knowledge base and retrieval | Constructed documents, indexes, fusion, rerank, refusal; retrieval question set | Retrieval tests on fake embeddings; ablation command runs |
-| 3. Workflow | Graph, check, approval, audit record, replay; `ipw-agent` commands | Mock-model tests for all four request classes, a blocked answer, approve, edit, reject, resume after restart, replay |
-| 4. Evaluation and benchmark | Task sets, reference answers, the three comparisons | Commands run on the mock model in continuous integration |
-| 5. Measurement on the reference machine | `docs/EVALUATION.md`; default model and retrieval configuration chosen from it | Published results, including tasks that failed |
+| 1. Tools | The typed tools of AD-3 and the optional MCP server | Each tool returns the same figures as the matching release 1 command; the schema rejects bad arguments; the MCP server lists the same tools |
+| 2. Knowledge base and retrieval | Constructed documents, the index, vector search, refusal; the optional switches; the retrieval question set | Retrieval tests on fake embeddings |
+| 3. The loop | Graph, check, run log; the `ipw-ai` commands | Mock-model tests for the four kinds of request, a blocked answer and the proposal label |
+| 4. Evaluation | Task sets, reference answers, the report | The command runs on the mock model in continuous integration |
+| 5. Measurement on the reference machine | `docs/EVALUATION.md`; the defaults confirmed or changed from it | Published results, including tasks that failed |
 | 6. Documents | Functional specification for release 2, acceptance cases, README | Document checks extended to the new documents |
 
 Steps 1 to 4 and 6 can be completed and tested without a GPU. Step 5 needs the
 reference machine.
 
-## 10. Open points
+## 11. Open points
 
 | Point | Default if not decided otherwise |
 |---|---|
 | Whether to add the public text of SR 26-2 to the knowledge base | No: the assistant answers questions about the desk's own policy and model, not about supervisory guidance |
 | Which chat model is the default | `qwen3:8b` until step 5 gives a measured answer |
-| Whether the reranker stays in the default configuration | Decided by the retrieval ablation in step 5 |
+| Whether keyword fusion or the reranker becomes a default | Decided by the retrieval table in step 5 |
+| Which deferred item comes first | Decided after step 5 |
 
-## 11. References
+## 12. References
 
 Literature and guidance:
 
@@ -539,7 +560,7 @@ again when the versions are pinned.
 | T1 | Ollama model library: `qwen3:8b` 5.2 GB with tool calling; `qwen3.5:9b` 6.6 GB; `gemma4:12b` about 8 GB; `qwen3:14b` 8 to 9 GB. https://ollama.com/library |
 | T2 | `nomic-embed-text` on Ollama: 274 MB, 768 dimensions, 8,192-token input, separate prefixes for queries and documents. https://ollama.com/library/nomic-embed-text |
 | T3 | `BAAI/bge-reranker-v2-m3` on Hugging Face: Apache 2.0, about 568 million parameters. https://huggingface.co/BAAI/bge-reranker-v2-m3 |
-| T4 | LangGraph, interrupts and human-in-the-loop: an interrupt needs a checkpointer, and the interrupted node runs again from its start on resume. https://docs.langchain.com/oss/python/langgraph/interrupts |
+| T4 | LangGraph, interrupts and human-in-the-loop, for the deferred approval step: an interrupt needs a checkpointer, and the interrupted node runs again from its start on resume. https://docs.langchain.com/oss/python/langgraph/interrupts |
 | T5 | MCP Python SDK (`mcp`), version 2 current since 2026, with a different server class from version 1. https://github.com/modelcontextprotocol/python-sdk |
 | T6 | LangChain 1.x: the ensemble and compression retriever classes are in the separate legacy package `langchain-classic`. https://docs.langchain.com/oss/python/integrations/document_transformers/cross_encoder_reranker |
-| T7 | LangChain adapter for MCP tools (`langchain-mcp-adapters`). https://github.com/langchain-ai/langchain-mcp-adapters |
+| T7 | LangChain adapter for MCP tools (`langchain-mcp-adapters`), not needed while the assistant calls its tools in-process. https://github.com/langchain-ai/langchain-mcp-adapters |

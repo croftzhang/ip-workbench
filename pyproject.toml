@@ -31,13 +31,14 @@ agent = [
     "langchain-chroma==1.1.0",          # the vector index
     "chromadb==1.5.9",
     "rank-bm25==0.2.2",                 # the optional keyword index
+    "langgraph==1.2.20",                # the four-node loop
 ]
 # The optional reranker; brings PyTorch:  pip install -e ".[agent,rerank]"
 rerank = ["sentence-transformers==6.2.0"]
 
 [project.scripts]
 ipw = "ipw.classic.cli:main"
-ipw-mcp = "ipw.agent:mcp_main"
+ipw-ai = "ipw.agent.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -45,6 +46,10 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = [
+    # raised inside a dependency of langchain-core on recent Python versions; nothing here calls it
+    "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning:langsmith",
+]
 
 [tool.ruff]
 line-length = 110

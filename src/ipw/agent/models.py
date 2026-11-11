@@ -1,14 +1,15 @@
-"""Model factories of the assistant: embeddings and the optional reranker.
+"""Model factories of the assistant: the chat model, embeddings and the optional reranker.
 
 Every model is named in ``config/agent.yaml`` and runs on the user's machine.
-The embedding model is served by Ollama. The reranker is a cross-encoder run
-through sentence-transformers and PyTorch, installed with the ``rerank`` extra
-and loaded only when its switch is on.
+The chat model and the embedding model are served by Ollama. The reranker is a
+cross-encoder run through sentence-transformers and PyTorch, installed with the
+``rerank`` extra and loaded only when its switch is on.
 
-``HashingEmbeddings`` is the stand-in used by the tests: it needs no model and
-gives the same vectors on every machine. It matches shared words, nothing
-more, so a result obtained with it says that the code works and says nothing
-about the quality of retrieval.
+Two stand-ins let the whole path run without a model, in the tests and in
+continuous integration. ``ScriptedChatModel`` replies with the next message of
+a fixed script. ``HashingEmbeddings`` gives the same word-hash vectors on every
+machine. A result obtained with either says that the code works and says
+nothing about the quality of a real model.
 """
 
 from __future__ import annotations
@@ -18,10 +19,15 @@ import re
 import zlib
 from collections import Counter
 from collections.abc import Callable, Sequence
+from typing import Any
 
 from langchain_core.embeddings import Embeddings
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import AIMessage, BaseMessage
+from langchain_core.outputs import ChatGeneration, ChatResult
+from pydantic import Field
 
-from ipw.agent.config import EmbeddingConfig
+from ipw.agent.config import ChatConfig, EmbeddingConfig
 
 # A scorer gives one relevance score per passage for a question; higher is more relevant.
 Scorer = Callable[[str, Sequence[str]], Sequence[float]]
@@ -31,6 +37,49 @@ _STOPWORDS = frozenset(
     "a an and are as at be by can do does for from has have how in is it its may not of on or "
     "that the their them there this to under was what when where which who why will with".split()
 )
+
+
+def chat(config: ChatConfig) -> BaseChatModel:
+    """The chat model named in the configuration, with the settings of the design: fixed and repeatable."""
+    from langchain_ollama import ChatOllama  # creates a client; nothing is sent until first use
+
+    return ChatOllama(
+        model=config.model,
+        base_url=config.base_url,
+        temperature=config.temperature,
+        seed=config.seed,
+        num_ctx=config.num_ctx,
+        num_predict=config.num_predict,
+        reasoning=config.reasoning,
+    )
+
+
+class ScriptedChatModel(BaseChatModel):
+    """The mock model: replies with the next message of a fixed script, whatever it is asked.
+
+    ``calls`` records what it was sent: the messages, and whether tools were offered.
+    """
+
+    script: list[AIMessage]
+    calls: list[dict[str, Any]] = Field(default_factory=list)
+
+    @property
+    def _llm_type(self) -> str:
+        return "scripted"
+
+    def bind_tools(self, tools: Sequence[Any], **kwargs: Any):
+        return self.bind(tools=list(tools), **kwargs)
+
+    def _generate(
+        self, messages: list[BaseMessage], stop=None, run_manager=None, **kwargs: Any
+    ) -> ChatResult:
+        if len(self.calls) >= len(self.script):
+            raise ValueError(
+                f"the script of the mock model has {len(self.script)} replies and one more was asked for"
+            )
+        reply = self.script[len(self.calls)].model_copy(deep=True)  # a script may repeat one message
+        self.calls.append({"messages": list(messages), "tools": bool(kwargs.get("tools"))})
+        return ChatResult(generations=[ChatGeneration(message=reply)])
 
 
 def words(text: str) -> list[str]:
