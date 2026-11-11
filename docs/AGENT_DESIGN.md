@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Document | Solution design for release 2, version 1.3 |
+| Document | Solution design for release 2, version 1.4 |
 | Status | Design agreed. Scope simplified by the owner on 2026-11-10 to four things: a local language model, retrieval, tool calling and the engine's analytics. On the same day the owner named the two commands: `ipw` is classic mode and `ipw-ai` is AI mode. Built step by step in the order of section 10 |
 | Owner | Product Owner, Investment Portfolio analytics |
 | Last updated | 2026-11-10 |
@@ -538,9 +538,9 @@ reference machine.
 | Point | Default if not decided otherwise |
 |---|---|
 | Whether to add the public text of SR 26-2 to the knowledge base | No: the assistant answers questions about the desk's own policy and model, not about supervisory guidance |
-| Which chat model is the default | `qwen3:8b` until step 5 gives a measured answer |
-| Whether keyword fusion or the reranker becomes a default | Decided by the retrieval table in step 5 |
-| Which deferred item comes first | Decided after step 5 |
+| Which chat model is the default | `qwen3:8b`: the one model measured in [EVALUATION.md](EVALUATION.md), which is a record of results and a reference only. Another model is compared by changing one setting and running the same command |
+| Whether keyword fusion or the reranker becomes a default | Neither. In the retrieval table of EVALUATION.md keyword fusion does not raise the hit rate, and the reranker is not measured; both stay optional switches |
+| Which deferred item comes first | Open. EVALUATION.md, section 11, lists what the results point to |
 
 ## 12. References
 

@@ -351,8 +351,8 @@ def resolve(task: Task, toolbox: Toolbox) -> list[Expected]:
                 if isinstance(value, bool) or not isinstance(value, (int, float)):
                     where = f"row {row!r}, column {column!r}"
                     raise ValueError(f"task {task.id}: result {cell['result']} has no figure in {where}")
-                if "position" in cell and not labels:
-                    labels = (row,)  # a figure picked by position is labelled by its row
+                if "position" in cell and row not in labels:
+                    labels = (*labels, row)  # a figure picked by position may also be named by its row
                 where = f"{row} {column}"
                 named = not labels or any(label.lower() in where.lower() for label in labels)
                 lead = "" if named else f"{labels[0]}, "

@@ -27,7 +27,8 @@
 #             same sentence or line.
 #               cell    a figure of the reference path: result, row (or
 #                       position, the n-th row) and column; a list of cells
-#                       means any one of them
+#                       means any one of them. The label of a row picked by
+#                       position is one of its labels
 #               number  a figure that stands in a document
 #               text    wording, any one of the phrases
 #               rows    the labels of the first rows of a result
@@ -237,7 +238,7 @@ tasks:
       - [{top_positions: {metric: unrealized_mm, count: 3, direction: smallest}}]
     answer:
       - {rows: {result: r1, first: 3}}
-      - {cell: {result: r1, position: 1, column: unrealized_mm}}
+      - {label: [largest, biggest, worst], cell: {result: r1, position: 1, column: unrealized_mm}}
 
   - id: T19
     class: routine

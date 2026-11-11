@@ -1,0 +1,4070 @@
+{
+ "meta": {
+  "date": "2026-11-10T22:53-05:00",
+  "market_date": "2026-11-09",
+  "mock": false,
+  "system": "Windows-11-10.0.26200-SP0",
+  "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+  "gpu": "NVIDIA GeForce RTX 3060, 12288 MiB",
+  "python": "3.14.2",
+  "packages": {
+   "langgraph": "1.2.20",
+   "langchain-core": "1.7.7",
+   "langchain-ollama": "1.1.0",
+   "langchain-chroma": "1.1.0",
+   "chromadb": "1.5.9",
+   "ollama": "0.6.3"
+  },
+  "chat": {
+   "model": "qwen3:8b",
+   "temperature": 0,
+   "seed": 42,
+   "num_ctx": 16384,
+   "num_predict": 2048,
+   "reasoning": false,
+   "served": "8.2B, Q4_K_M, digest 500a1f067a9f, 100% in GPU memory"
+  },
+  "embedding": {
+   "model": "nomic-embed-text",
+   "served": "137M, F16, digest 0a109f422b47, 100% in GPU memory"
+  },
+  "retrieval": {
+   "top_k": 4,
+   "candidates": 20,
+   "refuse_below": 0.6,
+   "keyword": false,
+   "rerank": false
+  },
+  "tool_calls": 8
+ },
+ "retrieval": {
+  "methods": [
+   {
+    "method": "Vector search",
+    "keyword": false,
+    "rerank": false,
+    "default": true,
+    "installed": true,
+    "hit_rate": 0.9666666666666667,
+    "hits": 29,
+    "in_scope": 30,
+    "misses": [
+     "R08"
+    ],
+    "refusal": 0.3,
+    "refused": 3,
+    "out_of_scope": 10
+   },
+   {
+    "method": "With keyword fusion",
+    "keyword": true,
+    "rerank": false,
+    "default": false,
+    "installed": true,
+    "hit_rate": 0.9333333333333333,
+    "hits": 28,
+    "in_scope": 30,
+    "misses": [
+     "R08",
+     "R27"
+    ],
+    "refusal": 0.3,
+    "refused": 3,
+    "out_of_scope": 10
+   },
+   {
+    "method": "With fusion and reranking",
+    "keyword": true,
+    "rerank": true,
+    "default": false,
+    "installed": false
+   }
+  ],
+  "refuse_below": 0.6,
+  "suggested_threshold": 0.680747926235199,
+  "similarity": {
+   "in_scope": {
+    "min": 0.6357747316360474,
+    "median": 0.7710487544536591,
+    "max": 0.8458143472671509
+   },
+   "out_of_scope": {
+    "min": 0.5096880197525024,
+    "median": 0.6390801072120667,
+    "max": 0.720012366771698
+   }
+  },
+  "questions": [
+   {
+    "id": "R01",
+    "question": "Which limit applies to the after-tax AOCI loss in a 200bp sell-off, and how large may the loss be?",
+    "in_scope": true,
+    "references": [
+     "IPS 4.3",
+     "IPS 4"
+    ],
+    "returned": [
+     "IPS 4.3",
+     "ACCT 3.2",
+     "IPS 4.4",
+     "SPEC FR-8"
+    ],
+    "best_similarity": 0.7733973860740662,
+    "covered": true
+   },
+   {
+    "id": "R02",
+    "question": "Inside what range must the net effective duration of the portfolio stay?",
+    "in_scope": true,
+    "references": [
+     "IPS 4.1",
+     "IPS 4"
+    ],
+    "returned": [
+     "IPS 4.1",
+     "IPS 4.2",
+     "HEDGE 5.1",
+     "IPS 4"
+    ],
+    "best_similarity": 0.8194468021392822,
+    "covered": true
+   },
+   {
+    "id": "R03",
+    "question": "How much of the portfolio may be classified as held to maturity?",
+    "in_scope": true,
+    "references": [
+     "IPS 3.2"
+    ],
+    "returned": [
+     "IPS 3.2",
+     "ACCT 2.2",
+     "IPS 3.1",
+     "HEDGE 3.2"
+    ],
+    "best_similarity": 0.768700122833252,
+    "covered": true
+   },
+   {
+    "id": "R04",
+    "question": "What has to happen on the day a limit is breached?",
+    "in_scope": true,
+    "references": [
+     "IPS 5.3"
+    ],
+    "returned": [
+     "IPS 5.3",
+     "IPS 5.2",
+     "SPEC FR-10",
+     "IPS 5.1"
+    ],
+    "best_similarity": 0.8078976273536682,
+    "covered": true
+   },
+   {
+    "id": "R05",
+    "question": "At what utilisation does a limit go into warning?",
+    "in_scope": true,
+    "references": [
+     "IPS 5.2"
+    ],
+    "returned": [
+     "IPS 5.2",
+     "SPEC FR-10",
+     "IPS 5.5"
+    ],
+    "best_similarity": 0.8252551555633545,
+    "covered": true
+   },
+   {
+    "id": "R06",
+    "question": "Who must approve a remediation proposal before it is acted on?",
+    "in_scope": true,
+    "references": [
+     "IPS 5.4",
+     "IPS 2",
+     "HEDGE 7"
+    ],
+    "returned": [
+     "IPS 5.4",
+     "SPEC FR-11",
+     "IPS 5.3",
+     "MODEL 2"
+    ],
+    "best_similarity": 0.6808438897132874,
+    "covered": true
+   },
+   {
+    "id": "R07",
+    "question": "How far may twelve-month net interest income fall when rates move by 100bp?",
+    "in_scope": true,
+    "references": [
+     "IPS 4.5",
+     "IPS 4"
+    ],
+    "returned": [
+     "IPS 4.5",
+     "IPS 4.2",
+     "IPS 4.4",
+     "ACCT 5"
+    ],
+    "best_similarity": 0.7886679768562317,
+    "covered": true
+   },
+   {
+    "id": "R08",
+    "question": "Which kinds of securities is the desk allowed to buy?",
+    "in_scope": true,
+    "references": [
+     "IPS 3.1"
+    ],
+    "returned": [
+     "ACCT Accounting Note: AFS and HTM Securities",
+     "IPS 3.2",
+     "IPS 3.3",
+     "ACCT 2.1"
+    ],
+    "best_similarity": 0.7031235098838806,
+    "covered": true
+   },
+   {
+    "id": "R09",
+    "question": "What does the policy say about DUR_DRIFT_UP100?",
+    "in_scope": true,
+    "references": [
+     "IPS 4.2",
+     "IPS 4"
+    ],
+    "returned": [
+     "IPS 6",
+     "SCEN 7",
+     "IPS 4.2",
+     "IPS 4.5"
+    ],
+    "best_similarity": 0.7060117721557617,
+    "covered": true
+   },
+   {
+    "id": "R10",
+    "question": "Can held-to-maturity securities be hedged with swaps?",
+    "in_scope": true,
+    "references": [
+     "HEDGE 3.2",
+     "ACCT 4"
+    ],
+    "returned": [
+     "HEDGE 3.2",
+     "IPS 3.2",
+     "ACCT 2.2",
+     "HEDGE 5.1"
+    ],
+    "best_similarity": 0.7783668041229248,
+    "covered": true
+   },
+   {
+    "id": "R11",
+    "question": "Which instruments may the desk use to hedge interest-rate risk?",
+    "in_scope": true,
+    "references": [
+     "HEDGE 2"
+    ],
+    "returned": [
+     "MODEL 1",
+     "HEDGE 2",
+     "HEDGE 5.2",
+     "ACCT 4"
+    ],
+    "best_similarity": 0.7479454278945923,
+    "covered": true
+   },
+   {
+    "id": "R12",
+    "question": "When a limit is breached, how is the restoring swap sized and in what notional steps?",
+    "in_scope": true,
+    "references": [
+     "HEDGE 5.3",
+     "SPEC FR-11"
+    ],
+    "returned": [
+     "SPEC FR-11",
+     "HEDGE 5.3",
+     "MODEL 2",
+     "IPS 5.3"
+    ],
+    "best_similarity": 0.8158532381057739,
+    "covered": true
+   },
+   {
+    "id": "R13",
+    "question": "Why would a hedge be spread over several swap tenors instead of one?",
+    "in_scope": true,
+    "references": [
+     "HEDGE 5.2",
+     "SPEC FR-12"
+    ],
+    "returned": [
+     "HEDGE 5.2",
+     "SPEC FR-12",
+     "HEDGE 5.1",
+     "HEDGE 5.3"
+    ],
+    "best_similarity": 0.7511483430862427,
+    "covered": true
+   },
+   {
+    "id": "R14",
+    "question": "In what ways are the hedge sizes produced by the analytics only approximate?",
+    "in_scope": true,
+    "references": [
+     "HEDGE 8",
+     "MODEL 3"
+    ],
+    "returned": [
+     "HEDGE 7",
+     "HEDGE 8",
+     "HEDGE 5.2",
+     "SPEC FR-12"
+    ],
+    "best_similarity": 0.7786079049110413,
+    "covered": true
+   },
+   {
+    "id": "R15",
+    "question": "Why does a fall in the value of an HTM security not reduce reported equity?",
+    "in_scope": true,
+    "references": [
+     "ACCT 2.2",
+     "ACCT 3.1"
+    ],
+    "returned": [
+     "ACCT 2.2",
+     "IPS 4.4",
+     "ACCT 1",
+     "ACCT 6"
+    ],
+    "best_similarity": 0.7627485990524292,
+    "covered": true
+   },
+   {
+    "id": "R16",
+    "question": "What tax rate is applied when AOCI is reported?",
+    "in_scope": true,
+    "references": [
+     "ACCT 3.2",
+     "SPEC Model parameters"
+    ],
+    "returned": [
+     "ACCT 3.2",
+     "IPS 4.3",
+     "SPEC FR-8",
+     "ACCT 3.3"
+    ],
+    "best_similarity": 0.8057669401168823,
+    "covered": true
+   },
+   {
+    "id": "R17",
+    "question": "Why is AOCI sensitivity measured net of the swaps?",
+    "in_scope": true,
+    "references": [
+     "ACCT 3.3",
+     "HEDGE 4",
+     "SPEC FR-8"
+    ],
+    "returned": [
+     "ACCT 3.3",
+     "HEDGE 4",
+     "SPEC FR-8",
+     "IPS 4.3"
+    ],
+    "best_similarity": 0.7490500807762146,
+    "covered": true
+   },
+   {
+    "id": "R18",
+    "question": "How is interest income recognised on a security bought at a premium?",
+    "in_scope": true,
+    "references": [
+     "ACCT 5",
+     "SPEC FR-9"
+    ],
+    "returned": [
+     "ACCT 5",
+     "IPS 3.3",
+     "SPEC FR-9",
+     "IPS 3.1"
+    ],
+    "best_similarity": 0.7887347340583801,
+    "covered": true
+   },
+   {
+    "id": "R19",
+    "question": "What is the bear_steepener scenario?",
+    "in_scope": true,
+    "references": [
+     "SCEN 3"
+    ],
+    "returned": [
+     "SCEN 3",
+     "SPEC FR-7",
+     "IPS 6",
+     "SCEN 6"
+    ],
+    "best_similarity": 0.7282005548477173,
+    "covered": true
+   },
+   {
+    "id": "R20",
+    "question": "What happens to mortgage rates when the Treasury curve is shocked?",
+    "in_scope": true,
+    "references": [
+     "SCEN 1",
+     "SPEC FR-2",
+     "MODEL 2",
+     "MODEL 3"
+    ],
+    "returned": [
+     "MBS 3",
+     "SCEN 4",
+     "MODEL 2",
+     "ACCT 6"
+    ],
+    "best_similarity": 0.7226413488388062,
+    "covered": true
+   },
+   {
+    "id": "R21",
+    "question": "Which scenarios test the prepayment model itself, with rates unchanged?",
+    "in_scope": true,
+    "references": [
+     "SCEN 5"
+    ],
+    "returned": [
+     "SCEN 5",
+     "MBS 7",
+     "MODEL 2",
+     "MODEL 3"
+    ],
+    "best_similarity": 0.7999525666236877,
+    "covered": true
+   },
+   {
+    "id": "R22",
+    "question": "What does a widening of MBS spreads by 25bp change, and do the swaps hedge it?",
+    "in_scope": true,
+    "references": [
+     "SCEN 4"
+    ],
+    "returned": [
+     "SCEN 4",
+     "HEDGE 5.3",
+     "HEDGE 5.1",
+     "SPEC FR-12"
+    ],
+    "best_similarity": 0.7421539425849915,
+    "covered": true
+   },
+   {
+    "id": "R23",
+    "question": "What is burnout in a mortgage pool?",
+    "in_scope": true,
+    "references": [
+     "MBS 2.4",
+     "GLOSS 3"
+    ],
+    "returned": [
+     "MBS 2.4",
+     "SPEC FR-3.1",
+     "GLOSS 3"
+    ],
+    "best_similarity": 0.7955504655838013,
+    "covered": true
+   },
+   {
+    "id": "R24",
+    "question": "Why do mortgage securities get longer when rates rise?",
+    "in_scope": true,
+    "references": [
+     "MBS 3"
+    ],
+    "returned": [
+     "MBS 3",
+     "IPS 4.2",
+     "MBS 5",
+     "IPS 4.1"
+    ],
+    "best_similarity": 0.7739362716674805,
+    "covered": true
+   },
+   {
+    "id": "R25",
+    "question": "How does refinancing respond to the borrower's rate incentive?",
+    "in_scope": true,
+    "references": [
+     "MBS 2.3",
+     "SPEC FR-3.1"
+    ],
+    "returned": [
+     "MBS 2.3",
+     "SPEC FR-3.1",
+     "MBS 2.4"
+    ],
+    "best_similarity": 0.8458143472671509,
+    "covered": true
+   },
+   {
+    "id": "R26",
+    "question": "What is the difference between DV01 and duration?",
+    "in_scope": true,
+    "references": [
+     "GLOSS 2",
+     "MBS 5",
+     "SPEC FR-6"
+    ],
+    "returned": [
+     "SPEC FR-6",
+     "HEDGE 5.1",
+     "SPEC FR-12",
+     "IPS 4.2"
+    ],
+    "best_similarity": 0.6448693871498108,
+    "covered": true
+   },
+   {
+    "id": "R27",
+    "question": "What should the model not be used for?",
+    "in_scope": true,
+    "references": [
+     "MODEL 1"
+    ],
+    "returned": [
+     "MODEL 1",
+     "SPEC Model parameters",
+     "MODEL Model Document",
+     "SPEC Non-functional requirements"
+    ],
+    "best_similarity": 0.6357747316360474,
+    "covered": true
+   },
+   {
+    "id": "R28",
+    "question": "What are the main assumptions and limitations of the valuation model?",
+    "in_scope": true,
+    "references": [
+     "MODEL 3"
+    ],
+    "returned": [
+     "MODEL 3",
+     "SPEC FR-3.1"
+    ],
+    "best_similarity": 0.7333090305328369,
+    "covered": true
+   },
+   {
+    "id": "R29",
+    "question": "How are effective duration and convexity calculated?",
+    "in_scope": true,
+    "references": [
+     "SPEC FR-6"
+    ],
+    "returned": [
+     "SPEC FR-6",
+     "IPS 4.2",
+     "IPS 4.1",
+     "MBS 5"
+    ],
+    "best_similarity": 0.7496688961982727,
+    "covered": true
+   },
+   {
+    "id": "R30",
+    "question": "How is the change in value since the prior close split into causes?",
+    "in_scope": true,
+    "references": [
+     "SPEC FR-14"
+    ],
+    "returned": [
+     "SPEC FR-14",
+     "MODEL 2",
+     "MBS 6"
+    ],
+    "best_similarity": 0.7763668298721313,
+    "covered": true
+   },
+   {
+    "id": "N01",
+    "question": "What is the bank's common equity tier 1 capital ratio?",
+    "in_scope": false,
+    "references": [],
+    "returned": [
+     "IPS 4.3",
+     "IPS 4.5",
+     "IPS 4.2",
+     "IPS 4.4"
+    ],
+    "best_similarity": 0.6235244274139404,
+    "covered": true
+   },
+   {
+    "id": "N02",
+    "question": "Who is the chief executive of the bank?",
+    "in_scope": false,
+    "references": [],
+    "returned": [],
+    "best_similarity": 0.5096880197525024,
+    "covered": false
+   },
+   {
+    "id": "N03",
+    "question": "How is value-at-risk calculated for the trading book?",
+    "in_scope": false,
+    "references": [],
+    "returned": [
+     "SPEC FR-5",
+     "IPS 3.2",
+     "MODEL 2",
+     "IPS 4.4"
+    ],
+    "best_similarity": 0.6806519627571106,
+    "covered": true
+   },
+   {
+    "id": "N04",
+    "question": "What liquidity coverage ratio must the bank maintain?",
+    "in_scope": false,
+    "references": [],
+    "returned": [
+     "HEDGE 6",
+     "IPS 4.5",
+     "IPS 4.1",
+     "IPS 4.2"
+    ],
+    "best_similarity": 0.6624391078948975,
+    "covered": true
+   },
+   {
+    "id": "N05",
+    "question": "What is the allowance for credit losses on commercial real estate loans?",
+    "in_scope": false,
+    "references": [],
+    "returned": [
+     "SPEC FR-3.1",
+     "MBS 3",
+     "SPEC FR-14"
+    ],
+    "best_similarity": 0.6546357870101929,
+    "covered": true
+   },
+   {
+    "id": "N06",
+    "question": "Which dealers does the desk execute its swaps with?",
+    "in_scope": false,
+    "references": [],
+    "returned": [
+     "HEDGE 2",
+     "SPEC FR-3.3",
+     "MODEL 2",
+     "HEDGE 5.1"
+    ],
+    "best_similarity": 0.6149781942367554,
+    "covered": true
+   },
+   {
+    "id": "N07",
+    "question": "What dividend will the bank pay next quarter?",
+    "in_scope": false,
+    "references": [],
+    "returned": [
+     "IPS 4.5",
+     "SPEC FR-3.2",
+     "SPEC FR-9",
+     "SPEC FR-3.1"
+    ],
+    "best_similarity": 0.6630514860153198,
+    "covered": true
+   },
+   {
+    "id": "N08",
+    "question": "What is the weather forecast for New York tomorrow?",
+    "in_scope": false,
+    "references": [],
+    "returned": [],
+    "best_similarity": 0.5746520757675171,
+    "covered": false
+   },
+   {
+    "id": "N09",
+    "question": "How do I reset my Windows password?",
+    "in_scope": false,
+    "references": [],
+    "returned": [],
+    "best_similarity": 0.5259166359901428,
+    "covered": false
+   },
+   {
+    "id": "N10",
+    "question": "What is the interest-rate risk of the bank's commercial loan book?",
+    "in_scope": false,
+    "references": [],
+    "returned": [
+     "IPS 4.5",
+     "SPEC FR-6",
+     "MBS 5",
+     "IPS 4"
+    ],
+    "best_similarity": 0.720012366771698,
+    "covered": true
+   }
+  ]
+ },
+ "refusals": [
+  {
+   "id": "N01",
+   "question": "What is the bank's common equity tier 1 capital ratio?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 1.877736400347203,
+   "run_id": "b96f1f0d6f96",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [
+    "IPS 4.3",
+    "IPS 4.5",
+    "IPS 4.2",
+    "IPS 4.4"
+   ],
+   "best_similarity": 0.6235244274139404,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 3412,
+    "output_tokens": 9
+   }
+  },
+  {
+   "id": "N02",
+   "question": "Who is the chief executive of the bank?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 1.568257899954915,
+   "run_id": "9bbf03802ed7",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [],
+   "best_similarity": 0.5096880197525024,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 2842,
+    "output_tokens": 9
+   }
+  },
+  {
+   "id": "N03",
+   "question": "How is value-at-risk calculated for the trading book?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 1.990761199966073,
+   "run_id": "350251b03f81",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [
+    "SPEC FR-5",
+    "IPS 3.2",
+    "MODEL 2",
+    "IPS 4.4"
+   ],
+   "best_similarity": 0.6806519627571106,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 3713,
+    "output_tokens": 9
+   }
+  },
+  {
+   "id": "N04",
+   "question": "What liquidity coverage ratio must the bank maintain?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 1.855325199663639,
+   "run_id": "31fcc18a99d0",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [
+    "HEDGE 6",
+    "IPS 4.5",
+    "IPS 4.1",
+    "IPS 4.2"
+   ],
+   "best_similarity": 0.6624391078948975,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 3388,
+    "output_tokens": 9
+   }
+  },
+  {
+   "id": "N05",
+   "question": "What is the allowance for credit losses on commercial real estate loans?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 2.4324389998801053,
+   "run_id": "3fa1719b7759",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [
+    "SPEC FR-3.1",
+    "MBS 3",
+    "SPEC FR-14",
+    "SPEC FR-3.1"
+   ],
+   "best_similarity": 0.6546357870101929,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 4479,
+    "output_tokens": 9
+   }
+  },
+  {
+   "id": "N06",
+   "question": "Which dealers does the desk execute its swaps with?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 2.2536218999885023,
+   "run_id": "36d6055143cc",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [
+    "HEDGE 2",
+    "SPEC FR-3.3",
+    "MODEL 2",
+    "HEDGE 5.1"
+   ],
+   "best_similarity": 0.6149781942367554,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 3812,
+    "output_tokens": 9
+   }
+  },
+  {
+   "id": "N07",
+   "question": "What dividend will the bank pay next quarter?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 2.2665164000354707,
+   "run_id": "b17e8b9c5f9e",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [
+    "IPS 4.5",
+    "SPEC FR-3.2",
+    "SPEC FR-9",
+    "SPEC FR-3.1"
+   ],
+   "best_similarity": 0.6630514860153198,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 4182,
+    "output_tokens": 9
+   }
+  },
+  {
+   "id": "N08",
+   "question": "What is the weather forecast for New York tomorrow?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 0.5220695002935827,
+   "run_id": "09a7d7e94f14",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [],
+   "best_similarity": 0.5746520757675171,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 2843,
+    "output_tokens": 9
+   }
+  },
+  {
+   "id": "N09",
+   "question": "How do I reset my Windows password?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 0.21948090009391308,
+   "run_id": "c996a3dbc25a",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [],
+   "best_similarity": 0.5259166359901428,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 2841,
+    "output_tokens": 9
+   }
+  },
+  {
+   "id": "N10",
+   "question": "What is the interest-rate risk of the bank's commercial loan book?",
+   "refused": true,
+   "status": "answered",
+   "error": null,
+   "seconds": 2.045717000029981,
+   "run_id": "fb397b3ecadd",
+   "answer": "The knowledge base does not cover this.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The knowledge base does not cover this."
+    }
+   ],
+   "tool_calls": [],
+   "passages": [
+    "IPS 4.5",
+    "SPEC FR-6",
+    "MBS 5",
+    "IPS 4"
+   ],
+   "best_similarity": 0.720012366771698,
+   "model_calls": 1,
+   "tokens": {
+    "input_tokens": 3793,
+    "output_tokens": 9
+   }
+  }
+ ],
+ "refusal": {
+  "count": 10,
+  "of": 10,
+  "share": 1.0
+ },
+ "tasks": [
+  {
+   "id": "T01",
+   "class": "routine",
+   "benchmark": true,
+   "question": "What is the net effective duration of the book?",
+   "reference": [
+    "Net eff_duration: 5.30"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw risk"
+    ],
+    "by_hand": "",
+    "seconds": 0.03414939995855093,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 2.876680899877101,
+    "run_id": "04577e658266",
+    "answer": "The net effective duration of the book is 5.30 years.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The net effective duration of the book is 5.30 years."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "limit_status",
+      "arguments": {},
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.1",
+     "HEDGE 5.1",
+     "IPS 4",
+     "SPEC FR-6"
+    ],
+    "best_similarity": 0.6871396899223328,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8027,
+     "output_tokens": 32
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T02",
+   "class": "routine",
+   "benchmark": true,
+   "question": "What are the total market value and the total unrealized gain or loss of the securities?",
+   "reference": [
+    "market value, Total market_value_mm: 8,909.3",
+    "Total unrealized_mm: -1,240.1"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw summary"
+    ],
+    "by_hand": "",
+    "seconds": 0.03230250021442771,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.5333791002631187,
+    "run_id": "0816407b54ea",
+    "answer": "The total market value of the securities is $8,909.3 million, and the total unrealized gain or loss is -$1,240.1 million.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The total market value of the securities is $8,909.3 million, and the total unrealized gain or loss is -$1,240.1 million."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "portfolio_summary",
+      "arguments": {
+       "by": "Total"
+      },
+      "ok": false,
+      "error": "invalid arguments: by: Input should be 'bucket', 'asset_type', 'designation', 'agency', 'coupon', 'orig_year' or 'position_id'"
+     },
+     {
+      "tool": "portfolio_summary",
+      "arguments": {
+       "by": "designation"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.4",
+     "ACCT 2.2",
+     "ACCT 3.3",
+     "ACCT 2.1"
+    ],
+    "best_similarity": 0.7083926796913147,
+    "model_calls": 3,
+    "tokens": {
+     "input_tokens": 10406,
+     "output_tokens": 78
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T03",
+   "class": "routine",
+   "benchmark": true,
+   "question": "What is the market value of the AFS securities and of the HTM securities?",
+   "reference": [
+    "AFS market_value_mm: 4,001.4",
+    "HTM market_value_mm: 4,907.9"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw summary --by designation"
+    ],
+    "by_hand": "",
+    "seconds": 0.027055499609559774,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.779672000091523,
+    "run_id": "b0c49d2cddf0",
+    "answer": "The market value of the AFS securities is $8,909.3 million, and the market value of the HTM securities is not directly provided in the summary. However, based on the total market value of the portfolio and the breakdown of the securities, the HTM securities would be the remaining portion of the total market value after accounting for the AFS securities.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The market value of the AFS securities is $8,909.3 million, and the market value of the HTM securities is not directly provided in the summary. However, based on the total market value of the portfolio and the breakdown of the securities, the HTM securities would be the remaining portion of the total market value after accounting for the AFS securities."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "portfolio_summary",
+      "arguments": {
+       "by": "asset_type"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "ACCT 2.2",
+     "ACCT 2.1",
+     "ACCT 6",
+     "IPS 4.4"
+    ],
+    "best_similarity": 0.7878758907318115,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7057,
+     "output_tokens": 98
+    },
+    "correct": false,
+    "missing": [
+     "AFS market_value_mm: 4,001.4",
+     "HTM market_value_mm: 4,907.9"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": false
+   }
+  },
+  {
+   "id": "T04",
+   "class": "routine",
+   "benchmark": true,
+   "question": "At which key rate is the net key-rate duration largest, and how large is it there?",
+   "reference": [
+    "Net 20Y: 1.95"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw krd"
+    ],
+    "by_hand": "",
+    "seconds": 0.012576399836689234,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.26974909985438,
+    "run_id": "871e97d9fbe2",
+    "answer": "The net key-rate duration is largest at the 10Y key rate, and it is 1.83 years there.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The net key-rate duration is largest at the 10Y key rate, and it is 1.83 years there."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "key_rate_report",
+      "arguments": {
+       "by": "bucket",
+       "unit": "years"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "SPEC FR-6",
+     "IPS 4.2",
+     "IPS 4.1",
+     "MBS 4"
+    ],
+    "best_similarity": 0.7133321762084961,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7737,
+     "output_tokens": 55
+    },
+    "correct": false,
+    "missing": [
+     "Net 20Y: 1.95"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T05",
+   "class": "routine",
+   "benchmark": true,
+   "question": "Which five positions have the largest DV01?",
+   "reference": [
+    "UST10-4.375-007",
+    "UST10-4.250-008",
+    "FR30-2.5-006",
+    "FN30-2.5-008",
+    "G230-2.0-003"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw top -n 5"
+    ],
+    "by_hand": "",
+    "seconds": 0.011620100121945143,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 6.028358499985188,
+    "run_id": "661905fe7049",
+    "answer": "The five positions with the largest DV01 are:\n\n1. **UST10-4.375-007** with a DV01 of **127 USD thousands per bp**.\n2. **UST10-4.250-008** with a DV01 of **101 USD thousands per bp**.\n3. **FR30-2.5-006** with a DV01 of **98 USD thousands per bp**.\n4. **FN30-2.5-008** with a DV01 of **97 USD thousands per bp**.\n5. **G230-2.0-003** with a DV01 of **97 USD thousands per bp**.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The five positions with the largest DV01 are:\n\n1. **UST10-4.375-007** with a DV01 of **127 USD thousands per bp**.\n2. **UST10-4.250-008** with a DV01 of **101 USD thousands per bp**.\n3. **FR30-2.5-006** with a DV01 of **98 USD thousands per bp**.\n4. **FN30-2.5-008** with a DV01 of **97 USD thousands per bp**.\n5. **G230-2.0-003** with a DV01 of **97 USD thousands per bp**."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "top_positions",
+      "arguments": {
+       "metric": "dv01_k",
+       "count": 5,
+       "direction": "largest"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "SPEC FR-0",
+     "SPEC FR-5",
+     "HEDGE 5.1",
+     "MBS 4"
+    ],
+    "best_similarity": 0.6161941885948181,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8079,
+     "output_tokens": 205
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T06",
+   "class": "routine",
+   "benchmark": true,
+   "question": "For position FN30-2.5-001, what are the market value, the effective duration and the projected one-year CPR?",
+   "reference": [
+    "market value, market_value_mm value: 70.5",
+    "eff_duration value: 7.10",
+    "cpr_1y_pct value: 3.9"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw position FN30-2.5-001"
+    ],
+    "by_hand": "",
+    "seconds": 0.04006080003455281,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.8387732999399304,
+    "run_id": "7c5c3286a926",
+    "answer": "The market value of position FN30-2.5-001 is 70.5 USD millions, the effective duration is 7.10 years, and the projected one-year CPR is 3.9%.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The market value of position FN30-2.5-001 is 70.5 USD millions, the effective duration is 7.10 years, and the projected one-year CPR is 3.9%."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "position_detail",
+      "arguments": {
+       "position_id": "FN30-2.5-001"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "MBS 2.1",
+     "MBS 7",
+     "IPS 4.1",
+     "SPEC FR-6"
+    ],
+    "best_similarity": 0.6546963453292847,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7896,
+     "output_tokens": 80
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T07",
+   "class": "routine",
+   "benchmark": true,
+   "question": "By how many USD millions does the value of the securities change if rates rise by 200bp?",
+   "reference": [
+    "up_200 d_value_mm: -992.2"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw scenario -s 200"
+    ],
+    "by_hand": "",
+    "seconds": 0.04270899994298816,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.0603603003546596,
+    "run_id": "08d8aa8fc51c",
+    "answer": "The value of the securities changes by USD -992.2 million if rates rise by 200bp.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The value of the securities changes by USD -992.2 million if rates rise by 200bp."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "run_scenarios",
+      "arguments": {
+       "scenarios": [
+        "up_200"
+       ],
+       "shocks_bp": [
+        200.0
+       ]
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.4",
+     "IPS 4.5",
+     "IPS 4.3",
+     "SCEN 4"
+    ],
+    "best_similarity": 0.7587481141090393,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 6872,
+     "output_tokens": 63
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T08",
+   "class": "routine",
+   "benchmark": true,
+   "question": "Under the +200bp scenario, what share of the loss in value does each asset type carry?",
+   "reference": [
+    "MBS_30Y share_pct: 78.6",
+    "MBS_15Y share_pct: 11.0",
+    "UST share_pct: 10.4"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw scenario -n up_200 --by asset_type"
+    ],
+    "by_hand": "",
+    "seconds": 0.01684569986537099,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 11.405629999935627,
+    "run_id": "5c03b1e18b1c",
+    "answer": "Under the +200bp scenario, the share of the loss in value carried by each asset type is as follows:\n\n- **Securities (AFS):** -416.6 million, which is **238.14%** of the total loss.\n- **Securities (HTM):** -575.6 million, which is **172.39%** of the total loss.\n- **Hedges:** +119.3 million, which is a gain and not a loss.\n\nThese figures are derived from the total loss of -992.2 million under the +200bp scenario.",
+    "drafts": [
+     {
+      "passed": false,
+      "problems": [
+       "42.0: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself",
+       "58.0: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself"
+      ],
+      "text": "Under the +200bp scenario, the share of the loss in value carried by each asset type is as follows:\n\n- **Securities (AFS):** -416.6 million, which is 42.0% of the total loss.\n- **Securities (HTM):** -575.6 million, which is 58.0% of the total loss.\n- **Hedges:** +119.3 million, which is a gain and not a loss.\n\nThese figures are derived from the total loss of -992.2 million under the +200bp scenario."
+     },
+     {
+      "passed": true,
+      "problems": [],
+      "text": "Under the +200bp scenario, the share of the loss in value carried by each asset type is as follows:\n\n- **Securities (AFS):** -416.6 million, which is **238.14%** of the total loss.\n- **Securities (HTM):** -575.6 million, which is **172.39%** of the total loss.\n- **Hedges:** +119.3 million, which is a gain and not a loss.\n\nThese figures are derived from the total loss of -992.2 million under the +200bp scenario."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "run_scenarios",
+      "arguments": {
+       "scenarios": [
+        "up_200"
+       ],
+       "shocks_bp": []
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "aggregate",
+      "arguments": {
+       "operation": "ratio",
+       "cells": [
+        {
+         "result": "r1",
+         "row": "up_200",
+         "column": "d_value_mm",
+         "table": "scenarios"
+        },
+        {
+         "result": "r1",
+         "row": "up_200",
+         "column": "d_afs_mm",
+         "table": "scenarios"
+        }
+       ],
+       "as_percent": true,
+       "label": "AFS share of loss"
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "aggregate",
+      "arguments": {
+       "operation": "ratio",
+       "cells": [
+        {
+         "result": "r1",
+         "row": "up_200",
+         "column": "d_value_mm",
+         "table": "scenarios"
+        },
+        {
+         "result": "r1",
+         "row": "up_200",
+         "column": "d_htm_mm",
+         "table": "scenarios"
+        }
+       ],
+       "as_percent": true,
+       "label": "HTM share of loss"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.4",
+     "IPS 3.2",
+     "IPS 4.3",
+     "SCEN 4"
+    ],
+    "best_similarity": 0.6977303624153137,
+    "model_calls": 5,
+    "tokens": {
+     "input_tokens": 18957,
+     "output_tokens": 486
+    },
+    "correct": false,
+    "missing": [
+     "MBS_30Y share_pct: 78.6",
+     "MBS_15Y share_pct: 11.0",
+     "UST share_pct: 10.4"
+    ],
+    "first_draft_passed": false,
+    "tools_selected": false
+   }
+  },
+  {
+   "id": "T09",
+   "class": "routine",
+   "benchmark": true,
+   "question": "What is net interest income over the next 12 months in the base case and under +100bp?",
+   "reference": [
+    "Net interest income base: 103.6",
+    "Net interest income up_100: 82.6"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw nii"
+    ],
+    "by_hand": "",
+    "seconds": 0.009006300009787083,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.8686481998302042,
+    "run_id": "bd4c6a9ba577",
+    "answer": "Net interest income over the next 12 months is USD 103.6 million in the base case and USD 82.6 million under a +100bp shock.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "Net interest income over the next 12 months is USD 103.6 million in the base case and USD 82.6 million under a +100bp shock."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "income_report",
+      "arguments": {
+       "scenarios": [
+        "base",
+        "up_100"
+       ],
+       "shocks_bp": [
+        0.0,
+        100.0
+       ]
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.5",
+     "SPEC FR-9",
+     "SPEC FR-9",
+     "ACCT 5"
+    ],
+    "best_similarity": 0.7631580829620361,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8404,
+     "output_tokens": 83
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T10",
+   "class": "routine",
+   "benchmark": true,
+   "question": "Which policy limits are breached or in warning today?",
+   "reference": [
+    "AOCI_UP200",
+    "DUR_BAND"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw limits"
+    ],
+    "by_hand": "",
+    "seconds": 0.01602960005402565,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.916173500008881,
+    "run_id": "77611842d189",
+    "answer": "The policy limits that are breached or in warning today are:\n\n- **DUR_BAND**: Status is **WARN** with a utilisation of 84%.\n- **AOCI_UP200**: Status is **BREACH** with a utilisation of 108%.\n\nThese statuses are based on the defined policy limits and their respective bounds as outlined in the provided data.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The policy limits that are breached or in warning today are:\n\n- **DUR_BAND**: Status is **WARN** with a utilisation of 84%.\n- **AOCI_UP200**: Status is **BREACH** with a utilisation of 108%.\n\nThese statuses are based on the defined policy limits and their respective bounds as outlined in the provided data."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "limit_status",
+      "arguments": {},
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 5.2",
+     "IPS 5.3",
+     "IPS 5.1",
+     "SPEC FR-10"
+    ],
+    "best_similarity": 0.7661159038543701,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7259,
+     "output_tokens": 96
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T11",
+   "class": "routine",
+   "benchmark": false,
+   "question": "What is the projected one-year CPR of the 30-year high-coupon bucket today, and if rates fall by 100bp?",
+   "reference": [
+    "30Y high (>=5.0) cpr_base: 6.6",
+    "30Y high (>=5.0) cpr_-100bp: 16.1"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw prepay"
+    ],
+    "by_hand": "",
+    "seconds": 0.01550560025498271,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.8080247002653778,
+    "run_id": "c2259f9ea7ee",
+    "answer": "The projected one-year CPR of the 30-year high-coupon bucket today is 4.4%, and if rates fall by 100bp, it is 5.9% [MBS 7].",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The projected one-year CPR of the 30-year high-coupon bucket today is 4.4%, and if rates fall by 100bp, it is 5.9% [MBS 7]."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "prepayment_outlook",
+      "arguments": {
+       "shocks_bp": [
+        0.0,
+        -100.0
+       ],
+       "by": "coupon"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "MBS 7",
+     "MBS 4",
+     "MBS 2.1",
+     "SPEC FR-3.1"
+    ],
+    "best_similarity": 0.7253527045249939,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7816,
+     "output_tokens": 83
+    },
+    "correct": false,
+    "missing": [
+     "30Y high (>=5.0) cpr_base: 6.6",
+     "30Y high (>=5.0) cpr_-100bp: 16.1"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": false
+   }
+  },
+  {
+   "id": "T12",
+   "class": "routine",
+   "benchmark": false,
+   "question": "Why did market value change since the prior close? Give the total change and the parts due to the first-order curve effect and to MBS spreads.",
+   "reference": [
+    "Total Total: -38.80",
+    "Curve: key-rate exposure (first order) Total: -29.29",
+    "MBS spreads Total: -9.49"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw explain"
+    ],
+    "by_hand": "",
+    "seconds": 0.11724310042336583,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.952604599762708,
+    "run_id": "56ce0efb0de2",
+    "answer": "The total change in market value since the prior close is -$38.80 million. The part due to the first-order curve effect is -$29.29 million, and the part due to MBS spreads is -$9.49 million.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The total change in market value since the prior close is -$38.80 million. The part due to the first-order curve effect is -$29.29 million, and the part due to MBS spreads is -$9.49 million."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "explain_change",
+      "arguments": {
+       "positions": 5
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "SPEC FR-14",
+     "MBS 6",
+     "SCEN 4",
+     "MBS 3"
+    ],
+    "best_similarity": 0.7966904640197754,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8374,
+     "output_tokens": 74
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T13",
+   "class": "routine",
+   "benchmark": false,
+   "question": "Which swap notionals would bring the AOCI_UP200 limit back to its bound with a 2-year, a 5-year or a 10-year swap?",
+   "reference": [
+    "PAY_FIXED 2Y notional_mm: 570.0",
+    "PAY_FIXED 5Y notional_mm: 260.0",
+    "PAY_FIXED 10Y notional_mm: 150.0"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw fix AOCI_UP200"
+    ],
+    "by_hand": "",
+    "seconds": 0.8053028997965157,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 6.2331583998166025,
+    "run_id": "a6f6ffe725a2",
+    "answer": "Indicative only: not approved, no action taken.\n\nTo bring the AOCI_UP200 limit back to its bound, the following swap notionals would be required:\n\n- A 2-year swap with a notional of USD 570 million.\n- A 5-year swap with a notional of USD 260 million.\n- A 10-year swap with a notional of USD 150 million.\n\nEach swap is structured as a pay-fixed swap, with the fixed rates provided in the table. These notionals are calculated to bring the AOCI_UP200 limit back to its bound, as specified.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "To bring the AOCI_UP200 limit back to its bound, the following swap notionals would be required:\n\n- A 2-year swap with a notional of USD 570 million.\n- A 5-year swap with a notional of USD 260 million.\n- A 10-year swap with a notional of USD 150 million.\n\nEach swap is structured as a pay-fixed swap, with the fixed rates provided in the table. These notionals are calculated to bring the AOCI_UP200 limit back to its bound, as specified."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "limit_remedy",
+      "arguments": {
+       "limit": "AOCI_UP200",
+       "tenors": [
+        2.0,
+        5.0,
+        10.0
+       ]
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.3",
+     "SPEC FR-11",
+     "HEDGE 6",
+     "HEDGE 5.3"
+    ],
+    "best_similarity": 0.6892176866531372,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7867,
+     "output_tokens": 164
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T14",
+   "class": "routine",
+   "benchmark": false,
+   "question": "Size a 5-year pay-fixed swap that brings net duration to 4.5 years.",
+   "reference": [
+    "NEW-5Y notional_mm: 1,614.0"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw hedge -t 4.5"
+    ],
+    "by_hand": "",
+    "seconds": 0.10066779982298613,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 4.746684600133449,
+    "run_id": "e3db3c4c21cd",
+    "answer": "Indicative only: not approved, no action taken.\n\nThe proposed 5-year pay-fixed swap has a notional of USD 1,614.0 million and a fixed rate of 4.690%. This swap will reduce the net effective duration from 5.30 years to 4.50 years. The net key-rate DV01 after the trade is USD 4,018 thousand per bp.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The proposed 5-year pay-fixed swap has a notional of USD 1,614.0 million and a fixed rate of 4.690%. This swap will reduce the net effective duration from 5.30 years to 4.50 years. The net key-rate DV01 after the trade is USD 4,018 thousand per bp."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "size_hedge",
+      "arguments": {
+       "target_duration": 4.5,
+       "mode": "duration",
+       "tenors": [
+        5.0
+       ]
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "HEDGE 5.1",
+     "HEDGE 5.3",
+     "SPEC FR-11",
+     "SPEC FR-3.3"
+    ],
+    "best_similarity": 0.7455859184265137,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8532,
+     "output_tokens": 119
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T15",
+   "class": "routine",
+   "benchmark": false,
+   "question": "What would net duration be after selling position FN30-2.5-001?",
+   "reference": [
+    "Net duration (years) after: 5.29"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw whatif --drop FN30-2.5-001"
+    ],
+    "by_hand": "",
+    "seconds": 0.17672700015828013,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.845012300182134,
+    "run_id": "e7b0164c6f8d",
+    "answer": "Indicative only: not approved, no action taken.\n\nAfter selling position FN30-2.5-001, the net duration would be 5.29 years.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "After selling position FN30-2.5-001, the net duration would be 5.29 years."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "what_if",
+      "arguments": {
+       "drop": [
+        "FN30-2.5-001"
+       ],
+       "swaps": []
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "MBS 6",
+     "IPS 4.1",
+     "SPEC FR-0",
+     "IPS 4.2"
+    ],
+    "best_similarity": 0.6932268738746643,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8292,
+     "output_tokens": 64
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T16",
+   "class": "routine",
+   "benchmark": false,
+   "question": "What is the effective duration of the 30-year MBS and of the 15-year MBS?",
+   "reference": [
+    "MBS_30Y eff_duration: 7.03",
+    "MBS_15Y eff_duration: 4.05"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw risk --by asset_type"
+    ],
+    "by_hand": "",
+    "seconds": 0.03088450012728572,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.3058766000904143,
+    "run_id": "dab3a092ba38",
+    "answer": "The effective duration of the 30-year MBS is 7.08 years, and the effective duration of the 15-year MBS is 6.17 years.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The effective duration of the 30-year MBS is 7.08 years, and the effective duration of the 15-year MBS is 6.17 years."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "risk_report",
+      "arguments": {
+       "by": "orig_year"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.1",
+     "MBS 2.1",
+     "IPS 4.2",
+     "MBS 4"
+    ],
+    "best_similarity": 0.6530443429946899,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7369,
+     "output_tokens": 61
+    },
+    "correct": false,
+    "missing": [
+     "MBS_30Y eff_duration: 7.03",
+     "MBS_15Y eff_duration: 4.05"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": false
+   }
+  },
+  {
+   "id": "T17",
+   "class": "routine",
+   "benchmark": false,
+   "question": "What is the net key-rate DV01 at the 10-year point, in USD thousands per basis point?",
+   "reference": [
+    "Net 10Y: 1,636"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw krd --unit k"
+    ],
+    "by_hand": "",
+    "seconds": 0.012404300272464752,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.430281300097704,
+    "run_id": "4867536e8804",
+    "answer": "The net key-rate DV01 at the 10-year point is 1,636 USD thousands per basis point.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The net key-rate DV01 at the 10-year point is 1,636 USD thousands per basis point."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "key_rate_report",
+      "arguments": {
+       "by": "asset_type",
+       "unit": "k"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "SPEC FR-6",
+     "IPS 4.5",
+     "SPEC FR-0",
+     "SPEC Conventions"
+    ],
+    "best_similarity": 0.6494129300117493,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8451,
+     "output_tokens": 56
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T18",
+   "class": "routine",
+   "benchmark": false,
+   "question": "Which three positions have the largest unrealized losses, and how large is the largest one?",
+   "reference": [
+    "G230-2.0-003",
+    "G230-2.0-004",
+    "G230-2.0-006",
+    "G230-2.0-003 unrealized_mm: -49.0"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw top --metric unrealized_mm -n 3 --asc"
+    ],
+    "by_hand": "",
+    "seconds": 0.009693900123238564,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 4.032320799771696,
+    "run_id": "de4feba90ac4",
+    "answer": "The three positions with the largest unrealized losses are G230-2.0-003, G230-2.0-004, and G230-2.0-006. The largest unrealized loss is -49.0 USD million.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The three positions with the largest unrealized losses are G230-2.0-003, G230-2.0-004, and G230-2.0-006. The largest unrealized loss is -49.0 USD million."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "top_positions",
+      "arguments": {
+       "metric": "unrealized_mm",
+       "count": 3,
+       "direction": "smallest"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "ACCT 2.2",
+     "HEDGE 5.3",
+     "SPEC FR-5",
+     "MBS 4"
+    ],
+    "best_similarity": 0.626240611076355,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7514,
+     "output_tokens": 101
+    },
+    "correct": false,
+    "missing": [
+     "G230-2.0-003 unrealized_mm: -49.0"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T19",
+   "class": "routine",
+   "benchmark": false,
+   "question": "What is the change in AOCI under the bear_steepener scenario?",
+   "reference": [
+    "bear_steepener d_aoci_mm: -58.1"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw scenario -n bear_steepener"
+    ],
+    "by_hand": "",
+    "seconds": 0.030737600289285183,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.619776700157672,
+    "run_id": "057362e5d64d",
+    "answer": "The change in AOCI under the bear_steepener scenario is USD -58.1 million. This figure is derived from the net effect of the changes in AFS securities and the swaps designated as fair-value hedges, after tax.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The change in AOCI under the bear_steepener scenario is USD -58.1 million. This figure is derived from the net effect of the changes in AFS securities and the swaps designated as fair-value hedges, after tax."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "run_scenarios",
+      "arguments": {
+       "scenarios": [
+        "bear_steepener"
+       ],
+       "shocks_bp": []
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "SPEC FR-8",
+     "ACCT 3.3",
+     "SCEN 3",
+     "IPS 4.3"
+    ],
+    "best_similarity": 0.6968058347702026,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7879,
+     "output_tokens": 76
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "T20",
+   "class": "routine",
+   "benchmark": false,
+   "question": "How is the market value of the securities split by agency?",
+   "reference": [
+    "FNMA market_value_mm: 4,100.8",
+    "FHLMC market_value_mm: 1,938.6",
+    "GNMA market_value_mm: 1,401.2"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "one command",
+    "commands": [
+     "ipw summary --by agency"
+    ],
+    "by_hand": "",
+    "seconds": 0.029102900065481663,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 4.181015699636191,
+    "run_id": "4a8c11ecdb6c",
+    "answer": "The market value of the securities is split by agency as follows:\n\n- **FHLMC**: $1,938.6 million\n- **FNMA**: $4,100.8 million\n- **GNMA**: $1,401.2 million\n- **UST**: $1,468.7 million\n\nThe total market value of the securities is $8,909.3 million.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The market value of the securities is split by agency as follows:\n\n- **FHLMC**: $1,938.6 million\n- **FNMA**: $4,100.8 million\n- **GNMA**: $1,401.2 million\n- **UST**: $1,468.7 million\n\nThe total market value of the securities is $8,909.3 million."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "portfolio_summary",
+      "arguments": {
+       "by": "agency"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "MBS 6",
+     "ACCT 6",
+     "IPS 4.4",
+     "IPS 3.1"
+    ],
+    "best_similarity": 0.6783490777015686,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7157,
+     "output_tokens": 112
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": true
+   }
+  },
+  {
+   "id": "C01",
+   "class": "composed",
+   "benchmark": true,
+   "question": "Under the +200bp scenario, how much more value do the HTM securities lose than the AFS securities?",
+   "reference": [
+    "HTM less AFS value: -158.93"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw scenario -n up_200 --by designation"
+    ],
+    "by_hand": "one subtraction",
+    "seconds": 0.016080699861049652,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 8.038489700295031,
+    "run_id": "7a7bca742035",
+    "answer": "Under the +200bp scenario, the HTM securities lose $575.6 million in value, and the AFS securities lose $416.6 million in value. The difference in value loss between HTM and AFS securities is $158.9 million.",
+    "drafts": [
+     {
+      "passed": false,
+      "problems": [
+       "$159.0: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself"
+      ],
+      "text": "Under the +200bp scenario, the HTM securities lose $575.6 million in value, while the AFS securities lose $416.6 million in value. Therefore, the HTM securities lose $159.0 million more than the AFS securities."
+     },
+     {
+      "passed": true,
+      "problems": [],
+      "text": "Under the +200bp scenario, the HTM securities lose $575.6 million in value, and the AFS securities lose $416.6 million in value. The difference in value loss between HTM and AFS securities is $158.9 million."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "run_scenarios",
+      "arguments": {
+       "scenarios": [
+        "up_200"
+       ],
+       "shocks_bp": [
+        200.0
+       ]
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "aggregate",
+      "arguments": {
+       "operation": "difference",
+       "cells": [
+        {
+         "result": "r1",
+         "row": "up_200",
+         "column": "d_htm_mm"
+        },
+        {
+         "result": "r1",
+         "row": "up_200",
+         "column": "d_afs_mm"
+        }
+       ],
+       "as_percent": false,
+       "label": "Difference in value loss between HTM and AFS securities"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.4",
+     "ACCT 2.2",
+     "ACCT 6",
+     "IPS 3.2"
+    ],
+    "best_similarity": 0.7965285181999207,
+    "model_calls": 4,
+    "tokens": {
+     "input_tokens": 14582,
+     "output_tokens": 310
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": false,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "C02",
+   "class": "composed",
+   "benchmark": true,
+   "question": "What share of the market value of the securities is in 30-year MBS?",
+   "reference": [
+    "share of MBS_30Y value: 67.86"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw summary --by asset_type"
+    ],
+    "by_hand": "one division",
+    "seconds": 0.02818589983507991,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 5.988812500145286,
+    "run_id": "d39117c679d7",
+    "answer": "I cannot provide the share of the market value of the securities in 30-year MBS because the tool result does not include this information. The `portfolio_summary` tool groups the data by `orig_year`, but it does not provide a breakdown by mortgage type (e.g., 30-year MBS). To answer this question, I would need to call a different tool or have additional data.",
+    "drafts": [
+     {
+      "passed": false,
+      "problems": [
+       "5,565.0: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself",
+       "62.5: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself"
+      ],
+      "text": "The market value of the securities in 30-year MBS is 5,565.0 million USD. The total market value of the securities is 8,909.3 million USD. Therefore, the share of the market value of the securities in 30-year MBS is 62.5%."
+     },
+     {
+      "passed": true,
+      "problems": [],
+      "text": "I cannot provide the share of the market value of the securities in 30-year MBS because the tool result does not include this information. The `portfolio_summary` tool groups the data by `orig_year`, but it does not provide a breakdown by mortgage type (e.g., 30-year MBS). To answer this question, I would need to call a different tool or have additional data."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "portfolio_summary",
+      "arguments": {
+       "by": "orig_year"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 3.2",
+     "IPS 4.4",
+     "IPS 3.1",
+     "ACCT 6"
+    ],
+    "best_similarity": 0.7117136716842651,
+    "model_calls": 3,
+    "tokens": {
+     "input_tokens": 11639,
+     "output_tokens": 174
+    },
+    "correct": false,
+    "missing": [
+     "share of MBS_30Y value: 67.86"
+    ],
+    "first_draft_passed": false,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "C03",
+   "class": "composed",
+   "benchmark": true,
+   "question": "How large is the +100bp change in 12-month net interest income as a percentage of base-case net interest income?",
+   "reference": [
+    "change in NII over base NII value: -20.32"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw nii"
+    ],
+    "by_hand": "one subtraction and one division",
+    "seconds": 0.009422800038009882,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 9.008425400126725,
+    "run_id": "9afd573d0270",
+    "answer": "The +100bp change in 12-month net interest income is $82.6 million, which is 79.68% of the base-case net interest income of $103.6 million.",
+    "drafts": [
+     {
+      "passed": false,
+      "problems": [
+       "79.8: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself"
+      ],
+      "text": "The +100bp change in 12-month net interest income is $82.6 million, which is a percentage of the base-case net interest income of $103.6 million. To find the percentage, we calculate $ \\frac{82.6}{103.6} \\times 100 $, which is approximately 79.8%."
+     },
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The +100bp change in 12-month net interest income is $82.6 million, which is 79.68% of the base-case net interest income of $103.6 million."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "income_report",
+      "arguments": {
+       "scenarios": [
+        "base",
+        "up_100"
+       ],
+       "shocks_bp": [
+        100.0
+       ]
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "aggregate",
+      "arguments": {
+       "operation": "ratio",
+       "cells": [
+        {
+         "result": "r1",
+         "row": "Net interest income",
+         "column": "up_100"
+        },
+        {
+         "result": "r1",
+         "row": "Net interest income",
+         "column": "base"
+        }
+       ],
+       "as_percent": true,
+       "label": "Percentage change in NII for +100bp"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.5",
+     "SPEC FR-9",
+     "SPEC FR-9",
+     "ACCT 5"
+    ],
+    "best_similarity": 0.7317113280296326,
+    "model_calls": 4,
+    "tokens": {
+     "input_tokens": 17555,
+     "output_tokens": 331
+    },
+    "correct": false,
+    "missing": [
+     "change in NII over base NII value: -20.32"
+    ],
+    "first_draft_passed": false,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "C04",
+   "class": "composed",
+   "benchmark": true,
+   "question": "By how much is the AOCI_UP200 limit outside its bound, and what notional of a 5-year pay-fixed swap would bring it back?",
+   "reference": [
+    "AOCI_UP200 headroom: -15.99",
+    "PAY_FIXED 5Y notional_mm: 260.0"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw limits",
+     "ipw fix AOCI_UP200 --tenors 5"
+    ],
+    "by_hand": "one subtraction",
+    "seconds": 0.28768179984763265,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 4.582205899991095,
+    "run_id": "ac3cb0584be2",
+    "answer": "Indicative only: not approved, no action taken.\n\nThe AOCI_UP200 limit is $15.99 million outside its bound. A notional of 260.0 USD million in a 5-year pay-fixed swap would bring it back to within the bound.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The AOCI_UP200 limit is $15.99 million outside its bound. A notional of 260.0 USD million in a 5-year pay-fixed swap would bring it back to within the bound."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "limit_status",
+      "arguments": {},
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "limit_remedy",
+      "arguments": {
+       "limit": "AOCI_UP200",
+       "tenors": [
+        5.0
+       ]
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.3",
+     "SPEC FR-11",
+     "HEDGE 5.3",
+     "HEDGE 2"
+    ],
+    "best_similarity": 0.7225172519683838,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8279,
+     "output_tokens": 101
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "C05",
+   "class": "composed",
+   "benchmark": true,
+   "question": "What is the combined DV01 of the three positions with the largest DV01?",
+   "reference": [
+    "combined DV01 value: 325.61"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw top -n 3"
+    ],
+    "by_hand": "one addition",
+    "seconds": 0.009665799792855978,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 7.639896700158715,
+    "run_id": "289ad77a9ee9",
+    "answer": "The combined DV01 of the three positions with the largest DV01 is 325.61 USD thousands per bp.",
+    "drafts": [
+     {
+      "passed": false,
+      "problems": [
+       "326: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself"
+      ],
+      "text": "The combined DV01 of the three positions with the largest DV01 is 127 + 101 + 98 = 326 USD thousands per bp."
+     },
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The combined DV01 of the three positions with the largest DV01 is 325.61 USD thousands per bp."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "top_positions",
+      "arguments": {
+       "metric": "dv01_k",
+       "count": 3,
+       "direction": "largest"
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "aggregate",
+      "arguments": {
+       "operation": "sum",
+       "cells": [
+        {
+         "result": "r1",
+         "row": "UST10-4.375-007",
+         "column": "dv01_k"
+        },
+        {
+         "result": "r1",
+         "row": "UST10-4.250-008",
+         "column": "dv01_k"
+        },
+        {
+         "result": "r1",
+         "row": "FR30-2.5-006",
+         "column": "dv01_k"
+        }
+       ],
+       "as_percent": false,
+       "label": "Combined DV01 of top 3 positions"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "SPEC FR-12",
+     "SPEC FR-0",
+     "HEDGE 5.1",
+     "SPEC FR-5"
+    ],
+    "best_similarity": 0.601960301399231,
+    "model_calls": 4,
+    "tokens": {
+     "input_tokens": 18473,
+     "output_tokens": 248
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": false,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "C06",
+   "class": "composed",
+   "benchmark": true,
+   "question": "If the three positions with the largest unrealized losses were sold, what would net duration be, and what would the AOCI_UP200 measure be?",
+   "reference": [
+    "Net duration (years) after: 5.22",
+    "Limit AOCI_UP200 ($mm) after: -225.99"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw top --metric unrealized_mm -n 3 --asc",
+     "ipw whatif --drop G230-2.0-003,G230-2.0-004,G230-2.0-006"
+    ],
+    "by_hand": "copying three position ids from the first command into the second",
+    "seconds": 0.18926759995520115,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 8.942405399866402,
+    "run_id": "9f22150b8f90",
+    "answer": "Indicative only: not approved, no action taken.\n\nIf the three positions with the largest unrealized losses were sold, the net duration would be **5.20 years**, and the AOCI_UP200 measure would be **-223.15 USD million**.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "If the three positions with the largest unrealized losses were sold, the net duration would be **5.20 years**, and the AOCI_UP200 measure would be **-223.15 USD million**."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "top_positions",
+      "arguments": {
+       "metric": "unrealized_mm",
+       "count": 3,
+       "direction": "smallest"
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "what_if",
+      "arguments": {
+       "drop": [
+        "position_id1",
+        "position_id2",
+        "position_id3"
+       ],
+       "swaps": [
+        {
+         "direction": "PAY_FIXED",
+         "tenor_years": 10.0,
+         "notional_mm": 100.0
+        },
+        {
+         "direction": "RECEIVE_FIXED",
+         "tenor_years": 20.0,
+         "notional_mm": 50.0
+        }
+       ]
+      },
+      "ok": false,
+      "error": "unknown position_id(s): ['position_id1', 'position_id2', 'position_id3']"
+     },
+     {
+      "tool": "top_positions",
+      "arguments": {
+       "metric": "unrealized_mm",
+       "count": 3,
+       "direction": "smallest"
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "what_if",
+      "arguments": {
+       "drop": [
+        "G230-2.0-003",
+        "G230-2.0-004",
+        "G230-2.0-006"
+       ],
+       "swaps": [
+        {
+         "direction": "PAY_FIXED",
+         "tenor_years": 10.0,
+         "notional_mm": 100.0
+        },
+        {
+         "direction": "RECEIVE_FIXED",
+         "tenor_years": 20.0,
+         "notional_mm": 50.0
+        }
+       ]
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.3",
+     "ACCT 3.3",
+     "ACCT 2.1",
+     "MODEL 3"
+    ],
+    "best_similarity": 0.7207008600234985,
+    "model_calls": 3,
+    "tokens": {
+     "input_tokens": 13288,
+     "output_tokens": 303
+    },
+    "correct": false,
+    "missing": [
+     "Net duration (years) after: 5.22",
+     "Limit AOCI_UP200 ($mm) after: -225.99"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "C07",
+   "class": "composed",
+   "benchmark": true,
+   "question": "Size a 10-year pay-fixed swap that brings net duration to 5.0 years, then show what adding that swap does to 12-month NII and to the AOCI_UP200 measure.",
+   "reference": [
+    "NEW-10Y notional_mm: 339.2",
+    "NII, 12 months ($mm) change: -1.99",
+    "Limit AOCI_UP200 ($mm) after: -188.97"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw hedge -t 5.0 --tenors 10",
+     "ipw whatif --pay-fixed 10:339.2"
+    ],
+    "by_hand": "copying the notional from the first command into the second",
+    "seconds": 0.2881874996237457,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 11.431653399951756,
+    "run_id": "9fa6a6dac0af",
+    "answer": "Indicative only: not approved, no action taken.\n\nThe proposed 10-year pay-fixed swap reduces the net effective duration from 5.30 years to 5.00 years. The swap has a notional of USD 339.2 million at a fixed rate of 4.880%. \n\nThe change in 12-month NII is not available in the tool results, and the change in the AOCI_UP200 measure is also not available. Please check the tool results for these figures.",
+    "drafts": [
+     {
+      "passed": false,
+      "problems": [
+       "-1.2: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself",
+       "-2.5: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself"
+      ],
+      "text": "The proposed 10-year pay-fixed swap reduces the net effective duration from 5.30 years to 5.00 years. The swap has a notional of USD 339.2 million at a fixed rate of 4.880%. \n\nThe change in 12-month NII is -1.2 million, and the change in the AOCI_UP200 measure is -2.5 million."
+     },
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The proposed 10-year pay-fixed swap reduces the net effective duration from 5.30 years to 5.00 years. The swap has a notional of USD 339.2 million at a fixed rate of 4.880%. \n\nThe change in 12-month NII is not available in the tool results, and the change in the AOCI_UP200 measure is also not available. Please check the tool results for these figures."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "size_hedge",
+      "arguments": {
+       "target_duration": 5.0,
+       "mode": "duration",
+       "tenors": [
+        10.0
+       ]
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "aggregate",
+      "arguments": {
+       "operation": "difference",
+       "cells": [
+        {
+         "result": "r1",
+         "row": "Net",
+         "column": "12-month NII"
+        },
+        {
+         "result": "r1",
+         "row": "Net",
+         "column": "12-month NII"
+        }
+       ],
+       "as_percent": false,
+       "label": "Change in 12-month NII"
+      },
+      "ok": false,
+      "error": "result r1 has tables trades, key_rate_dv01, duration; name the one you mean"
+     },
+     {
+      "tool": "aggregate",
+      "arguments": {
+       "operation": "difference",
+       "cells": [
+        {
+         "result": "r1",
+         "row": "Net",
+         "column": "AOCI_UP200"
+        },
+        {
+         "result": "r1",
+         "row": "Net",
+         "column": "AOCI_UP200"
+        }
+       ],
+       "as_percent": false,
+       "label": "Change in AOCI_UP200"
+      },
+      "ok": false,
+      "error": "result r1 has tables trades, key_rate_dv01, duration; name the one you mean"
+     }
+    ],
+    "passages": [
+     "HEDGE 5.1",
+     "SPEC FR-12",
+     "SPEC FR-11",
+     "SPEC FR-3.3"
+    ],
+    "best_similarity": 0.744734525680542,
+    "model_calls": 3,
+    "tokens": {
+     "input_tokens": 15271,
+     "output_tokens": 411
+    },
+    "correct": false,
+    "missing": [
+     "NII, 12 months ($mm) change: -1.99",
+     "Limit AOCI_UP200 ($mm) after: -188.97"
+    ],
+    "first_draft_passed": false,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "C08",
+   "class": "composed",
+   "benchmark": true,
+   "question": "How much longer is the effective duration of the HTM securities than that of the AFS securities?",
+   "reference": [
+    "HTM less AFS value: 1.28"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw risk --by designation"
+    ],
+    "by_hand": "one subtraction",
+    "seconds": 0.02993349963799119,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.485995499882847,
+    "run_id": "c87517be8754",
+    "answer": "The effective duration of the HTM securities is 6.01 years, and the effective duration of the AFS securities is 5.30 years. Therefore, the effective duration of the HTM securities is longer by 0.71 years.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The effective duration of the HTM securities is 6.01 years, and the effective duration of the AFS securities is 5.30 years. Therefore, the effective duration of the HTM securities is longer by 0.71 years."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "risk_report",
+      "arguments": {
+       "by": "asset_type"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "ACCT 4",
+     "ACCT 2.2",
+     "ACCT 6",
+     "ACCT 7"
+    ],
+    "best_similarity": 0.7630274295806885,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 7025,
+     "output_tokens": 75
+    },
+    "correct": false,
+    "missing": [
+     "HTM less AFS value: 1.28"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "C09",
+   "class": "composed",
+   "benchmark": true,
+   "question": "Since the prior close, how much of the first-order curve P&L came from the 10-year and the 20-year key rates together?",
+   "reference": [
+    "10Y and 20Y value: -20.20"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw explain"
+    ],
+    "by_hand": "one addition",
+    "seconds": 0.1204067999497056,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 11.545989700127393,
+    "run_id": "99e032c0ccbd",
+    "answer": "The first-order curve P&L from the 10-year and 20-year key rates together is -20.20 USD million, as reported in the aggregate result.",
+    "drafts": [
+     {
+      "passed": false,
+      "problems": [
+       "-20.20: not a figure of any tool result. Leave it out, or call the aggregate tool to obtain it; do not work it out yourself"
+      ],
+      "text": "The first-order curve P&L from the 10-year and 20-year key rates together is the sum of their respective P&L figures. From the table, the P&L for the 10-year key rate is -11.45 USD million and for the 20-year key rate is -8.75 USD million. \n\nThe total first-order curve P&L from these two key rates is -11.45 + (-8.75) = -20.20 USD million."
+     },
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The first-order curve P&L from the 10-year and 20-year key rates together is -20.20 USD million, as reported in the aggregate result."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "explain_change",
+      "arguments": {
+       "positions": 10
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "aggregate",
+      "arguments": {
+       "operation": "sum",
+       "cells": [
+        {
+         "result": "r1",
+         "row": "10Y",
+         "column": "pnl_mm"
+        },
+        {
+         "result": "r1",
+         "row": "20Y",
+         "column": "pnl_mm"
+        }
+       ],
+       "as_percent": false,
+       "label": "Total first-order P&L from 10Y and 20Y key rates"
+      },
+      "ok": false,
+      "error": "result r1 has tables drivers, key_rates, positions, mortgage_rate; name the one you mean"
+     },
+     {
+      "tool": "aggregate",
+      "arguments": {
+       "operation": "sum",
+       "cells": [
+        {
+         "result": "r1",
+         "row": "10Y",
+         "column": "pnl_mm",
+         "table": "key_rates"
+        },
+        {
+         "result": "r1",
+         "row": "20Y",
+         "column": "pnl_mm",
+         "table": "key_rates"
+        }
+       ],
+       "as_percent": false,
+       "label": "Total first-order P&L from 10Y and 20Y key rates"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "SPEC FR-14",
+     "SPEC FR-1",
+     "MODEL 2",
+     "SPEC FR-1"
+    ],
+    "best_similarity": 0.6692180633544922,
+    "model_calls": 5,
+    "tokens": {
+     "input_tokens": 29112,
+     "output_tokens": 367
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": false,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "C10",
+   "class": "composed",
+   "benchmark": true,
+   "question": "Which bucket loses the most value under the bear_steepener scenario, and what are that bucket's effective duration and DV01?",
+   "reference": [
+    "30Y low",
+    "30Y low (<=3.0) eff_duration: 7.10",
+    "30Y low (<=3.0) dv01_k: 2,110"
+   ],
+   "cites": [],
+   "release1": {
+    "verdict": "commands and work by hand",
+    "commands": [
+     "ipw scenario -n bear_steepener --by bucket",
+     "ipw risk"
+    ],
+    "by_hand": "reading one bucket across two tables",
+    "seconds": 0.0527126993983984,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 5.262242900207639,
+    "run_id": "78892ee8d117",
+    "answer": "The bucket that loses the most value under the bear_steepener scenario is the **30Y high (>=5.0)** bucket, with a value change of **-69.7 million USD**. This bucket has an **effective duration of 6.76 years** and a **DV01 of 1,313 thousand USD per basis point**.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The bucket that loses the most value under the bear_steepener scenario is the **30Y high (>=5.0)** bucket, with a value change of **-69.7 million USD**. This bucket has an **effective duration of 6.76 years** and a **DV01 of 1,313 thousand USD per basis point**."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "scenario_breakdown",
+      "arguments": {
+       "scenario": "bear_steepener",
+       "by": "bucket"
+      },
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "risk_report",
+      "arguments": {
+       "by": "bucket"
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "SCEN 3",
+     "MBS 7",
+     "SPEC FR-6",
+     "MBS 4"
+    ],
+    "best_similarity": 0.6859365701675415,
+    "model_calls": 3,
+    "tokens": {
+     "input_tokens": 12809,
+     "output_tokens": 130
+    },
+    "correct": false,
+    "missing": [
+     "30Y low",
+     "30Y low (<=3.0) eff_duration: 7.10",
+     "30Y low (<=3.0) dv01_k: 2,110"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D01",
+   "class": "documents",
+   "benchmark": true,
+   "question": "What is the policy limit on the after-tax AOCI loss when rates rise by 200bp, and which securities does the measure cover?",
+   "reference": [
+    "AOCI: 210",
+    "AFS"
+   ],
+   "cites": [
+    "IPS 4.3",
+    "IPS 4"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.074286499992013,
+    "run_id": "39a3c08da920",
+    "answer": "The policy limit on the after-tax AOCI loss when rates rise by 200bp is a floor of USD -210 million [IPS 4.3]. The measure covers AFS securities only, net of the swaps designated as fair-value hedges of AFS securities [IPS 4.3].",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The policy limit on the after-tax AOCI loss when rates rise by 200bp is a floor of USD -210 million [IPS 4.3]. The measure covers AFS securities only, net of the swaps designated as fair-value hedges of AFS securities [IPS 4.3]."
+     }
+    ],
+    "tool_calls": [],
+    "passages": [
+     "IPS 4.3",
+     "ACCT 3.2",
+     "IPS 4.4",
+     "ACCT 6"
+    ],
+    "best_similarity": 0.856475830078125,
+    "model_calls": 1,
+    "tokens": {
+     "input_tokens": 3326,
+     "output_tokens": 66
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D02",
+   "class": "documents",
+   "benchmark": true,
+   "question": "What has to happen on the day a limit is breached?",
+   "reference": [
+    "remediation",
+    "Head of Investment Portfolio"
+   ],
+   "cites": [
+    "IPS 5.3"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 2.9623744003474712,
+    "run_id": "ecff2892e725",
+    "answer": "On the day a limit is breached, a breach is reported to the Head of Investment Portfolio and to market risk oversight, together with a remediation proposal. The proposal holds at least two sized options, each with its cost to income and its effect on every other limit. This is outlined in [IPS 5.3].",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "On the day a limit is breached, a breach is reported to the Head of Investment Portfolio and to market risk oversight, together with a remediation proposal. The proposal holds at least two sized options, each with its cost to income and its effect on every other limit. This is outlined in [IPS 5.3]."
+     }
+    ],
+    "tool_calls": [],
+    "passages": [
+     "IPS 5.3",
+     "IPS 5.2",
+     "SPEC FR-10",
+     "IPS 5.1"
+    ],
+    "best_similarity": 0.8078976273536682,
+    "model_calls": 1,
+    "tokens": {
+     "input_tokens": 3352,
+     "output_tokens": 66
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D03",
+   "class": "documents",
+   "benchmark": true,
+   "question": "At what utilisation does a limit go into warning, and which limits are in warning today?",
+   "reference": [
+    "warning: 80",
+    "DUR_BAND"
+   ],
+   "cites": [
+    "IPS 5.2"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 4.517563399858773,
+    "run_id": "8698837c49fd",
+    "answer": "A limit goes into warning when its utilisation reaches 80% [IPS 5.2]. Today, the limits in warning are the **DUR_BAND** with a utilisation of 84% and the **HTM_SHARE** with a utilisation of 75% [IPS 3.2].",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "A limit goes into warning when its utilisation reaches 80% [IPS 5.2]. Today, the limits in warning are the **DUR_BAND** with a utilisation of 84% and the **HTM_SHARE** with a utilisation of 75% [IPS 3.2]."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "limit_status",
+      "arguments": {},
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 5.2",
+     "SPEC FR-10",
+     "SPEC FR-10",
+     "IPS 5.1"
+    ],
+    "best_similarity": 0.8052313327789307,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8106,
+     "output_tokens": 119
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D04",
+   "class": "documents",
+   "benchmark": true,
+   "question": "Can held-to-maturity securities be hedged with swaps, and why?",
+   "reference": [
+    "not hedged",
+    "hedge accounting"
+   ],
+   "cites": [
+    "HEDGE 3.2",
+    "HEDGE 3.1",
+    "ACCT 4"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.520231199916452,
+    "run_id": "1a56ebe954e7",
+    "answer": "Held-to-maturity (HTM) securities cannot be hedged with swaps. According to the hedging policy, HTM securities are not hedged because they are carried at amortised cost, and their rate risk is managed through the HTM share cap and the economic value limit [IPS 3.2]. Additionally, under hedge accounting, an HTM security cannot be the hedged item in a hedge of interest-rate risk [HEDGE 3.2].",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "Held-to-maturity (HTM) securities cannot be hedged with swaps. According to the hedging policy, HTM securities are not hedged because they are carried at amortised cost, and their rate risk is managed through the HTM share cap and the economic value limit [IPS 3.2]. Additionally, under hedge accounting, an HTM security cannot be the hedged item in a hedge of interest-rate risk [HEDGE 3.2]."
+     }
+    ],
+    "tool_calls": [],
+    "passages": [
+     "HEDGE 3.2",
+     "IPS 3.2",
+     "ACCT 2.2",
+     "HEDGE 2"
+    ],
+    "best_similarity": 0.7728700637817383,
+    "model_calls": 1,
+    "tokens": {
+     "input_tokens": 3284,
+     "output_tokens": 96
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D05",
+   "class": "documents",
+   "benchmark": true,
+   "question": "What tax rate do the analytics apply to AOCI, and what is the after-tax change in AOCI under the +200bp scenario?",
+   "reference": [
+    "tax: 24",
+    "up_200 d_aoci_mm: -226.0"
+   ],
+   "cites": [
+    "ACCT 3.2",
+    "SPEC FR-8",
+    "SPEC Model parameters"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.716313200071454,
+    "run_id": "a4a8494a5740",
+    "answer": "The analytics apply a tax rate of 24% to the pre-tax change in AOCI, resulting in an after-tax change that is 76% of the pre-tax change [ACCT 3.2]. The after-tax change in AOCI under the +200bp scenario may not be a loss of more than USD 210 million (limit `AOCI_UP200`, a floor of USD -210 million) [IPS 4.3].",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The analytics apply a tax rate of 24% to the pre-tax change in AOCI, resulting in an after-tax change that is 76% of the pre-tax change [ACCT 3.2]. The after-tax change in AOCI under the +200bp scenario may not be a loss of more than USD 210 million (limit `AOCI_UP200`, a floor of USD -210 million) [IPS 4.3]."
+     }
+    ],
+    "tool_calls": [],
+    "passages": [
+     "ACCT 3.2",
+     "IPS 4.3",
+     "SPEC FR-8",
+     "ACCT 3.3"
+    ],
+    "best_similarity": 0.8179189562797546,
+    "model_calls": 1,
+    "tokens": {
+     "input_tokens": 3548,
+     "output_tokens": 102
+    },
+    "correct": false,
+    "missing": [
+     "up_200 d_aoci_mm: -226.0"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D06",
+   "class": "documents",
+   "benchmark": true,
+   "question": "When a limit is breached, how is the restoring swap sized, and in what notional steps?",
+   "reference": [
+    "step: 10",
+    "smallest"
+   ],
+   "cites": [
+    "HEDGE 5.3",
+    "SPEC FR-11"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.851718799676746,
+    "run_id": "9f269f68da3e",
+    "answer": "When a limit is breached, the restoring swap is sized as the smallest notional, in steps of USD 10 million, that brings the limit back to its bound. This is done for several tenors, by default 2, 5, and 10 years, and each option is shown with the limit after the trade, net duration, the change in twelve-month income, and the number of limits still breached [HEDGE 5.3].",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "When a limit is breached, the restoring swap is sized as the smallest notional, in steps of USD 10 million, that brings the limit back to its bound. This is done for several tenors, by default 2, 5, and 10 years, and each option is shown with the limit after the trade, net duration, the change in twelve-month income, and the number of limits still breached [HEDGE 5.3]."
+     }
+    ],
+    "tool_calls": [],
+    "passages": [
+     "SPEC FR-11",
+     "HEDGE 5.3",
+     "MODEL 2",
+     "IPS 5.3"
+    ],
+    "best_similarity": 0.8213868141174316,
+    "model_calls": 1,
+    "tokens": {
+     "input_tokens": 3840,
+     "output_tokens": 95
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D07",
+   "class": "documents",
+   "benchmark": true,
+   "question": "Do the swaps hedge a widening of MBS spreads, and what does the basis_widen_25 scenario do to the value of the securities?",
+   "reference": [
+    "not hedge",
+    "basis_widen_25 d_value_mm: -118.0"
+   ],
+   "cites": [
+    "SCEN 4"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 2.6667839996516705,
+    "run_id": "0618d74b8944",
+    "answer": "The swaps do not hedge a widening of MBS spreads, as stated in [SCEN 4]. The basis_widen_25 scenario increases the value of mortgage securities by 25 basis points, while leaving Treasuries and swaps unchanged.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The swaps do not hedge a widening of MBS spreads, as stated in [SCEN 4]. The basis_widen_25 scenario increases the value of mortgage securities by 25 basis points, while leaving Treasuries and swaps unchanged."
+     }
+    ],
+    "tool_calls": [],
+    "passages": [
+     "SCEN 4",
+     "HEDGE 5.3",
+     "HEDGE 8",
+     "HEDGE 5.1"
+    ],
+    "best_similarity": 0.8019975423812866,
+    "model_calls": 1,
+    "tokens": {
+     "input_tokens": 3305,
+     "output_tokens": 52
+    },
+    "correct": false,
+    "missing": [
+     "basis_widen_25 d_value_mm: -118.0"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D08",
+   "class": "documents",
+   "benchmark": true,
+   "question": "What is the model not intended to be used for?",
+   "reference": [
+    "trading",
+    "regulatory capital"
+   ],
+   "cites": [
+    "MODEL 1"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 2.569310199934989,
+    "run_id": "5f8c60445319",
+    "answer": "The model is not intended to be used for trading or relative-value decisions, pricing securities without a mark, regulatory capital, or any use that needs option-adjusted measures [MODEL 1].",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The model is not intended to be used for trading or relative-value decisions, pricing securities without a mark, regulatory capital, or any use that needs option-adjusted measures [MODEL 1]."
+     }
+    ],
+    "tool_calls": [],
+    "passages": [
+     "MODEL 1",
+     "MODEL Model Document",
+     "SPEC Non-functional requirements",
+     "SPEC Model parameters"
+    ],
+    "best_similarity": 0.6329480409622192,
+    "model_calls": 1,
+    "tokens": {
+     "input_tokens": 3543,
+     "output_tokens": 39
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D09",
+   "class": "documents",
+   "benchmark": true,
+   "question": "Why do mortgage securities get longer when rates rise?",
+   "reference": [
+    "refinanc",
+    "extension"
+   ],
+   "cites": [
+    "MBS 3"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 3.1352277998812497,
+    "run_id": "9de4a82e28b1",
+    "answer": "Mortgage securities get longer when rates rise because of **extension**. When rates rise, refinancing slows down, and lock-in effects reduce the turnover of principal. This causes the principal to come back later, which lengthens the security and results in a greater price decline compared to a bond. This behavior is described in [MBS 3].",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "Mortgage securities get longer when rates rise because of **extension**. When rates rise, refinancing slows down, and lock-in effects reduce the turnover of principal. This causes the principal to come back later, which lengthens the security and results in a greater price decline compared to a bond. This behavior is described in [MBS 3]."
+     }
+    ],
+    "tool_calls": [],
+    "passages": [
+     "MBS 3",
+     "IPS 4.2",
+     "MBS 5",
+     "IPS 4.1"
+    ],
+    "best_similarity": 0.7739362716674805,
+    "model_calls": 1,
+    "tokens": {
+     "input_tokens": 3475,
+     "output_tokens": 72
+    },
+    "correct": true,
+    "missing": [],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  },
+  {
+   "id": "D10",
+   "class": "documents",
+   "benchmark": true,
+   "question": "The AOCI_UP200 limit is breached. What does the policy allow as a remedy, and what notional of a 5-year swap would restore the limit?",
+   "reference": [
+    "sell",
+    "AFS",
+    "PAY_FIXED 5Y notional_mm: 260.0"
+   ],
+   "cites": [
+    "IPS 5.4",
+    "IPS 5.3",
+    "HEDGE 5.3"
+   ],
+   "release1": {
+    "verdict": "no",
+    "commands": [],
+    "by_hand": "",
+    "seconds": null,
+    "error": null
+   },
+   "release2": {
+    "status": "answered",
+    "error": null,
+    "seconds": 5.693877799902111,
+    "run_id": "ce03b73e3ad6",
+    "answer": "Indicative only: not approved, no action taken.\n\nThe AOCI_UP200 limit is breached, and the policy allows a remedy by sizing a swap. A 5-year swap with a notional of USD 260 million would restore the limit. This swap would result in an after-tax AOCI change of USD -209.40 million, with a net duration of 5.17 years and a change in twelve-month NII of USD -1.0 million. The limit would no longer be breached.",
+    "drafts": [
+     {
+      "passed": true,
+      "problems": [],
+      "text": "The AOCI_UP200 limit is breached, and the policy allows a remedy by sizing a swap. A 5-year swap with a notional of USD 260 million would restore the limit. This swap would result in an after-tax AOCI change of USD -209.40 million, with a net duration of 5.17 years and a change in twelve-month NII of USD -1.0 million. The limit would no longer be breached."
+     }
+    ],
+    "tool_calls": [
+     {
+      "tool": "limit_status",
+      "arguments": {},
+      "ok": true,
+      "error": null
+     },
+     {
+      "tool": "limit_remedy",
+      "arguments": {
+       "limit": "AOCI_UP200",
+       "tenors": [
+        5.0
+       ]
+      },
+      "ok": true,
+      "error": null
+     }
+    ],
+    "passages": [
+     "IPS 4.3",
+     "HEDGE 5.3",
+     "SPEC FR-11",
+     "SPEC FR-8"
+    ],
+    "best_similarity": 0.741235613822937,
+    "model_calls": 2,
+    "tokens": {
+     "input_tokens": 8759,
+     "output_tokens": 152
+    },
+    "correct": false,
+    "missing": [
+     "sell",
+     "AFS",
+     "a citation of [IPS 5.4] or [IPS 5.3] or [HEDGE 5.3]"
+    ],
+    "first_draft_passed": true,
+    "tools_selected": null
+   }
+  }
+ ],
+ "measures": {
+  "not_run": 0,
+  "benchmark": {
+   "tasks": 30,
+   "correct": {
+    "count": 18,
+    "of": 30,
+    "share": 0.6
+   },
+   "first_draft_passed": {
+    "count": 23,
+    "of": 30,
+    "share": 0.7666666666666667
+   },
+   "blocked": {
+    "count": 0,
+    "of": 30,
+    "share": 0.0
+   },
+   "errors": 0,
+   "seconds": {
+    "runs": 30,
+    "median": 3.860183499753475,
+    "p90": 9.248145860107616
+   },
+   "release1": {
+    "one command": 10,
+    "commands and work by hand": 10,
+    "no": 10
+   },
+   "release1_seconds": {
+    "runs": 20,
+    "median": 0.02905969973653555,
+    "p90": 0.1991090199444443
+   }
+  },
+  "classes": {
+   "routine": {
+    "tasks": 10,
+    "correct": {
+     "count": 7,
+     "of": 10,
+     "share": 0.7
+    },
+    "first_draft_passed": {
+     "count": 9,
+     "of": 10,
+     "share": 0.9
+    },
+    "blocked": {
+     "count": 0,
+     "of": 10,
+     "share": 0.0
+    },
+    "errors": 0,
+    "seconds": {
+     "runs": 10,
+     "median": 3.8092226500157267,
+     "p90": 6.5660856499802325
+    },
+    "release1": {
+     "one command": 10,
+     "commands and work by hand": 0,
+     "no": 0
+    },
+    "release1_seconds": {
+     "runs": 10,
+     "median": 0.02195059973746538,
+     "p90": 0.040325620025396344
+    }
+   },
+   "composed": {
+    "tasks": 10,
+    "correct": {
+     "count": 4,
+     "of": 10,
+     "share": 0.4
+    },
+    "first_draft_passed": {
+     "count": 4,
+     "of": 10,
+     "share": 0.4
+    },
+    "blocked": {
+     "count": 0,
+     "of": 10,
+     "share": 0.0
+    },
+    "errors": 0,
+    "seconds": {
+     "runs": 10,
+     "median": 7.839193200226873,
+     "p90": 11.44308702996932
+    },
+    "release1": {
+     "one command": 0,
+     "commands and work by hand": 10,
+     "no": 0
+    },
+    "release1_seconds": {
+     "runs": 10,
+     "median": 0.041323099518194795,
+     "p90": 0.28773236982524397
+    }
+   },
+   "documents": {
+    "tasks": 10,
+    "correct": {
+     "count": 7,
+     "of": 10,
+     "share": 0.7
+    },
+    "first_draft_passed": {
+     "count": 10,
+     "of": 10,
+     "share": 1.0
+    },
+    "blocked": {
+     "count": 0,
+     "of": 10,
+     "share": 0.0
+    },
+    "errors": 0,
+    "seconds": {
+     "runs": 10,
+     "median": 3.327729499898851,
+     "p90": 4.635194839863106
+    },
+    "release1": {
+     "one command": 0,
+     "commands and work by hand": 0,
+     "no": 10
+    },
+    "release1_seconds": {
+     "runs": 0,
+     "median": null,
+     "p90": null
+    }
+   }
+  },
+  "tool_selection": {
+   "count": 16,
+   "of": 20,
+   "share": 0.8
+  }
+ },
+ "investigations": [
+  {
+   "limit": "AOCI_UP200",
+   "reference": [
+    "AOCI_UP200 headroom: -15.99",
+    "PAY_FIXED 2Y notional_mm: 570.0"
+   ],
+   "cites": [
+    "IPS 4.3"
+   ],
+   "status": "answered",
+   "error": null,
+   "seconds": 13.485583799891174,
+   "run_id": "8d418fd785cd",
+   "answer": "Indicative only: not approved, no action taken.\n\nThe limit AOCI_UP200 has a value of -225.99 million USD (after tax), with a bound of -210.00 million USD. Its headroom is -15.99 million USD, indicating it is outside its bound and in breach. The exposure contributing to this limit is primarily from the 30Y low (<=3.0) and 30Y mid (3.5-4.5) buckets, as shown in the scenario breakdown. The policy clause IPS 4.3 states that the after-tax change in AOCI may not be a loss of more than USD 210 million in an instantaneous parallel rise of 200bp. The indicative swap options to bring the limit back within its bound are: a 5-year pay-fixed swap with a notional of 260 million USD, a 10-year pay-fixed swap with a notional of 150 million USD, and a 30-year pay-fixed swap with a notional of 90 million USD. Each swap reduces the AOCI change to within the bound, with minimal impact on the 12-month NII.",
+   "drafts": [
+    {
+     "passed": true,
+     "problems": [],
+     "text": "The limit AOCI_UP200 has a value of -225.99 million USD (after tax), with a bound of -210.00 million USD. Its headroom is -15.99 million USD, indicating it is outside its bound and in breach. The exposure contributing to this limit is primarily from the 30Y low (<=3.0) and 30Y mid (3.5-4.5) buckets, as shown in the scenario breakdown. The policy clause IPS 4.3 states that the after-tax change in AOCI may not be a loss of more than USD 210 million in an instantaneous parallel rise of 200bp. The indicative swap options to bring the limit back within its bound are: a 5-year pay-fixed swap with a notional of 260 million USD, a 10-year pay-fixed swap with a notional of 150 million USD, and a 30-year pay-fixed swap with a notional of 90 million USD. Each swap reduces the AOCI change to within the bound, with minimal impact on the 12-month NII."
+    }
+   ],
+   "tool_calls": [
+    {
+     "tool": "limit_status",
+     "arguments": {},
+     "ok": true,
+     "error": null
+    },
+    {
+     "tool": "scenario_breakdown",
+     "arguments": {
+      "scenario": "up_200",
+      "by": "bucket"
+     },
+     "ok": true,
+     "error": null
+    },
+    {
+     "tool": "top_positions",
+     "arguments": {
+      "metric": "dv01_k",
+      "count": 10,
+      "direction": "largest"
+     },
+     "ok": true,
+     "error": null
+    },
+    {
+     "tool": "key_rate_report",
+     "arguments": {
+      "by": "bucket",
+      "unit": "k"
+     },
+     "ok": true,
+     "error": null
+    },
+    {
+     "tool": "explain_change",
+     "arguments": {
+      "positions": 10
+     },
+     "ok": true,
+     "error": null
+    },
+    {
+     "tool": "limit_remedy",
+     "arguments": {
+      "limit": "AOCI_UP200",
+      "tenors": [
+       5.0,
+       10.0,
+       30.0
+      ]
+     },
+     "ok": true,
+     "error": null
+    }
+   ],
+   "passages": [
+    "IPS 4.3",
+    "SPEC FR-11",
+    "IPS 5.4",
+    "IPS 5.3"
+   ],
+   "best_similarity": 0.7560265064239502,
+   "model_calls": 2,
+   "tokens": {
+    "input_tokens": 11503,
+    "output_tokens": 423
+   },
+   "steps": [
+    {
+     "tool": "limit_status",
+     "done": true
+    },
+    {
+     "tool": "scenario_breakdown",
+     "done": true
+    },
+    {
+     "tool": "top_positions",
+     "done": true
+    },
+    {
+     "tool": "key_rate_report",
+     "done": true
+    },
+    {
+     "tool": "explain_change",
+     "done": true
+    },
+    {
+     "tool": "limit_remedy",
+     "done": true
+    }
+   ],
+   "correct": true,
+   "missing": [],
+   "first_draft_passed": true
+  }
+ ]
+}

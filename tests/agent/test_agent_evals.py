@@ -101,11 +101,11 @@ def test_every_reference_path_runs_and_every_reference_value_is_read_from_the_en
     first = {item.wording: item.values for item in expected["T01"]}
     risk = tools.Toolbox(wb).call("risk_report", {}).table()
     assert first == {"Net eff_duration: 5.30": (risk.rows["Net"]["eff_duration"],)}
-    by_rank = expected["T18"]  # three row labels, then the figure of the first row, labelled by that row
+    by_rank = expected["T18"]  # three row labels, then the figure of the first row
     assert [item.wording for item in by_rank[:3]] == ["G230-2.0-003", "G230-2.0-004", "G230-2.0-006"]
-    assert by_rank[3].labels == ("G230-2.0-003",) and by_rank[3].wording.startswith(
-        "G230-2.0-003 unrealized_mm:"
-    )
+    # the figure may be named by a label of the task or by its row
+    assert by_rank[3].labels == ("largest", "biggest", "worst", "G230-2.0-003")
+    assert by_rank[3].wording == "G230-2.0-003 unrealized_mm: -49.0"
     assert expected["T07"][0].labels == ()  # a figure without a label is looked for anywhere in the answer
     either = expected["C07"][1]  # the change in income, or income after the trade
     assert either.labels == ("NII", "income") and len(either.values) == 2
@@ -311,6 +311,9 @@ NATURAL = [
     ),
     ("T13", "| Tenor | Notional |\n|---|---|\n| 2Y | 570.0 |\n| 5Y | 260.0 |\n| 10Y | 150.0 |", True),
     ("T17", "The net key-rate DV01 at the 10-year point is 1,636 thousand USD per bp.", True),
+    ("T18", "They are G230-2.0-003, G230-2.0-004 and G230-2.0-006. The largest loss is -49.0.", True),
+    ("T18", "| G230-2.0-003 | -49.0 |\n| G230-2.0-004 | -47.7 |\n| G230-2.0-006 | -46.7 |", True),
+    ("T18", "They are G230-2.0-003, G230-2.0-004 and G230-2.0-006. The largest loss is -47.7.", False),
     ("C01", "HTM securities lose 158.93 more than AFS securities.", True),
     ("C01", "HTM securities lose 575.57 and AFS securities 416.64.", False),  # the difference was asked for
     ("C02", "About 67.9% of the market value is in 30-year MBS.", True),
@@ -742,6 +745,78 @@ def test_the_run_is_described_by_what_the_machine_and_the_server_report(
     )
     bare = evalreport.environment(unreachable, mock=False, as_of="2026-11-09")
     assert bare["gpu"] is None and bare["chat"]["served"] is None  # the report is written without them
+
+
+# --------------------------------------------------------------------------- the published run
+
+PUBLISHED = "docs/examples/evaluation_2026-11-10.json"
+
+
+@pytest.fixture(scope="session")
+def published(root):
+    """The data file of the run that docs/EVALUATION.md reports."""
+    return json.loads((root / PUBLISHED).read_text(encoding="utf-8"))
+
+
+def table_rows(report: str, heading: str) -> list[str]:
+    lines = report.splitlines()
+    start = lines.index(heading)
+    end = next((n for n in range(start + 1, len(lines)) if lines[n].startswith("## ")), len(lines))
+    return [line for line in lines[start:end] if line.startswith("| ")]
+
+
+def test_the_evaluation_document_holds_the_tables_of_its_data_file(root, published):
+    document = (root / "docs" / "EVALUATION.md").read_text(encoding="utf-8")
+    assert f"`{PUBLISHED}`" in document
+    report = evalreport.render(published)
+    for heading in (
+        "## 1. The run",
+        "## 2. Measures",
+        "## 3. Retrieval",
+        "## 4. Release 1 against release 2",
+        "## 5. Tasks",
+        "## 6. Questions outside the knowledge base",
+    ):
+        rows = table_rows(report, heading)
+        assert rows, heading
+        for row in rows:
+            assert row in document, f"{heading}: {row}"
+    assert published["meta"]["mock"] is False and len(published["tasks"]) == 40
+    (investigation,) = published["investigations"]
+    done = sum(step["done"] for step in investigation["steps"])
+    assert f"| Playbook steps done | {done} of {len(investigation['steps'])} |" in document
+    assert f"| Seconds | {investigation['seconds']:.1f} |" in document
+
+
+def test_the_published_measures_follow_from_the_published_records(published):
+    assert evals.measures(published["tasks"]) == published["measures"]
+    refused = sum(record["refused"] for record in published["refusals"])
+    assert published["refusal"] == {"count": refused, "of": 10, "share": refused / 10}
+    wrong = [task["id"] for task in published["tasks"] if not task["release2"]["correct"]]
+    assert len(wrong) == 15 and sum(task["benchmark"] for task in published["tasks"]) == 30
+
+
+def test_the_published_answers_score_the_same_today_but_for_the_corrected_reference(
+    wb, tasks, expected, specs, published
+):
+    """The data file keeps every answer, so the scoring can be repeated without the model."""
+    by_id = {task.id: task for task in tasks}
+    changed = {}
+    for record in published["tasks"]:
+        task, run = by_id[record["id"]], record["release2"]
+        assert record["question"] == task.question
+        lacking = evals.missing(run["answer"], expected[task.id], task.cites)
+        correct = run["status"] == "answered" and not lacking
+        made = [
+            tools.ToolResult(f"r{n}", call["tool"], call["arguments"], "2026-11-09", (), call["error"])
+            for n, call in enumerate(run["tool_calls"], start=1)
+        ]
+        chosen = evals.selected(task, made, specs) if task.kind == "routine" else None
+        if (correct, chosen) != (run["correct"], run["tools_selected"]):
+            changed[task.id] = (run["correct"], correct, run["tools_selected"], chosen)
+    # T18: the answer is right and its reference asked for the position id next to the figure
+    assert changed == {"T18": (False, True, True, True)}
+    assert not by_id["T18"].benchmark  # so no published measure depends on it
 
 
 # --------------------------------------------------------------------------- the command

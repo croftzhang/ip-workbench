@@ -26,7 +26,7 @@ DOCS = ROOT / "docs"
 DOCUMENTS = [*sorted(DOCS.glob("*.md")), ROOT / "README.md"]
 
 # Named in the release 2 roadmap and design; not built yet.
-PLANNED_PATHS = ("src/ipw/agent/", "src/ipw/mcp/", "tests/agent/", "config/agent.yaml", "docs/EVALUATION.md")
+PLANNED_PATHS = ("src/ipw/agent/", "src/ipw/mcp/", "tests/agent/", "config/agent.yaml")
 REPOSITORY_FOLDERS = ("config/", "data/", "docs/", "scripts/", "src/", "tests/", ".github/")
 
 
