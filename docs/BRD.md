@@ -4,10 +4,10 @@
 
 | | |
 |---|---|
-| Document | BRD, version 1.0 |
-| Status | Baseline for release 1 |
+| Document | BRD, version 1.1 |
+| Status | Baseline for releases 1 and 2 |
 | Owner | Product Owner, Investment Portfolio analytics |
-| Last updated | 2026-11-10 |
+| Last updated | 2026-11-11 |
 | Next in the chain | [SOLUTION_DESIGN.md](SOLUTION_DESIGN.md), then [FUNCTIONAL_SPEC.md](FUNCTIONAL_SPEC.md) |
 
 > The desk, its roles, its policy limits and every figure in this document are
@@ -176,7 +176,7 @@ regulatory reporting. The bank-wide income simulation owned by Treasury.
 | Release | Content | Status |
 |---|---|---|
 | 1 | BR-1 to BR-10; NFR-1 to NFR-8 | Delivered |
-| 2 | BR-11 to BR-13, built on the release 1 calculations without changing them | Planned |
+| 2 | BR-11 to BR-13, built on the release 1 calculations without changing them | Delivered. The stop for a recorded approval in BR-12 is deferred; until it exists every proposal is labelled indicative and nothing is created by the system (RULE-7) |
 
 ## 12. Glossary
 

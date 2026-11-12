@@ -4,10 +4,10 @@
 
 | | |
 |---|---|
-| Document | Product requirements, version 1.0 |
+| Document | Product requirements, version 1.1 |
 | Owner | Product Owner, Investment Portfolio analytics |
-| Last updated | 2026-11-10 |
-| Status | Release 1 delivered; release 2 planned |
+| Last updated | 2026-11-11 |
+| Status | Releases 1 and 2 delivered; US-8 and US-15 deferred |
 
 > The desk and all figures are illustrative.
 
@@ -23,7 +23,8 @@
 | [UAT.md](UAT.md) | How does a business user confirm it? |
 | [MODEL.md](MODEL.md) | What are the model's assumptions, limitations and tests? |
 | [DECISIONS.md](DECISIONS.md) | Which engineering choices shaped the code? |
-| [AGENT_DESIGN.md](AGENT_DESIGN.md) | How will the release 2 assistant work, and how will it be measured? |
+| [AGENT_DESIGN.md](AGENT_DESIGN.md) | How does the release 2 assistant work, and how is it measured? |
+| [EVALUATION.md](EVALUATION.md) | What did the measurement of the assistant show? |
 
 ## 2. Product goals
 
@@ -66,42 +67,36 @@ Sample data: 88 positions with USD 10 billion face (30-year agency MBS 70%,
 for two closes, nine policy limits, fifteen scenarios. Market levels are
 anchored to public early-November-2026 levels.
 
-### 3.2 Release 2: the assistant (planned)
+### 3.2 Release 2: the assistant (delivered)
 
 Release 2 is not a chat front end for release 1. Its job is the work release 1
-cannot do without someone writing new code (`src/ipw/agent/`). The design, with
-the options considered for each choice, is in [AGENT_DESIGN.md](AGENT_DESIGN.md).
+cannot do without someone writing new code, on the same engine and with no
+calculation of its own (`src/ipw/agent/`). The command is `ipw-ai`. The design,
+with the options considered for each choice, is in
+[AGENT_DESIGN.md](AGENT_DESIGN.md); the measured results are in
+[EVALUATION.md](EVALUATION.md). On 2026-11-10 the owner narrowed the scope to
+four things: a local language model, retrieval, tool calling and the engine's
+analytics.
 
-* **Exception investigation (primary use).** When the daily run finds a limit
-  breach or an unusual move, the assistant drills down (which positions, which
-  curve points, what changed since yesterday), retrieves the policy requirement
-  for that breach, computes two or three remediation options, then stops for
-  approval. The path differs for each exception.
-* **Ad-hoc analysis.** Multi-step what-if questions composed from existing
-  tools, for example "the five largest contributors to the +200bp AOCI loss,
-  and the exposure if they were swapped into 15-year".
-* **Numbers joined with written rules.** Checks proposals against the hedging
-  and investment policy text, and shows the relevant model limitation next to
-  any result that rests on a weakly supported part of the prepayment model.
-* **Commentary drafting.** A first draft of the "why it changed" text, with
-  every figure verified against tool output.
-* **Learning mode.** Explains a concept with the book's own figures.
+| Use | What release 2 does |
+|---|---|
+| Exception investigation | `ipw-ai investigate` gathers the evidence for a limit by a fixed playbook (the limit and its headroom, which buckets and positions carry it, where on the curve, what moved since the prior close, the policy clause) and sizes swap options. The answer is labelled indicative. It does not stop for an approval |
+| Ad-hoc analysis | `ipw-ai ask` answers a question in plain English by calling several tools; sums, differences and shares come from a tool, not from the model |
+| Numbers joined with written rules | Answers cite the section of the policy, accounting, scenario or model document they rely on; a question the documents do not cover is refused |
+| Control | Every figure is checked against the tool results before an answer is shown, and every run is logged |
 
-Building blocks:
+Building blocks, as built:
 
-* **MCP server** exposing the engine's functions as typed tools.
-* **LangGraph** workflow with checkpoints: plan, retrieve, call tools, verify
-  numbers, answer. Long chains are split into checked sub-steps.
-* **Retrieval** over a knowledge base (`kb/`): a Chroma vector index and a
-  keyword index, fused and then reranked by a cross-encoder, each stage a
-  switch whose value is measured; LangChain for documents, splitting and model
-  interfaces; answers cite their sources.
-* **Approval in the terminal.** The workflow pauses on any hedge recommendation
-  or breach remediation; approve, edit or reject; the decision is logged.
-* **Local models.** Chat and embeddings through Ollama: default chat model
-  `qwen3:8b`, with `qwen3:14b`, `qwen3.5:9b` and `gemma4:12b` compared in the
-  benchmark; embeddings `nomic-embed-text`. Reranker `BAAI/bge-reranker-v2-m3`
-  through Hugging Face and PyTorch. All are configuration values.
+* **Tools.** Fifteen typed, read-only tools over the engine, called in the
+  assistant's own process. An optional MCP server offers the same tools to any
+  other client.
+* **The loop.** One LangGraph graph of four nodes: retrieve, model, tools,
+  check. No saved state, no approval step.
+* **Retrieval.** A local Chroma vector index over the knowledge base, with
+  `nomic-embed-text`. Keyword fusion and a cross-encoder reranker are switches,
+  off by default; fusion was measured and does not raise the hit rate.
+* **Local models.** Chat `qwen3:8b` and embeddings `nomic-embed-text`, through
+  Ollama. Both are configuration values; no other chat model has been measured.
 * **Mock model** for tests and continuous integration.
 
 Knowledge base (constructed, consistent with the engine's parameters):
@@ -109,11 +104,17 @@ investment policy with the limits referenced as IPS sections, hedging policy,
 AFS and HTM accounting note, scenario definitions, an MBS primer, a glossary,
 and the functional specification and model document of this repository.
 
-Benchmark (`evals/benchmark/`): thirty realistic tasks in three classes
-(routine queries, composed ad-hoc analysis, questions needing policy or model
-documents). For each task: can release 1 do it without new code; is release 2
-correct; elapsed time; was the answer blocked by the verifier. Results are
-published as measured, including failures.
+Benchmark (`evals/benchmark/`): forty tasks, thirty of which form the benchmark
+of ten routine queries, ten composed analyses and ten questions needing the
+documents. For each task: can release 1 do it without new code; is release 2
+correct; elapsed time; was the answer blocked by the check. The run on the
+reference machine is published as measured, including failures.
+
+Not in release 2: the stop for a recorded approval (US-8); the automatic
+warning when a result rests on a weak part of the model (US-15); separate
+planning steps; commentary drafting and a learning mode as features of their
+own (a question may still ask for an explanation); a container image; a
+comparison of several chat models.
 
 ## 4. User stories and acceptance criteria
 
@@ -161,32 +162,55 @@ published as measured, including failures.
 The full requirement-to-test matrix is in
 [FUNCTIONAL_SPEC.md](FUNCTIONAL_SPEC.md#traceability-matrix).
 
+### 4.2 Where the release 2 stories are tested
+
+The tests run on the mock model. What the real model does is measured
+separately ([EVALUATION.md](EVALUATION.md)).
+
+| Story | Status | Tests | Note |
+|---|---|---|---|
+| US-6 | Done | `tests/agent/test_agent_loop.py`, `tests/agent/test_agent_verify.py` | |
+| US-7 | Done | `tests/agent/test_agent_retrieval.py`, `tests/agent/test_agent_loop.py` | |
+| US-8 | Deferred | | No stop for approval; every proposal is labelled indicative ([AGENT_DESIGN.md](AGENT_DESIGN.md), section 6) |
+| US-9 | Done | `tests/agent/test_agent_loop.py` | Through the same loop: tools for the book's figures, passages for the concept |
+| US-10 | Done | `tests/agent/test_agent_loop.py` | The run log holds no approval, because there is none to record |
+| US-11 | Done | `tests/agent/test_agent_evals.py` | Numeric faithfulness is reported as first-draft pass rate and block rate |
+| US-12 | Done | `tests/agent/test_agent_tools.py`, `tests/agent/test_agent_mcp.py` | |
+| US-13 | Done, without the pause | `tests/agent/test_agent_loop.py` | The pause for approval is US-8 |
+| US-14 | Done | `tests/agent/test_agent_loop.py` | The calls are logged; there is no separate plan to log |
+| US-15 | Deferred | | The model summary is retrieved and cited when a question asks for it |
+| US-16 | Done | `tests/agent/test_agent_evals.py` | One command: `ipw-ai eval` |
+
 ## 5. Release 2 design principles
 
 | Principle | Why |
 |---|---|
 | The language model never computes; it selects tools and words the answer | Numbers stay auditable and validation covers the engine only |
 | A verifier checks every figure before an answer is shown | Small local models misquote figures; this turns that into a caught error |
-| The engine is reached through a tool server, not imported by the assistant | The same tools serve any client the desk adopts |
+| Tools are defined once over the engine; the assistant calls them in its own process, and an optional MCP server offers the same tools | The main path stays simple, and any client the desk adopts can use the same tools |
 | Local model only | Positions are confidential; reproduction costs nothing |
 | Separate installation for the assistant's dependencies | The routine tool stays light and free of language-model code |
 | Constructed data and documents | Publishable; no proprietary content |
 
 ## 6. Success measures for release 2
 
-* The routine brief and the assistant agree on every figure.
-* Numeric faithfulness of shown answers is 100%: unfaithful answers are blocked.
-* Retrieval hit rate of at least 85% on the evaluation questions.
-* Set-up on a fresh Windows machine with a 12 GB graphics card in under 30
-  minutes from the README.
+| Measure | Result |
+|---|---|
+| The routine brief and the assistant agree on every figure | Met by construction: every figure of the assistant is a figure of the engine |
+| Numeric faithfulness of shown answers is 100%: unfaithful answers are blocked | Met: no shown figure failed the check; no benchmark answer had to be blocked |
+| Retrieval hit rate of at least 85% on the evaluation questions | Met: 96.7% (29 of 30) |
+| Set-up on a fresh Windows machine with a 12 GB graphics card in under 30 minutes from the README | Not measured |
+
+Answer correctness, which these measures do not cover, was 18 of 30 benchmark
+tasks ([EVALUATION.md](EVALUATION.md)).
 
 ## 7. Risks
 
 | Risk | Mitigation |
 |---|---|
-| A small local model loses the thread on chains longer than about four tool calls | Sub-steps with checkpoints; benchmark re-run on the larger model and the difference reported |
-| The model picks the wrong tool or malformed arguments | Schema validation, one retry with the error, then a clarifying question |
-| The prepayment model is stylised | Stated in the model document, on the brief, and surfaced by the assistant (US-15) |
+| A small local model loses the thread on chains longer than about four tool calls | The investigation playbook; failures published; a larger model is one setting away. Measured: composed analysis 4 of 10 correct |
+| The model picks the wrong tool or malformed arguments | Schema validation; the error goes back to the model, which may correct the call. Measured: tool-selection accuracy 16 of 20 |
+| The prepayment model is stylised | Stated in the model document and on the brief; the assistant cites the model document when asked. The automatic warning (US-15) is deferred |
 | Tool-calling quality varies by model | The model is a configuration value; evaluation is re-scored on change |
 
 ## 8. Delivery plan
@@ -196,6 +220,6 @@ The full requirement-to-test matrix is in
 | 1 | Business requirements, solution design | Done |
 | 2 | Core engine, functional specification, regression baseline | Done |
 | 3 | Routine tool and daily brief; acceptance script | Done |
-| 4 | Tool server, knowledge base, retrieval, workflow, mock-model tests | Planned |
-| 5 | Evaluation, benchmark, audit record, container image | Planned |
-| 6 | Smoke test on the target machine with the real local model | Planned |
+| 4 | Tools, knowledge base, retrieval, the loop, mock-model tests | Done |
+| 5 | Evaluation, benchmark, run log | Done. A container image was not built |
+| 6 | Measurement on the reference machine with the real local model | Done: published in [EVALUATION.md](EVALUATION.md) |

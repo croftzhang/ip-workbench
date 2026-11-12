@@ -2,12 +2,19 @@
 
 Risk analytics for a bank investment portfolio of agency MBS, Treasuries and
 swap hedges. One deterministic engine answers the questions a portfolio
-manager asks every day, from the command line or from Python.
+manager asks every day, in two modes:
 
-**Status.** This is version 1, the classic tool: no LLM, same inputs give the
-same outputs. Version 2 puts a local-LLM agent (LangGraph, MCP, RAG) on top of
-the same engine for exception investigation and ad-hoc analysis; it is in
-progress and nothing here depends on it.
+| Command | Mode | What it is |
+|---|---|---|
+| `ipw` | Classic | Fixed commands and a daily brief. No language model: the same inputs give the same outputs |
+| `ipw-ai` | AI | A local language model answers questions in plain English by calling the same engine through typed tools, cites the desk's own documents, and shows an answer only after code has checked every figure in it |
+
+**Status.** Both releases are built. Release 1 is classic mode. Release 2 is AI
+mode: a local model through Ollama, retrieval over a Chroma index, tool calling
+orchestrated with LangGraph, and an optional MCP server. AI mode was measured
+on fixed question sets and the results are published as measured, including
+where it is worse than the plain command
+([docs/EVALUATION.md](docs/EVALUATION.md)).
 
 > The portfolio, marks and limits in this repository are illustrative. They do
 > not describe any institution. See [What the data is](#what-the-data-is).
@@ -26,10 +33,15 @@ progress and nothing here depends on it.
 | Why did value change since yesterday? | `ipw explain` |
 | What are borrowers expected to do? | `ipw prepay` |
 | Give me the daily report. | `ipw brief` |
+| A question no command covers, in plain English | `ipw-ai ask "..."` |
+| What does our policy say about this, and where? | `ipw-ai ask "..."` |
+| Why is this limit breached, and what could fix it? | `ipw-ai investigate AOCI_UP200` |
+| How good is the assistant, measured? | `ipw-ai eval` |
 
 ## Quick start
 
-Python 3.10 or newer.
+Python 3.10 or newer. Classic mode needs nothing else; AI mode is an optional
+install on top of it ([below](#ai-mode)).
 
 **Windows (PowerShell)**
 
@@ -105,6 +117,138 @@ widen the window if lines wrap.
 A full sample report is in
 [docs/examples/brief_2026-11-09.md](docs/examples/brief_2026-11-09.md).
 
+## AI mode
+
+AI mode adds three things to the install: the `agent` extra (LangGraph, the
+LangChain core and its Ollama and Chroma integrations, Chroma, and the MCP SDK,
+at pinned versions), [Ollama](https://ollama.com), and two local models.
+Nothing leaves the machine. It was measured on a Windows PC with an NVIDIA RTX
+3060 with 12 GB of memory; on a smaller card, or on the processor alone, it is
+slower.
+
+```powershell
+pip install -e ".[dev,agent]"
+ollama pull qwen3:8b               # the chat model, about 5 GB
+ollama pull nomic-embed-text       # the embedding model
+ipw-ai kb build                    # Indexed 130 passages from 8 documents ...
+ipw-ai ask "What is the net effective duration of the book?"
+ipw-ai investigate AOCI_UP200
+```
+
+Start Ollama before the first `ipw-ai` command. A question builds the index
+itself when it is missing or older than the documents, so `ipw-ai kb build` is
+optional.
+
+### What an answer looks like
+
+```text
+> ipw-ai ask "What has to happen on the day a limit is breached?"
+
+On the day a limit is breached, a breach is reported to the Head of Investment
+Portfolio and to market risk oversight, together with a remediation proposal.
+The proposal holds at least two sized options, each with its cost to income and
+its effect on every other limit. This is outlined in [IPS 5.3].
+
+Sources
+[IPS 5.3] Investment Policy Statement > 5. Monitoring, warnings and breaches > 5.3 Breach
+
+Run ...: 0 tool calls; check passed on draft 1. Logged to logs/agent_runs.jsonl.
+```
+
+A question about the book is answered from tool results, and the tables those
+results hold are printed under the answer:
+
+```text
+> ipw-ai ask "What is the net effective duration of the book?"
+
+The net effective duration of the book is 5.30 years.
+
+r1  Interest-rate risk (bump and revalue, prepayments re-projected)
+ ... the risk table, whose Net row shows eff_duration 5.30 ...
+
+Run ...: 1 tool calls; check passed on draft 1. Logged to logs/agent_runs.jsonl.
+```
+
+Both answers are those of the measured run. A question the documents do not
+cover gets "The knowledge base does not cover this."
+
+### How it answers
+
+```text
+ question
+    |
+    v
+ retrieve ............ code: the 4 passages nearest the question, or none
+    |
+    v
+ model  <---->  tools  the language model chooses a tool and its arguments;
+    |                  the tool runs on the release 1 engine; at most 8 calls
+    v
+ check ............... code: every figure and citation of the draft is verified;
+    |                  one redraft, otherwise the answer is blocked
+    v
+ answer, the tables it rests on, and one line in the run log
+```
+
+* **The model never computes.** It chooses tools and words the answer. A sum,
+  a difference or a share comes from the `aggregate` tool.
+* **Nothing is shown unchecked.** Every number in a draft must be a figure of a
+  tool result, of a cited passage or of the question. A draft that fails gets
+  one more attempt; then the answer is blocked and only the tables are shown.
+* **Proposals are labelled by code.** An answer that sized a trade starts with
+  "Indicative only: not approved, no action taken." Nothing is traded or
+  booked.
+* **Every run is logged** with its tool calls, a hash of each result, the
+  passages and each draft, so its figures can be reproduced with the classic
+  commands.
+
+What the check does not catch: a correct figure attached to the wrong label or
+the wrong meaning. Answer correctness is measured separately for that reason.
+
+### Commands
+
+| Command | Purpose |
+|---|---|
+| `ipw-ai ask "..."` | One question, one checked answer |
+| `ipw-ai investigate AOCI_UP200` | The investigation playbook for a limit: where it stands, why, what the policy says, sized options |
+| `ipw-ai kb build` | Split, embed and index the knowledge base |
+| `ipw-ai eval` | The evaluation report, written to `reports/`; `ipw-ai eval --mock` runs it without models |
+| `ipw-ai mcp` | Optional: the same fifteen tools for any other MCP client |
+
+Every setting (models, retrieval, budgets) is in `config/agent.yaml`. The
+design, with the options considered for each choice, is in
+[docs/AGENT_DESIGN.md](docs/AGENT_DESIGN.md).
+
+### What was measured
+
+One run on the reference machine on 2026-11-10, with `qwen3:8b`: thirty
+benchmark tasks in three classes, thirty retrieval questions and ten questions
+outside the knowledge base.
+
+| Measure | Result |
+|---|---|
+| Retrieval hit rate at 4 | 96.7% (29 of 30) |
+| Refusal correctness, the assistant | 100.0% (10 of 10) |
+| Tool-selection accuracy | 80.0% (16 of 20) |
+| First-draft pass rate | 76.7% (23 of 30) |
+| Block rate | 0.0% (0 of 30) |
+| Answer correctness | 60.0% (18 of 30) |
+| Time to answer | median 3.9 s; 90th percentile 9.2 s |
+
+| Class of task | Classic mode | AI mode, correct |
+|---|---|---|
+| Routine query | One command, about 0.02 seconds, always right | 7 of 10, median 3.8 seconds |
+| Composed analysis | Several commands and arithmetic by hand | 4 of 10 |
+| Question needing the documents | Cannot answer | 7 of 10, with the section cited |
+
+For a routine question the classic command is the better tool. AI mode adds
+answers from the desk's documents, which classic mode cannot give, and a first
+investigation of a breach, which ran all six of its steps. Composed analysis is
+not dependable with this model. No shown answer held an unchecked figure, but a
+checked figure is not a correct answer: the wrong answers use real figures for
+the wrong group, row or quantity. [docs/EVALUATION.md](docs/EVALUATION.md)
+lists every task, every wrong answer and why it was wrong.
+
 ## What the sample book shows
 
 * **Most of the loss is outside equity.** Market value is USD 8,909mm against
@@ -143,7 +287,16 @@ wb.compare(after)  # before and after, side by side
 ```
 
 Every method returns a pandas table or a small dataclass. The command line,
-the brief and the agent tools of version 2 all read the same objects.
+the brief and the tools of AI mode all read the same objects. The tools can be
+called from Python too:
+
+```python
+from ipw.agent.tools import Toolbox
+
+tools = Toolbox(wb)
+status = tools.call("limit_status")  # result r1: the limit table, headroom included
+status.table().rows["AOCI_UP200"]["headroom"]  # -15.99
+```
 
 ## Documentation
 
@@ -159,8 +312,15 @@ it. Every requirement has a number, and the same numbers appear at each step.
 | 5 | [Acceptance script](docs/UAT.md) | How does a user confirm it does what was asked? |
 
 Alongside: [model summary](docs/MODEL.md) (method in brief, limitations,
-controls), [design decisions](docs/DECISIONS.md) (engineering choices) and the
-[release 2 design](docs/AGENT_DESIGN.md) (the assistant: not built yet).
+controls), [design decisions](docs/DECISIONS.md) (engineering choices), the
+[release 2 design](docs/AGENT_DESIGN.md) (the assistant: options considered,
+decisions, controls) and the [evaluation record](docs/EVALUATION.md) (what the
+assistant did on the reference machine).
+
+The assistant embeds and cites some of these documents and never reads the
+others. In its knowledge base: the six policy and reference documents in
+`kb/`, the functional specification and the model summary. Not in it:
+everything else, this README included.
 
 One requirement followed through:
 
@@ -218,6 +378,8 @@ formula, with its source, is in
 | `data/marks.csv` | Position prices for both closes | Model prices at an assumed spread per coupon, rounded to 1/32 (`scripts/build_market.py`) |
 | `data/hedges.csv` | Five pay-fixed swaps, USD 1.5bn | Constructed |
 | `config/limits.yaml` | Nine policy limits | Constructed, set so the book starts with one breach and one warning |
+| `kb/` | Investment policy, hedging policy, AFS and HTM accounting note, scenario definitions, MBS primer, glossary | Constructed; tests check that they state the limits, scenarios and parameters of the configuration |
+| `evals/` | Retrieval questions and benchmark tasks | Written for this repository; no figure is stored, the reference values are read from the engine when the evaluation runs |
 
 To run on real data, replace these files; nothing else depends on the scripts.
 
@@ -239,11 +401,26 @@ src/ipw/core/      the engine; no presentation, no LLM
   explain.py         day-over-day attribution
   workbench.py       the facade everything else calls
 src/ipw/classic/   command line, table rendering, daily brief
+src/ipw/agent/     AI mode; imports the engine, never the other way round
+  tools.py           the fifteen typed tools over the workbench
+  kb.py              split, embed and index the knowledge base
+  retrieval.py       vector search, optional keyword fusion and rerank, refusal
+  graph.py           the four-node loop and the investigation playbook
+  verify.py          the check on figures and citations
+  runlog.py          the run log
+  evals.py           question sets, scoring and measures
+  evalreport.py      the evaluation report
+  mcp_server.py      the optional MCP server
+  cli.py             the ipw-ai commands
+config/agent.yaml  models, retrieval settings and budgets of AI mode
+kb/                the documents the assistant cites
+evals/             retrieval questions and benchmark tasks
 scripts/           generators for the sample data
-tests/             about 150 tests: unit, independent replication, stored regression
-                   baseline, documents checked against the code
-docs/              business requirements, solution design, functional specification,
-                   roadmap, backlog, acceptance script, model summary, sample brief
+tests/             unit, independent replication, stored regression baseline,
+                   documents checked against the code
+tests/agent/       AI mode, on a mock model: no language model or GPU needed
+docs/              requirements, designs, functional specification, roadmap,
+                   backlog, acceptance script, model summary, evaluation record
 ```
 
 To read the code, follow the order of the files under `src/ipw/core/` above.
@@ -258,6 +435,9 @@ Each one is 50 to 250 lines except the workbench.
   scenario and a floor or cap. `ipw limits` and the brief pick it up.
 * **A model parameter.** Edit `config/model.yaml`. The regression test will
   fail until the stored values are refreshed, by design.
+* **The chat model of AI mode.** Change `chat.model` in `config/agent.yaml`,
+  pull the model with Ollama and run `ipw-ai eval`. The report records the
+  model and the machine, so the run can be compared with the published one.
 
 ## Adding a product
 
@@ -274,12 +454,25 @@ need no change.
 | CMBS, non-agency RMBS | Default and loss models, waterfall | High |
 | Callable debt, caps, swaptions | A volatility model | Outside the static method |
 
+## Adding an analytic to AI mode
+
+A new analytic is a method on the workbench and one tool definition in
+`src/ipw/agent/tools.py`. It then appears in the assistant and in the MCP
+server, with a schema whose allowed values come from the configuration.
+
 ## Tests
 
 ```text
-pytest                    about 150 tests, under 20 seconds
+pytest                    more than 400 tests, about two minutes; no language model needed
 ruff check .              lint
+ipw-ai eval --mock        the whole evaluation on the mock model
 ```
+
+AI mode is tested on a mock model and fixed word-hash embeddings, so the tests
+need no model, no Ollama and no GPU. Without the `agent` extra its tests are
+skipped and the rest run. Continuous integration runs lint, the tests, a smoke
+test of the commands and the mock evaluation on Windows and Linux, with
+Python 3.10 and 3.12.
 
 Every release 1 user story has tests named after it; the full list is in
 section 4.1 of [docs/PRD.md](docs/PRD.md). Five of them:
@@ -312,13 +505,27 @@ section 5 of the [model summary](docs/MODEL.md).
 The full table, with the direction of each bias, is in
 [docs/MODEL.md](docs/MODEL.md#3-assumptions-and-limitations).
 
-## Roadmap
+AI mode:
 
-Version 2 adds, on the same engine: the workbench methods as MCP tools, a
-LangGraph workflow that investigates limit breaches and unusual moves and
-stops for approval, retrieval over policy and model documents, and a benchmark
-that records where the agent helps and where the classic tool is the better
-choice. The business requirements for it are BR-11 to BR-13 in
-[docs/BRD.md](docs/BRD.md); the design is in
-[docs/AGENT_DESIGN.md](docs/AGENT_DESIGN.md); the stories and their order are
-in [docs/PRD.md](docs/PRD.md) and [docs/BACKLOG.md](docs/BACKLOG.md).
+* The check verifies where each figure comes from, not what it means. In the
+  measured investigation every figure was right, and one statement named the
+  wrong bucket as the second source of the exposure.
+* With `qwen3:8b`, 18 of 30 benchmark answers are correct; composed analysis
+  is 4 of 10. The most frequent mistake is asking a tool for the wrong
+  grouping. No other model has been measured.
+* The investigation is a prompt, not a fixed procedure: the model can change
+  the arguments of a step or skip it. The run log shows what it did.
+* There is no recorded approval. Proposals are labelled indicative and the
+  system creates nothing.
+* The evaluation is one run on one machine, with small task sets written for
+  this repository.
+
+## Not built
+
+Deferred from release 2: a stop for a recorded approval of a proposal (US-8),
+and an automatic warning when a result rests on a weak part of the model
+(US-15). The design records what each would take
+([docs/AGENT_DESIGN.md](docs/AGENT_DESIGN.md), section 6). The evaluation
+points to three further candidates
+([docs/EVALUATION.md](docs/EVALUATION.md), section 11), listed with the
+not-scheduled items of release 1 in [docs/BACKLOG.md](docs/BACKLOG.md).

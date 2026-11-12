@@ -4,10 +4,10 @@
 
 | | |
 |---|---|
-| Document | Solution design for release 2, version 1.4 |
-| Status | Design agreed. Scope simplified by the owner on 2026-11-10 to four things: a local language model, retrieval, tool calling and the engine's analytics. On the same day the owner named the two commands: `ipw` is classic mode and `ipw-ai` is AI mode. Built step by step in the order of section 10 |
+| Document | Solution design for release 2, version 1.5 |
+| Status | Design agreed. Scope simplified by the owner on 2026-11-10 to four things: a local language model, retrieval, tool calling and the engine's analytics. On the same day the owner named the two commands: `ipw` is classic mode and `ipw-ai` is AI mode. Built and measured: steps 1 to 5 of section 10 are done ([EVALUATION.md](EVALUATION.md)) |
 | Owner | Product Owner, Investment Portfolio analytics |
-| Last updated | 2026-11-10 |
+| Last updated | 2026-11-11 |
 | Traces to | [BRD.md](BRD.md): BR-11 to BR-13, RULE-7, NFR-1, NFR-5 to NFR-7. [PRD.md](PRD.md): US-6 to US-16, of which US-8 and US-15 are deferred |
 | Previous in the chain | [SOLUTION_DESIGN.md](SOLUTION_DESIGN.md), which covers release 1 |
 
@@ -22,7 +22,7 @@
 4. The solution on one page
 5. Design decisions AD-1 to AD-9
 6. Deferred and not adopted
-7. Planned repository layout
+7. Repository layout
 8. Control position
 9. Risks
 10. Build plan
@@ -114,7 +114,7 @@ design relies on and the assistant never reads.
 |---|---|
 | Constructed policy and reference documents in `kb/`: investment policy, hedging policy, AFS and HTM accounting note, scenario definitions, MBS primer, glossary | In the knowledge base: embedded and retrieved |
 | [FUNCTIONAL_SPEC.md](FUNCTIONAL_SPEC.md) and [MODEL.md](MODEL.md) | In the knowledge base: embedded and retrieved |
-| [BRD.md](BRD.md), [SOLUTION_DESIGN.md](SOLUTION_DESIGN.md), [PRD.md](PRD.md), the backlog, the acceptance script, the decision log, this document | Project documentation only; not embedded |
+| [BRD.md](BRD.md), [SOLUTION_DESIGN.md](SOLUTION_DESIGN.md), [PRD.md](PRD.md), the backlog, the acceptance script, the decision log, this document and the evaluation record [EVALUATION.md](EVALUATION.md) | Project documentation only; not embedded |
 | Supervisory guidance (SR 10-1, SR 26-2) and accounting standards | Design references only; not embedded, not retrieved |
 
 ## 5. Design decisions
@@ -455,7 +455,7 @@ commands: the system creates no trade, designation or exception and labels
 every proposal indicative; the portfolio manager's approval happens outside the
 system and is not recorded by it.
 
-## 7. Planned repository layout
+## 7. Repository layout
 
 ```text
 src/ipw/agent/
@@ -467,7 +467,8 @@ src/ipw/agent/
   graph.py              the four-node graph and its budgets
   verify.py             the check on figures and citations
   runlog.py             the run log
-  evals.py              measures and the two report tables
+  evals.py              question sets, scoring and measures
+  evalreport.py         the evaluation report and the record of the run
   mcp_server.py         optional MCP server exposing tools.py
   cli.py                the ipw-ai commands
 kb/                     knowledge base sources
@@ -475,6 +476,7 @@ evals/                  question sets, reference answers, benchmark tasks
 config/agent.yaml       agent configuration
 tests/agent/            tests that run on the mock model
 docs/EVALUATION.md      measured results from the reference machine
+docs/examples/          the data file of the published run
 ```
 
 Main dependencies of the `agent` extra: LangGraph; the LangChain core package
@@ -521,17 +523,17 @@ conformance for the assistant. It states its own controls:
 
 ## 10. Build plan
 
-| Step | Delivers | Evidence |
-|---|---|---|
-| 1. Tools | The typed tools of AD-3 and the optional MCP server | Each tool returns the same figures as the matching release 1 command; the schema rejects bad arguments; the MCP server lists the same tools |
-| 2. Knowledge base and retrieval | Constructed documents, the index, vector search, refusal; the optional switches; the retrieval question set | Retrieval tests on fake embeddings |
-| 3. The loop | Graph, check, run log; the `ipw-ai` commands | Mock-model tests for the four kinds of request, a blocked answer and the proposal label |
-| 4. Evaluation | Task sets, reference answers, the report | The command runs on the mock model in continuous integration |
-| 5. Measurement on the reference machine | `docs/EVALUATION.md`; the defaults confirmed or changed from it | Published results, including tasks that failed |
-| 6. Documents | Functional specification for release 2, acceptance cases, README | Document checks extended to the new documents |
+| Step | Delivers | Evidence | Status |
+|---|---|---|---|
+| 1. Tools | The typed tools of AD-3 and the optional MCP server | Each tool returns the same figures as the matching release 1 command; the schema rejects bad arguments; the MCP server lists the same tools | Done |
+| 2. Knowledge base and retrieval | Constructed documents, the index, vector search, refusal; the optional switches; the retrieval question set | Retrieval tests on fake embeddings | Done |
+| 3. The loop | Graph, check, run log; the `ipw-ai` commands | Mock-model tests for the four kinds of request, a blocked answer and the proposal label | Done |
+| 4. Evaluation | Task sets, reference answers, the report | The command runs on the mock model in continuous integration | Done |
+| 5. Measurement on the reference machine | `docs/EVALUATION.md`; the defaults confirmed or changed from it | Published results, including tasks that failed | Done: 2026-11-10 |
+| 6. Documents | Functional specification for release 2, acceptance cases, README | Document checks extended to the new documents | Partly: the README and the status of the roadmap, backlog and business requirements are brought up to date. A separate release 2 functional specification and acceptance cases were not written; this design and the evaluation record serve in their place |
 
-Steps 1 to 4 and 6 can be completed and tested without a GPU. Step 5 needs the
-reference machine.
+Steps 1 to 4 and 6 were done without a GPU. Step 5 ran on the reference
+machine.
 
 ## 11. Open points
 
